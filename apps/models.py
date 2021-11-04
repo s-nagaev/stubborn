@@ -27,6 +27,7 @@ class ResponseStub(models.Model):
     status_code = models.PositiveSmallIntegerField(verbose_name='Status code', null=False)
     headers = models.JSONField(verbose_name='Headers', default=dict, blank=True)
     body = models.TextField(verbose_name='Response Body', null=True, blank=True)
+    timeout = models.PositiveSmallIntegerField(verbose_name='Response Timeout', default=0)
     description = models.CharField(max_length=30, verbose_name='Short Description', null=True, blank=True)
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='responses')
 
@@ -50,14 +51,13 @@ class ResourceStub(models.Model):
     response = models.ForeignKey(ResponseStub, verbose_name='Response', related_name='resources',
                                  on_delete=models.CASCADE, null=False)
     description = models.TextField(verbose_name='Description', null=True, blank=True)
-    timeout = models.PositiveSmallIntegerField(verbose_name='Response Timeout', default=0)
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='resources')
     method = models.CharField(max_length=10, choices=HTTPMethods.choices, verbose_name='HTTP Method')
 
     class Meta:
         verbose_name = 'resource'
         verbose_name_plural = 'resources'
-        unique_together = ('uri', 'description')
+        unique_together = ('uri', 'method')
 
     def __str__(self) -> str:
         """Object's string representation.
@@ -91,4 +91,4 @@ class RequestLog(models.Model):
         Returns:
             String representation.
         """
-        return f'{self.method} /{self.resource.uri} {self.resource.response.status_code}'
+        return f'{self.resource.method} /{self.resource.uri} {self.resource.response.status_code}'

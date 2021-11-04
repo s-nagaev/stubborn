@@ -1,0 +1,27 @@
+a.button {
+    text-align: center;
+    display: inline-block;
+    width: calc(30% - 50px);
+    margin: 0 .5em ;
+    /*background: #212122;*/
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--button-fg);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.special {
+    text-align: center;
+    border: none;
+    background: none;
+}
+
+.vLargeTextField {
+    display: block;
+    width: 100em;
+    height: 5em;
+}
+fieldset.module:nth-child(5) > h2:nth-child(1) {
+    text-align: center;
+}

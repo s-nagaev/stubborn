@@ -17,8 +17,13 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView
 
+admin.site.site_header = "Stubborn"
+admin.site.site_title = "Stubborn"
+admin.site.index_title = "Administration"
+
 urlpatterns = [
     path("", RedirectView.as_view(url='/admin')),
     path('admin/', admin.site.urls),
     path('api/', include('apps.urls')),
+    path('', include(('apps.urls', 'apps'), namespace='apps'))
 ]

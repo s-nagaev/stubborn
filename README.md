@@ -1,2 +1,4 @@
-# stubborn
-Just a simple REST API stub service.
+<div align="center">
+![img](docs/logo.png)
+</div>
+### Just a (stupidly) simple REST API Stub Service.
