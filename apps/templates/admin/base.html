@@ -1,0 +1,63 @@
+{% extends 'admin/base.html' %}
+
+{% block extrahead %}{{ block.super }}
+<style>
+/* VARIABLE DEFINITIONS */
+:root {
+  --primary: rgba(42, 103, 172, 0.42);
+  --primary-fg: #eee;
+  --accent: #72b0f7;
+
+  --body-fg: #eeeeee;
+  --body-bg: #20252c;
+  --body-quiet-color: #e0e0e0;
+  --body-loud-color: #ffffff;
+
+  --header-color: #6ba3e5;
+  --header-branding-color: var(--accent);
+  --header-bg: #212122;
+  --header-link-color: var(--primary-fg);
+
+  --breadcrumbs-link-fg: #e0e0e0;
+  --breadcrumbs-bg: rgba(20, 19, 23, 0.58);
+
+  --link-fg: #81d4fa;
+  --link-hover-color: #4ac1f7;
+  --link-selected-fg: #6f94c6;
+
+  --hairline-color: #2e353c;
+  --border-color: #666666;
+
+  --error-fg: #e35f5f;
+  --message-success-bg: #01360c;
+  --message-warning-bg: #583305;
+  --message-error-bg: #570808;
+
+  --darkened-bg: #212121;
+  --selected-bg: #1b1b1b;
+  --selected-row: #191c20;
+
+  --close-button-bg: #333333;
+  --close-button-hover-bg: #666666;
+
+  --object-tools-hover-bg: var(--close-button-hover-bg);
+}
+
+#user-tools a:focus, #user-tools a:hover {
+    text-decoration: none;
+    border-bottom-color: var(--primary);
+    color: var(--accent);
+}
+
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+    background: var(--button-bg);
+    padding: 10px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--button-fg);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+</style>
+{% endblock %}
