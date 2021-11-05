@@ -7,7 +7,7 @@ _ModelT = TypeVar("_ModelT", bound=Model)
 
 
 class HideFromAdminIndexMixin(Generic[_ModelT]):
-    """Mixin for hiding registered ModelAdmin instance from admin index."""
+    """Mixin for hiding registered ModelAdmin instance from the admin index."""
 
     def get_model_perms(self, request: HttpRequest) -> Dict[str, bool]:
         """Return a dict of all perms for this model.
@@ -21,16 +21,16 @@ class HideFromAdminIndexMixin(Generic[_ModelT]):
 
 
 class DenyCreateMixin:
-    """Миксин, запрещающий создание новой записи, через сайт администратора."""
+    """Mixin for blocking the creation of a new record through the admin site."""
     def has_add_permission(self, request: HttpRequest, obj: Optional[Model] = None) -> bool:
-        """Проверка прав на добавление записи.
+        """Check user "add" permission.
 
         Args:
-            request: экземпляр объекта запроса.
-            obj: экземпляр модели.
+            request: HttpRequest instance,
+            obj: Model instance.
 
         Returns:
-            False
+            Always False.
         """
         return False
 
@@ -38,14 +38,14 @@ class DenyCreateMixin:
 class DenyUpdateMixin:
     """Миксин, запрещающий изменение записи, через сайт администратора."""
     def has_change_permission(self, request: HttpRequest, obj: Optional[Model] = None) -> bool:
-        """Проверка прав на изменение записи.
+        """Check user "change" permission.
 
         Args:
-            request: экземпляр объекта запроса.
-            obj: экземпляр модели.
+            request: HttpRequest instance,
+            obj: Model instance.
 
         Returns:
-            False
+            Always False.
         """
         return False
 
@@ -53,18 +53,18 @@ class DenyUpdateMixin:
 class DenyDeleteMixin:
     """Миксин, запрещающий удаление записи, через сайт администратора."""
     def has_delete_permission(self, request: HttpRequest, obj: Optional[Model] = None) -> bool:
-        """Проверка прав на удаление записи.
+        """Check user "delete" permission.
 
         Args:
-            request: экземпляр объекта запроса.
-            obj: экземпляр модели.
+            request: HttpRequest instance,
+            obj: Model instance.
 
         Returns:
-            False
+            Always False.
         """
         return False
 
 
 class DenyCUDMixin(DenyCreateMixin, DenyUpdateMixin, DenyDeleteMixin):
-    """Миксин, запрещающий создание, изменение и удаление записи, через сайт администратора."""
+    """Mixin for blocking the CRUD functionality for a record through the admin site."""
     pass
