@@ -1,6 +1,5 @@
-from typing import Optional, Dict, TypeVar, Generic
+from typing import Dict, Generic, Optional, TypeVar
 
-from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import Model
 from django.http import HttpRequest
 
@@ -10,10 +9,13 @@ _ModelT = TypeVar("_ModelT", bound=Model)
 class HideFromAdminIndexMixin(Generic[_ModelT]):
     """Mixin for hiding registered ModelAdmin instance from admin index."""
 
-    def get_model_perms(self, request: WSGIRequest) -> Dict:
+    def get_model_perms(self, request: HttpRequest) -> Dict[str, bool]:
         """Return a dict of all perms for this model.
 
         Return empty dict thus hiding the model from admin index.
+
+        Args:
+            request: HttpRequest instance (not used).
         """
         return {}
 

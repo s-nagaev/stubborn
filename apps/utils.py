@@ -2,8 +2,8 @@ import json
 from typing import Union
 
 from pygments import highlight
-from pygments.lexers.data import JsonLexer
 from pygments.formatters.html import HtmlFormatter
+from pygments.lexers.data import JsonLexer
 
 
 def prettify_json_html(data: Union[dict, str]) -> str:

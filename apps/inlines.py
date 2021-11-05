@@ -1,5 +1,3 @@
-from typing import Any
-
 from django.conf import settings
 from django.contrib import admin
 from django.db.models import QuerySet
@@ -20,7 +18,7 @@ class ResourcesInline(mixins.DenyUpdateMixin, mixins.DenyDeleteMixin, admin.Tabu
     readonly_fields = ('get_url', )
 
     @staticmethod
-    @admin.display(description='Description')  # type: ignore
+    @admin.display(description='Description')
     def get_url(obj: models.RequestLog) -> str:
         """Getter fot the resource description.
 
@@ -61,7 +59,7 @@ class LogsInline(mixins.DenyCUDMixin, admin.TabularInline):
         return self.model.objects.filter(pk__in=ids).order_by('-pk')
 
     @staticmethod
-    @admin.display(description='Description')  # type: ignore
+    @admin.display(description='Description')
     def get_resource_desc(obj: models.RequestLog) -> str:
         """Getter fot the resource description.
 
@@ -71,10 +69,10 @@ class LogsInline(mixins.DenyCUDMixin, admin.TabularInline):
         Returns:
             String containing the resource description.
         """
-        return obj.resource.description
+        return obj.resource.description or ''
 
     @staticmethod
-    @admin.display(description='Method')  # type: ignore
+    @admin.display(description='Method')
     def get_method(obj: models.RequestLog) -> str:
         """Getter fot the resource method.
 
@@ -87,7 +85,7 @@ class LogsInline(mixins.DenyCUDMixin, admin.TabularInline):
         return obj.resource.method
 
     @staticmethod
-    @admin.display(description='Remote IP/X-Real-IP')  # type: ignore
+    @admin.display(description='Remote IP/X-Real-IP')
     def get_remote_ip(obj: models.RequestLog) -> str:
         """Getter fot the client's IP address.
 

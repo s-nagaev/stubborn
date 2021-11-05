@@ -3,11 +3,7 @@ import json
 from time import sleep
 from typing import Any
 
-from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.shortcuts import render
-
-from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -50,7 +46,7 @@ class ResponseStubView(APIView):
         sleep(response.timeout)
 
         return Response(
-            data=ast.literal_eval(response.body),
+            data=ast.literal_eval(response.body or ''),
             status=response.status_code,
             headers=response.headers
         )

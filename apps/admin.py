@@ -1,5 +1,3 @@
-import json
-
 from typing import Any, cast
 
 from django.contrib import admin
@@ -8,8 +6,9 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.utils.safestring import mark_safe
 
 from apps import inlines, models
-from apps.mixins import HideFromAdminIndexMixin, DenyCUDMixin
+from apps.mixins import DenyCUDMixin, HideFromAdminIndexMixin
 from apps.utils import prettify_json_html
+
 
 @admin.register(models.Application)
 class ApplicationAdmin(admin.ModelAdmin):
@@ -52,19 +51,19 @@ class RequestLogAdmin(DenyCUDMixin, HideFromAdminIndexMixin, admin.ModelAdmin):
     readonly_fields = ('pretty_headers', 'pretty_params', 'pretty_request_body')
 
     @staticmethod
-    @admin.display(description='Headers')  # type: ignore
+    @admin.display(description='Headers')
     def pretty_headers(obj: models.RequestLog) -> str:
         headers_prettified = prettify_json_html(obj.headers)
         return mark_safe(headers_prettified)
 
     @staticmethod
-    @admin.display(description='Query params')  # type: ignore
+    @admin.display(description='Query params')
     def pretty_params(obj: models.RequestLog) -> str:
         params_prettified = prettify_json_html(obj.params)
         return mark_safe(params_prettified)
 
     @staticmethod
-    @admin.display(description='Request body')  # type: ignore
+    @admin.display(description='Request body')
     def pretty_request_body(obj: models.RequestLog) -> str:
         body_prettified = prettify_json_html(obj.body)
         return mark_safe(body_prettified)
