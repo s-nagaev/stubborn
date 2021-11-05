@@ -1,19 +1,15 @@
 import json
-from pygments import highlight
-from pygments.lexers.data import JsonLexer
-from pygments.formatters.html import HtmlFormatter
 
-from typing import Any, cast, Dict
+from typing import Any, cast
 
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.core.handlers.wsgi import WSGIRequest
-from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from apps import inlines, models
 from apps.mixins import HideFromAdminIndexMixin, DenyCUDMixin
-
+from apps.utils import prettify_json_html
 
 @admin.register(models.Application)
 class ApplicationAdmin(admin.ModelAdmin):
@@ -51,19 +47,24 @@ class ResponseStubAdmin(HideFromAdminIndexMixin, admin.ModelAdmin):
 
 @admin.register(models.RequestLog)
 class RequestLogAdmin(DenyCUDMixin, HideFromAdminIndexMixin, admin.ModelAdmin):
-    fields = ('created_at', 'resource', 'params', 'body', 'prettify_headers', 'ipaddress',
+    fields = ('created_at', 'resource', 'pretty_params', 'pretty_request_body', 'pretty_headers', 'ipaddress',
               'x_real_ip', 'response')
-    readonly_fields = ('prettify_headers', )
+    readonly_fields = ('pretty_headers', 'pretty_params', 'pretty_request_body')
 
     @staticmethod
     @admin.display(description='Headers')  # type: ignore
-    def prettify_headers(obj: models.RequestLog) -> str:
-        headers_string = json.dumps(obj.headers, sort_keys=True, indent=2)
-        formatter = HtmlFormatter()
-        headers_prettified = highlight(headers_string, JsonLexer(), formatter)
-        style = f'<style>{formatter.get_style_defs()}</style>'
-        return mark_safe(headers_prettified + style)
+    def pretty_headers(obj: models.RequestLog) -> str:
+        headers_prettified = prettify_json_html(obj.headers)
+        return mark_safe(headers_prettified)
 
+    @staticmethod
+    @admin.display(description='Query params')  # type: ignore
+    def pretty_params(obj: models.RequestLog) -> str:
+        params_prettified = prettify_json_html(obj.params)
+        return mark_safe(params_prettified)
 
-
-
+    @staticmethod
+    @admin.display(description='Request body')  # type: ignore
+    def pretty_request_body(obj: models.RequestLog) -> str:
+        body_prettified = prettify_json_html(obj.body)
+        return mark_safe(body_prettified)
