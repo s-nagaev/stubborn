@@ -13,7 +13,6 @@ class ResourcesInline(mixins.DenyUpdateMixin, mixins.DenyDeleteMixin, admin.Tabu
     classes = ('collapse',)
     show_change_link = True
     extra = 0
-    # template = 'admin/inlines/resources_tabular.html'
     fields = ('method', 'uri', 'description', 'response')
     readonly_fields = ('get_url', )
 
@@ -39,7 +38,6 @@ class LogsInline(mixins.DenyCUDMixin, admin.TabularInline):
     template = 'admin/inlines/request_log_tabular.html'
     fields = ('created_at', 'get_remote_ip', 'get_method', 'resource', 'get_resource_desc')
     readonly_fields = ('created_at', 'get_method', 'get_resource_desc', 'get_remote_ip')
-    # classes = ('collapse',)
     show_change_link = False
     extra = 0
 

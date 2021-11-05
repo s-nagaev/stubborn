@@ -72,7 +72,6 @@ class RequestLog(models.Model):
     params = models.JSONField(verbose_name='Query Params', default=dict, null=True, blank=True)
     body = models.JSONField(verbose_name='Request Body', default=dict, null=True, blank=True)
     headers = models.JSONField(verbose_name='Headers', default=dict, null=True, blank=True)
-    # method = models.CharField(max_length=10, choices=HTTPMethods.choices, verbose_name='HTTP Method')
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='logs')
     resource = models.ForeignKey(ResourceStub, on_delete=models.CASCADE, related_name='logs')
     ipaddress = models.GenericIPAddressField(verbose_name='Remote IP', default='127.0.0.1')
