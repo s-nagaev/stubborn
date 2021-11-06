@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  postgres:
+    restart: unless-stopped
+    image: postgres:12-alpine
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    env_file:
+      - .env.staging
+
+  django:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: stubborn-django
+    command: ["make", "prepare", "uwsgi"]
+    environment:
+      DJANGO_SETTINGS_MODULE: stubborn.settings.staging
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env.staging
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres
+    links:
+      - postgres
+
+volumes:
+  pg_data:

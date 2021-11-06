@@ -1,0 +1,13 @@
+.DS_Store
+.git
+.github
+.gitmodules
+.idea
+.mypy_cache
+Dockerfile
+Dockerfile.archive
+docker-compose.*yml
+stubborn/settings/.env*
+*.bak
+!.coveragerc
+!.env.test
