@@ -103,6 +103,8 @@ celerybeat.pid
 
 # Environments
 .env
+.env.staging
+.env.production
 .venv
 env/
 venv/
@@ -133,3 +135,6 @@ dmypy.json
 
 # System
 .DS_Store
+
+# Static
+staticfiles/

@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  postgres:
+    restart: unless-stopped
+    image: postgres:12-alpine
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: stubborn_local
+      POSTGRES_USER: stubborn_local
+      POSTGRES_PASSWORD: postgres
+
+  django:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: stubborn-django
+    command: ["make", "prepare", "dev"]
+    environment:
+      DJANGO_SETTINGS_MODULE: stubborn.settings.local
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env.local
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres
+    links:
+      - postgres
+
+volumes:
+  pg_data:
