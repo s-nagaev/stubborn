@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install Mypy
         run: |
-          pip install mypy@0.910
+          pip install mypy==0.910
       - name: Run Mypy
         run: |
           mypy .
