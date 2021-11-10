@@ -7,7 +7,7 @@
 Dockerfile
 Dockerfile.archive
 docker-compose.*yml
-stubborn/settings/.env*
+stubborn/settings/.env
 *.bak
 !.coveragerc
 !.env.test

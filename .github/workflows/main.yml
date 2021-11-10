@@ -15,9 +15,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Install Mypy
+      - name: Install Poetry
         run: |
-          pip install mypy==0.910 django-stubs==1.9.0
+          pip install poetry
+      - name: Install Deps
+        run: |
+          poetry install
+      - name: Providing environment
+        run: |
+          ln .env.test stubborn/settings/.env
       - name: Run Mypy
         run: |
           mypy .
