@@ -2,22 +2,22 @@ name: Quality Gate
 on: push
 jobs:
   Flake8:
-    runs-on: pysergio/pypoetry:3.9.7-alpine
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Install Flake8
         run: |
-          poetry add flake8@4.0.1 flake8-isort@4.1.1
+          pip install flake8==4.0.1 flake8-isort==4.1.1
       - name: Run Flake8
         run: |
           flake8
   Mypy:
-    runs-on: pysergio/pypoetry:3.9.7-alpine
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Install Mypy
         run: |
-          poetry add mypy@0.910
+          pip install mypy@0.910
       - name: Run Mypy
         run: |
           mypy .
