@@ -1,5 +1,6 @@
 name: Quality Gate
 on: push
+
 jobs:
   Flake8:
     runs-on: ubuntu-latest
@@ -7,7 +8,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install Flake8
         run: |
-          pip install flake8==4.0.1 flake8-isort==4.1.1
+          pip install flake8 flake8-isort
       - name: Run Flake8
         run: |
           flake8
@@ -24,7 +25,7 @@ jobs:
           pip install poetry
       - name: Install Deps
         run: |
-          poetry install
+          python -m poetry config virtualenvs.create false && poetry install
       - name: Providing environment
         run: |
           ln .env.test stubborn/settings/.env
