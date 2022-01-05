@@ -77,8 +77,8 @@ class RequestLog(models.Model):
     ipaddress = models.GenericIPAddressField(verbose_name='Remote IP', default='127.0.0.1')
     x_real_ip = models.GenericIPAddressField(verbose_name='X-REAL-IP', default='127.0.0.1', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Received at')
-    response = models.OneToOneField(ResponseStub, verbose_name='Response', null=True, blank=True,
-                                    on_delete=models.CASCADE)
+    response = models.ForeignKey(ResponseStub, verbose_name='Response', null=True, blank=True, on_delete=models.CASCADE,
+                                 related_name='logs')
 
     class Meta:
         verbose_name = 'request log'

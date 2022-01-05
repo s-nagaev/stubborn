@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2022-01-06
+### Added
+- GitHub actions with the Flake8 and Mypy checks.
+
+### Changed
+- RequestLog entity modified: relationship with the ResponseStub entity provided.
+- Project dependencies updated.
+
 ## [0.1.1] - 2021-11-06
 ### Added
 - Config for the staging environment.
