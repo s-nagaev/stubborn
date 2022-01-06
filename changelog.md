@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3] - 2022-01-06
+### Changed
+- README updated: added project description and plan for the MVP milestone.
+
 ## [0.1.2] - 2022-01-06
 ### Added
 - GitHub actions with the Flake8 and Mypy checks.
