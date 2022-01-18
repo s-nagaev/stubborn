@@ -1,6 +1,8 @@
 {% extends 'admin/base.html' %}
+{% load static %}
 
-{% block extrahead %}{{ block.super }}
+{% block extrahead %}
+{{ block.super }}
 <style>
 /* VARIABLE DEFINITIONS */
 :root {
@@ -60,4 +62,5 @@
 }
 
 </style>
+<link rel="shortcut icon" href="{% static 'admin/img/favicon.ico'  %}" />
 {% endblock %}
