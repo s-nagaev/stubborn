@@ -73,6 +73,17 @@ def prettify_xml_html(dom_document: minidom.Document) -> str:
 
 
 def prettify_string_to_html(string: str) -> str:
+    """Pretty data for admin fields.
+
+    Generates HTML data with styles for a pretty display of the XML or JSON data.
+    If the string is not XML-friendly or JSON-friendly, it'll be returned without any modifications.
+
+    Args:
+        string: string data for displaying in the admin site.
+
+    Returns:
+        A string containing HTML code or marked safe original string.
+    """
     if dict_data := str_to_dict(string):
         return mark_safe(prettify_json_html(dict_data))
     elif dom_doc := str_to_dom_document(string):

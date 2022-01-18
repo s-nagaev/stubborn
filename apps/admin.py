@@ -27,7 +27,7 @@ class ApplicationAdmin(admin.ModelAdmin):
         }
 
     def save_model(self, request: WSGIRequest, obj: models.Application, *args: Any, **kwargs: Any) -> None:
-        """Saving model with current user fixation in the owner field.
+        """Save model with current user fixation in the owner field.
 
         Args:
             request: WSGIRequest instance.
@@ -39,11 +39,27 @@ class ApplicationAdmin(admin.ModelAdmin):
     @staticmethod
     @admin.display(description='Resources')
     def resources_count(obj: models.Application) -> int:
+        """Return related resource stubs count.
+
+        Args:
+            obj: model instance.
+
+        Returns:
+            Related resource stubs count.
+        """
         return obj.resources.count()
 
     @staticmethod
     @admin.display(description='Description')
     def short_desc(obj: models.Application) -> Optional[str]:
+        """Return the first 50 symbols of the description.
+
+        Args:
+            obj: model instance.
+
+        Returns:
+            Short version of the description.
+        """
         if obj.description and len(obj.description) > 50:
             return f'{obj.description[:50]}...'
         return obj.description
@@ -57,11 +73,27 @@ class ResourceStubAdmin(HideFromAdminIndexMixin, admin.ModelAdmin):
     @staticmethod
     @admin.display(description='URI')
     def uri_with_slash(obj: models.ResourceStub) -> str:
+        """Add the leading slash to URI.
+
+        Args:
+            obj: model instance.
+
+        Returns:
+            URI with the leading slash.
+        """
         return f'/{obj.uri}'
 
     @staticmethod
     @admin.display(description='Full URL')
     def full_url(obj: models.ResourceStub) -> str:
+        """Compose the full URL of the application resource.
+
+        Args:
+            obj: model instance.
+
+        Returns:
+            The full application resource URL.
+        """
         url = os.path.join(settings.DOMAIN, 'api', obj.application.slug, obj.uri)
         return mark_safe(f'<a href={url}>{url}</a>')
 
@@ -73,11 +105,27 @@ class ResponseStubAdmin(HideFromAdminIndexMixin, admin.ModelAdmin):
     @staticmethod
     @admin.display(description='Has Body', boolean=True)
     def has_body(obj: models.ResponseStub) -> bool:
+        """Response body existence flag.
+
+        Args:
+            obj: model instance.
+
+        Returns:
+            True if the response stub has a body set up, False otherwise.
+        """
         return bool(obj.body)
 
     @staticmethod
     @admin.display(description='Has Headers', boolean=True)
     def has_headers(obj: models.ResponseStub) -> bool:
+        """Response headers existence flag.
+
+        Args:
+            obj: model instance.
+
+        Returns:
+            True if the response stub has a headers set up, False otherwise.
+        """
         return bool(obj.headers)
 
 
@@ -107,24 +155,56 @@ class RequestLogAdmin(DenyCUDMixin, HideFromAdminIndexMixin, admin.ModelAdmin):
     @staticmethod
     @admin.display(description='Query params')
     def pretty_params(obj: models.RequestLog) -> str:
+        """Prettify query params.
+
+        Args:
+            obj: model instance.
+
+        Returns:
+            HTML with the style block containing nice-looking query params.
+        """
         params_prettified = prettify_json_html(obj.params)
         return mark_safe(params_prettified)
 
     @staticmethod
     @admin.display(description='Request Headers')
     def pretty_request_headers(obj: models.RequestLog) -> str:
+        """Prettify request headers.
+
+        Args:
+            obj: model instance.
+
+        Returns:
+            HTML with the style block containing nice-looking request headers.
+        """
         headers_prettified = prettify_json_html(obj.request_headers)
         return mark_safe(headers_prettified)
 
     @staticmethod
     @admin.display(description='Response Headers')
     def pretty_response_headers(obj: models.RequestLog) -> str:
+        """Prettify response headers.
+
+        Args:
+            obj: model instance.
+
+        Returns:
+            HTML with the style block containing nice-looking response headers.
+        """
         headers_prettified = prettify_json_html(obj.response_headers)
         return mark_safe(headers_prettified)
 
     @staticmethod
     @admin.display(description='Request Body')
     def pretty_request_body(obj: models.RequestLog) -> str:
+        """Prettify request body.
+
+        Args:
+            obj: model instance.
+
+        Returns:
+            HTML with the style block containing nice-looking request body.
+        """
         if obj.request_body is not None:
             return prettify_string_to_html(obj.request_body)
         return ''
@@ -132,6 +212,14 @@ class RequestLogAdmin(DenyCUDMixin, HideFromAdminIndexMixin, admin.ModelAdmin):
     @staticmethod
     @admin.display(description='Response Body')
     def pretty_response_body(obj: models.RequestLog) -> str:
+        """Prettify response body.
+
+        Args:
+            obj: model instance.
+
+        Returns:
+            HTML with the style block containing nice-looking response body.
+        """
         if obj.response_body is not None:
             return prettify_string_to_html(obj.response_body)
         return ''
