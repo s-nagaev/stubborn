@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4] - 2022-01-19
+### Added
+- XML response format support.
+- Plain Text response format support.
+
+### Changed
+- Request Log entity updated: now, it stores full requested and response data.
+- Project dependencies updated.
+- Lots of minor UI fixes.
+
+
 ## [0.1.3] - 2022-01-06
 ### Changed
 - README updated: added project description and plan for the MVP milestone.
