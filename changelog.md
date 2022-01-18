@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - XML response format support.
 - Plain Text response format support.
+- Dockerfile for production build.
 
 ### Changed
 - Request Log entity updated: now, it stores full requested and response data.
