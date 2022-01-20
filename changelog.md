@@ -6,17 +6,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.4] - 2022-01-19
+## [0.2.0] - 2022-01-21
 ### Added
 - XML response format support.
 - Plain Text response format support.
 - Dockerfile for production build.
+- `create_admin` manage command for creation a superuser with login, email and password according to provided 
+environment variables.
+- Settings module for production.
+- Quick start description in README file.
 
 ### Changed
 - Request Log entity updated: now, it stores full requested and response data.
 - Project dependencies updated.
 - Lots of minor UI fixes.
-
+- Updated `docker-compose`-file for staging environment.
 
 ## [0.1.3] - 2022-01-06
 ### Changed

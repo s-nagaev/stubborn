@@ -24,6 +24,5 @@ admin.site.index_title = "Administration"
 urlpatterns = [
     path('', RedirectView.as_view(url='/admin')),
     path('admin/', admin.site.urls),
-    path('api/', include('apps.urls')),
     path('', include(('apps.urls', 'apps'), namespace='apps'))
 ]

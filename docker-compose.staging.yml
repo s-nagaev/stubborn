@@ -6,24 +6,21 @@ services:
     image: postgres:12-alpine
     volumes:
       - pg_data:/var/lib/postgresql/data
-    env_file:
-      - .env.staging
+    environment:
+      POSTGRES_DB: stubborn_dev
+      POSTGRES_USER: stubborn_dev
+      POSTGRES_PASSWORD: notsecret
 
   django:
     restart: unless-stopped
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
+    image: pysergio/stubborn:0.2.0-dev
     container_name: stubborn-django
-    command: ["make", "prepare", "uwsgi"]
     environment:
       DJANGO_SETTINGS_MODULE: stubborn.settings.staging
-    ports:
-      - "8000:8000"
     env_file:
       - .env.staging
-    volumes:
-      - .:/app
+    ports:
+      - "8000:8000"
     depends_on:
       - postgres
     links:

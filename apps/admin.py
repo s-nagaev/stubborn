@@ -94,7 +94,7 @@ class ResourceStubAdmin(HideFromAdminIndexMixin, admin.ModelAdmin):
         Returns:
             The full application resource URL.
         """
-        url = os.path.join(settings.DOMAIN, 'api', obj.application.slug, obj.uri)
+        url = os.path.join(settings.DOMAIN, obj.application.slug, obj.uri)
         return mark_safe(f'<a href={url}>{url}</a>')
 
 
