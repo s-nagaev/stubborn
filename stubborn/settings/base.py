@@ -52,7 +52,7 @@ REST_FRAMEWORK = {
 }
 
 # URLS
-DOMAIN = 'http://127.0.0.1:8000'
+DOMAIN_DISPLAY = env.str('DOMAIN_DISPLAY', default='http://127.0.0.1:8000')
 ROOT_URLCONF = 'stubborn.urls'
 WSGI_APPLICATION = 'stubborn.wsgi.application'
 
