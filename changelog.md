@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2022-01-21
+### Added
+- Environment variable `DOMAIN_DISPLAY` added: now the full resource URL can be displayed correct on the admin site 
+in any environment. 
+
 ## [0.2.0] - 2022-01-21
 ### Added
 - XML response format support.

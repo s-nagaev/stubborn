@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.core.handlers.wsgi import WSGIRequest
+from django.forms import ModelForm
 from django.utils.safestring import mark_safe
 
 from apps import inlines, models
@@ -70,6 +71,14 @@ class ResourceStubAdmin(HideFromAdminIndexMixin, admin.ModelAdmin):
     form = ResourceStubForm
     list_display = ('uri_with_slash', 'method', 'response', 'description', 'full_url')
 
+    def get_form(self, request: WSGIRequest, obj: Any = None, change: bool = False, **kwargs: Any) -> ModelForm:
+        form = super().get_form(request, obj, **kwargs)
+        application_widget = form.base_fields['application'].widget
+        application_widget.can_add_related = False
+        application_widget.can_change_related = False
+        application_widget.can_delete_related = False
+        return form
+
     @staticmethod
     @admin.display(description='URI')
     def uri_with_slash(obj: models.ResourceStub) -> str:
@@ -94,7 +103,7 @@ class ResourceStubAdmin(HideFromAdminIndexMixin, admin.ModelAdmin):
         Returns:
             The full application resource URL.
         """
-        url = os.path.join(settings.DOMAIN, obj.application.slug, obj.uri)
+        url = os.path.join(settings.DOMAIN_DISPLAY, obj.application.slug, obj.uri)
         return mark_safe(f'<a href={url}>{url}</a>')
 
 

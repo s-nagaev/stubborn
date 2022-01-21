@@ -23,6 +23,12 @@ teammates and (or) use it permanently with the staging instance of the main appl
 - Django REST Framework 3+
 - PostgreSQL
 
+## Features
+- Customizable mocking web resources.
+- JSON, XML, Plain Text response body formats support.
+- Customizable response timeout support.
+- Logging containing exhaustive request & response data.
+
 ## Prerequisite
 Stubborn is shipped as a [Docker image](https://hub.docker.com/repository/docker/pysergio/stubborn). 
 To use it, you need a Docker Engine installed on your machine. In addition, Docker Compose is highly recommended.
@@ -78,6 +84,8 @@ unpredictable value.
 - `ADMIN_USERNAME` *(required for the first run only)*: a username for an administrative account.
 - `ADMIN_PASSWORD` *(required for the first run only)*: a password for an administrative account.
 - `ADMIN_EMAIL` *(required for the very first run only)*: an email for an administrative account.
+- `DOMAIN_DISPLAY` *(optional)*: a protocol and domain where your application instance hosted, i.e. 
+`https://mysite.com`, `http://192.168.1.150:8000`. The default value is `http://127.0.0.1:8000`.
 
 2. Then run the command:
 ```shell

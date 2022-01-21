@@ -142,4 +142,4 @@ class RequestLog(models.Model):
 
     @property
     def url(self) -> str:
-        return os.path.join(settings.DOMAIN, 'api', self.application.slug, self.resource.uri)
+        return os.path.join(settings.DOMAIN_DISPLAY, self.application.slug, self.resource.uri)
