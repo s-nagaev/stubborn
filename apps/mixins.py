@@ -36,7 +36,7 @@ class DenyCreateMixin:
 
 
 class DenyUpdateMixin:
-    """Миксин, запрещающий изменение записи, через сайт администратора."""
+    """Mixin for blocking the update of an existent record through the admin site."""
     def has_change_permission(self, request: HttpRequest, obj: Optional[Model] = None) -> bool:
         """Check user "change" permission.
 
@@ -51,7 +51,7 @@ class DenyUpdateMixin:
 
 
 class DenyDeleteMixin:
-    """Миксин, запрещающий удаление записи, через сайт администратора."""
+    """Mixin for blocking the deletion of an existent record through the admin site."""
     def has_delete_permission(self, request: HttpRequest, obj: Optional[Model] = None) -> bool:
         """Check user "delete" permission.
 

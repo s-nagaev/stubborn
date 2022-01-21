@@ -19,7 +19,7 @@ class ResourcesInline(mixins.DenyUpdateMixin, mixins.DenyDeleteMixin, admin.Tabu
     @staticmethod
     @admin.display(description='Description')
     def get_url(obj: models.RequestLog) -> str:
-        """Getter fot the resource description.
+        """Getter for the resource description.
 
         Args:
             obj: RequestLog instance.
@@ -35,9 +35,9 @@ class LogsInline(mixins.DenyCUDMixin, admin.TabularInline):
     model = models.RequestLog
     parent_model = models.Application
     fk_name = 'application'
-    template = 'admin/inlines/request_log_tabular.html'
-    fields = ('created_at', 'get_remote_ip', 'get_method', 'resource', 'get_resource_desc')
-    readonly_fields = ('created_at', 'get_method', 'get_resource_desc', 'get_remote_ip')
+    template = 'admin/apps/request_log/inlines/tabular.html'
+    fields = ('created_at', 'get_method', 'url', 'get_remote_ip', 'resource', 'response')
+    readonly_fields = ('created_at', 'get_method', 'url', 'get_remote_ip')
     show_change_link = False
     extra = 0
 
@@ -57,22 +57,9 @@ class LogsInline(mixins.DenyCUDMixin, admin.TabularInline):
         return self.model.objects.filter(pk__in=ids).order_by('-pk')
 
     @staticmethod
-    @admin.display(description='Description')
-    def get_resource_desc(obj: models.RequestLog) -> str:
-        """Getter fot the resource description.
-
-        Args:
-            obj: RequestLog instance.
-
-        Returns:
-            String containing the resource description.
-        """
-        return obj.resource.description or ''
-
-    @staticmethod
     @admin.display(description='Method')
     def get_method(obj: models.RequestLog) -> str:
-        """Getter fot the resource method.
+        """Getter for the resource method.
 
         Args:
             obj: RequestLog instance.
@@ -85,7 +72,7 @@ class LogsInline(mixins.DenyCUDMixin, admin.TabularInline):
     @staticmethod
     @admin.display(description='Remote IP/X-Real-IP')
     def get_remote_ip(obj: models.RequestLog) -> str:
-        """Getter fot the client's IP address.
+        """Getter for the client's IP address.
 
         Making a combination of the received client's IP address and X_REAL_IP header.
 

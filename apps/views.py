@@ -1,43 +1,47 @@
 import ast
-import json
 from time import sleep
 from typing import Any
 
 from django.shortcuts import get_object_or_404
+from rest_framework.renderers import JSONRenderer
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps import models
+from apps.renderers import SimpleTextRenderer, TextToXMLRenderer
+from apps.services import request_log_create
 
 
 class ResponseStubView(APIView):
+    renderer_classes = (TextToXMLRenderer, SimpleTextRenderer, JSONRenderer)
 
     @staticmethod
     def make_response(request: Request, **kwargs: Any):
-        app = get_object_or_404(models.Application, slug=kwargs.get('app_slug', ''))
+        application = get_object_or_404(models.Application, slug=kwargs.get('app_slug', ''))
         resource = get_object_or_404(models.ResourceStub,
-                                     application=app,
+                                     application=application,
                                      uri=kwargs.get('resource_slug', ''),
                                      method=request.method)
-        response = resource.response
+        response_stub = resource.response
+        request.accepted_renderer = response_stub.renderer
 
-        models.RequestLog.objects.create(
-            params=request.query_params,
-            body=json.loads(request.body) if request.body else None,
-            headers=dict(request.headers),
-            application=app,
-            resource=resource,
-            response=response,
-            ipaddress=request.META.get('REMOTE_ADDR'),
-            x_real_ip=request.headers.get('X-REAL-IP')
-        )
-        sleep(response.timeout)
+        request_log_create(application=application,
+                           resource_stub=resource,
+                           response_stub=response_stub,
+                           request=request)
+
+        sleep(response_stub.timeout)
+
+        if response_stub.is_json_format:
+            response_data = ast.literal_eval(response_stub.body or '')
+        else:
+            response_data = response_stub.body
 
         return Response(
-            data=ast.literal_eval(response.body or ''),
-            status=response.status_code,
-            headers=response.headers
+            data=response_data,
+            status=response_stub.status_code,
+            headers=response_stub.headers
         )
 
     @staticmethod

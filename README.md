@@ -23,15 +23,92 @@ teammates and (or) use it permanently with the staging instance of the main appl
 - Django REST Framework 3+
 - PostgreSQL
 
-## The Plan (MVP)
-- [ ] add XML response support;
-- [ ] add plain text response support;
-- [ ] add calculated values support to the response stub;
-- [ ] add the `team` entity for sharing stub methods with teammates only;
+## Prerequisite
+Stubborn is shipped as a [Docker image](https://hub.docker.com/repository/docker/pysergio/stubborn). 
+To use it, you need a Docker Engine installed on your machine. In addition, Docker Compose is highly recommended.
+
+**Supported platforms:**
+- linux/amd64
+- linux/arm64
+- linux/arm/v7 *(Yes! You can run it on your Raspberry Pi!)*
+
+## Quick Start
+Here is a real-world example: 
+1. Create the file `docker-compose.yml` in any directory of your choice:
+
+```yaml
+version: '3'
+
+services:
+  postgres:
+    restart: unless-stopped
+    image: postgres:12-alpine
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: stubborn_db
+      POSTGRES_USER: stubborn_user
+      POSTGRES_PASSWORD: pg_secret_password
+
+  stubborn:
+    restart: unless-stopped
+    image: pysergio/stubborn:latest
+    environment:
+      DATABASE_URL: postgres://stubborn_user:pg_secret_password@postgres:5432/stubborn_db
+      SECRET_KEY: 'stubborn-secure!$k%6kqx641a)-a6d7j8*n(!154#t+^5f)#^z5mjvlrf#u!'
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: very_secret_password
+      ADMIN_EMAIL: admin@example.com
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    links:
+      - postgres
+
+volumes:
+  pg_data:
+```
+
+In the example above, we have a couple of the environment variables that are very important for setting up our 
+application:
+- `DATABASE_URL` *(required)*: a URL containing database connection data. 
+- `SECRET_KEY` *(required)*: a secret key that provides cryptographic signing and should be set to a unique, 
+unpredictable value.
+- `ADMIN_USERNAME` *(required for the first run only)*: a username for an administrative account.
+- `ADMIN_PASSWORD` *(required for the first run only)*: a password for an administrative account.
+- `ADMIN_EMAIL` *(required for the very first run only)*: an email for an administrative account.
+
+2. Then run the command:
+```shell
+docker-compose up -d
+```
+Please, note that the parameter `-d` in the command example will tell Docker Compose to run the apps defined in
+`docker-compose.yml` in the background.
+
+The site should now be running at http://0.0.0.0:8000. To access the service admin panel visit 
+`http://localhost:8000/admin/` and log in as a superuser.
+
+## Development
+
+### The Plan (MVP)
+- [x] implement JSON response support;
+- [x] dockerize the application;
+- [x] add basic Quality Gate (CI: linters);
+- [x] add README file;
+- [x] improve UI to allow CRUD operations under the application-relative models within a specific application;
+- [x] add XML response support;
+- [x] add plain text response support;
+- [x] publish the application images to Docker Hub;
+- [ ] cover code with tests;
+- [ ] add template support for the response body;
+- [ ] add client's webhook call support;
 - [ ] add GraphQL over http support;
+- [ ] add the REST API for manipulation with main application entities;  
+- [ ] add the `team` entity for sharing stub methods with teammates only;
 - [ ] improve UI/UX.
 
-## Setting Up for Development
+### Setting Up for Development
 **To set up the development environment:**
 Install [Poetry](https://python-poetry.org/) dependency manager (please, feel free to use any other way to install it
 on your local machine):

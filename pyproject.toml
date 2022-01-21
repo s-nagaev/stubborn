@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "stubborn"
-version = "0.1.3"
+version = "0.2.0"
 description = "Just a simple REST API stub service."
 authors = ["Sergei Nagaev <nagaev.sv@gmail.com>"]
 license = "MIT"
@@ -12,6 +12,8 @@ argon2-cffi = "21.3.0"
 django = "3.2.11"
 django-environ = "0.8.1"
 djangorestframework = "3.13.1"
+ipdb = "0.13.9"
+ipython = "7.31.0"
 psycopg2 = "2.9.1"
 types-Pygments = "2.9.10"
 uwsgi = "2.0.20"

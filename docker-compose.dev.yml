@@ -15,9 +15,9 @@ services:
     restart: unless-stopped
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/dev.Dockerfile
     container_name: stubborn-django
-    command: ["make", "prepare", "dev"]
+    command: ["make", "migrate", "static", "dev"]
     environment:
       DJANGO_SETTINGS_MODULE: stubborn.settings.local
     ports:

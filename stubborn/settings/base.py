@@ -17,8 +17,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
-USE_L10N = True
+USE_L10N = False
 USE_TZ = True
+DATETIME_FORMAT = 'd/m/Y h:i:s e'
 
 # APPS
 INSTALLED_APPS = [
@@ -43,7 +44,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# DJANGO REST FRAMEWORK
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer'
+    )
+}
+
 # URLS
+DOMAIN = 'http://127.0.0.1:8000'
 ROOT_URLCONF = 'stubborn.urls'
 WSGI_APPLICATION = 'stubborn.wsgi.application'
 

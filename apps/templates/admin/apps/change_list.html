@@ -1,0 +1,31 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static admin_list %}
+{% load apps %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=cl.opts.app_label %}">{{ cl.opts.app_config.verbose_name }}</a>
+{% if request.get_full_path|application_id_by_url %}
+&rsaquo; <a href="{% url 'admin:apps_application_changelist' %}">{% translate 'Applications' %}</a>
+&rsaquo; <a href="{% url 'admin:apps_application_change' request.get_full_path|application_id_by_url %}">{{ request.get_full_path|application_id_by_url|application_name_by_id }}</a>
+{% endif %}
+&rsaquo; {{ cl.opts.verbose_name_plural|capfirst }}
+</div>
+{% endblock %}
+
+{% block object-tools-items %}
+  {% if has_add_permission %}
+  <li>
+    {% url cl.opts|admin_urlname:'add' as add_url %}
+    <a href="{% add_with_filter add_url %}" class="addlink">
+      {% blocktranslate with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktranslate %}
+    </a>
+  </li>
+  {% endif %}
+{% if request.get_full_path|application_id_by_url %}
+<li>
+    <a class="viewsitelink" href="{% url 'admin:apps_application_change' request.get_full_path|application_id_by_url %}"> {% translate 'Back to Application' %}</a>
+</li>
+{% endif %}
+{% endblock %}
