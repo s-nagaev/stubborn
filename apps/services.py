@@ -7,13 +7,12 @@ def request_log_create(application: Application,
                        resource_stub: ResourceStub,
                        response_stub: ResponseStub,
                        request: Request) -> RequestLog:
-
     log_record = RequestLog.objects.create(
         application=application,
         resource=resource_stub,
         response=response_stub,
         params=request.query_params,
-        request_body=request.body,
+        request_body=request.body.decode(),
         request_headers=dict(request.headers),
         response_body=response_stub.body,
         response_headers=response_stub.headers,

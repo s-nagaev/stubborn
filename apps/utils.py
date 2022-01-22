@@ -20,8 +20,12 @@ def str_to_dict(string: str) -> Optional[dict]:
         Python dict if conversion is possible, None otherwise.
     """
     try:
-        return ast.literal_eval(string)
-    except (ValueError, SyntaxError):
+        data = ast.literal_eval(string)
+        if isinstance(data, Dict):
+            return data
+    except Exception:
+        return None
+    else:
         return None
 
 

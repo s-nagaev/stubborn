@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "stubborn"
-version = "0.2.1"
+version = "0.3.0"
 description = "Just a simple REST API stub service."
 authors = ["Sergei Nagaev <nagaev.sv@gmail.com>"]
 license = "MIT"
@@ -13,7 +13,6 @@ django = "3.2.11"
 django-environ = "0.8.1"
 djangorestframework = "3.13.1"
 ipdb = "0.13.9"
-ipython = "7.31.1"
 psycopg2 = "2.9.1"
 types-Pygments = "2.9.10"
 uwsgi = "2.0.20"
@@ -26,6 +25,7 @@ django-extensions = "3.1.5"
 django-stubs = "1.9.0"
 flake8 = "4.0.1"
 flake8-isort = "4.1.1"
+ipython = "8.0.1"
 mypy = "0.910"
 pydocstyle = "6.1.1"
 
