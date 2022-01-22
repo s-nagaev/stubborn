@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2022-01-22
+### Changed
+- Request Log displaying fixed: displaying some log records containing the request body could raise 500 errors.
+- Routing issue fixed: some POST requests could be redirected in the wrong way.
+
 ## [0.2.1] - 2022-01-21
 ### Added
 - Environment variable `DOMAIN_DISPLAY` added: now the full resource URL can be displayed correct on the admin site 
