@@ -30,7 +30,7 @@ teammates and (or) use it permanently with the staging instance of the main appl
 - Logging containing exhaustive request & response data.
 
 ## Prerequisite
-Stubborn is shipped as a [Docker image](https://hub.docker.com/repository/docker/pysergio/stubborn). 
+Stubborn is shipped as a [Docker image](https://hub.docker.com/r/pysergio/stubborn). 
 To use it, you need a Docker Engine installed on your machine. In addition, Docker Compose is highly recommended.
 
 **Supported platforms:**
