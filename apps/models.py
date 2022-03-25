@@ -99,6 +99,7 @@ class ResourceStub(models.Model):
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='resources')
     method = models.CharField(max_length=10, choices=HTTPMethods.choices, default=HTTPMethods.GET.value,
                               verbose_name='HTTP Method')
+    proxy_destination_address = models.URLField(verbose_name='Proxy to', default=None, blank=True, null=True)
 
     class Meta:
         verbose_name = 'resource'
@@ -126,6 +127,7 @@ class RequestLog(models.Model):
                                  related_name='logs')
     ipaddress = models.GenericIPAddressField(verbose_name='Remote IP', default='127.0.0.1')
     x_real_ip = models.GenericIPAddressField(verbose_name='X-REAL-IP', default='127.0.0.1', null=True, blank=True)
+    status_code = models.IntegerField(verbose_name='Status Code', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Received at')
 
     class Meta:
