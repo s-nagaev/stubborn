@@ -36,7 +36,7 @@ class LogsInline(mixins.DenyCUDMixin, admin.TabularInline):
     parent_model = models.Application
     fk_name = 'application'
     template = 'admin/apps/request_log/inlines/tabular.html'
-    fields = ('created_at', 'get_method', 'url', 'get_remote_ip', 'resource', 'response')
+    fields = ('created_at', 'get_method', 'url', 'get_remote_ip', 'resource', 'status_code')
     readonly_fields = ('created_at', 'get_method', 'url', 'get_remote_ip')
     show_change_link = False
     extra = 0
@@ -67,7 +67,7 @@ class LogsInline(mixins.DenyCUDMixin, admin.TabularInline):
         Returns:
             String containing the resource method.
         """
-        return obj.resource.method
+        return obj.resource.method or 'n/a'
 
     @staticmethod
     @admin.display(description='Remote IP/X-Real-IP')

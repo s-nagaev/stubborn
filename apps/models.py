@@ -94,11 +94,11 @@ class ResponseStub(models.Model):
 class ResourceStub(models.Model):
     uri = models.SlugField(verbose_name='URI', allow_unicode=True, null=False)
     response = models.ForeignKey(ResponseStub, verbose_name='Response', related_name='resources',
-                                 on_delete=models.CASCADE, null=False)
+                                 on_delete=models.CASCADE, null=True, blank=True)
     description = models.TextField(verbose_name='Description', null=True, blank=True)
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='resources')
     method = models.CharField(max_length=10, choices=HTTPMethods.choices, default=HTTPMethods.GET.value,
-                              verbose_name='HTTP Method')
+                              verbose_name='HTTP Method', null=True, blank=True)
     proxy_destination_address = models.URLField(verbose_name='Proxy to', default=None, blank=True, null=True)
 
     class Meta:
@@ -114,6 +114,11 @@ class ResourceStub(models.Model):
         """
         return f'{self.uri}'
 
+    def clean(self) -> None:
+        if not self.response and not self.proxy_destination_address:
+            raise ValidationError(_('The resource stub must be created with the response or proxy instruction.'),
+                                  code='invalid')
+
 
 class RequestLog(models.Model):
     params = models.JSONField(verbose_name='Query Params', default=dict, null=True, blank=True)
@@ -127,7 +132,10 @@ class RequestLog(models.Model):
                                  related_name='logs')
     ipaddress = models.GenericIPAddressField(verbose_name='Remote IP', default='127.0.0.1')
     x_real_ip = models.GenericIPAddressField(verbose_name='X-REAL-IP', default='127.0.0.1', null=True, blank=True)
+    proxied = models.BooleanField(verbose_name='Proxied', default=False, null=False, blank=False)
+    destination_url = models.URLField(verbose_name='Proxied to', default=None, null=True, blank=True)
     status_code = models.IntegerField(verbose_name='Status Code', null=True, blank=True)
+    method = models.CharField(verbose_name='Method', max_length=10, default=None, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Received at')
 
     class Meta:
@@ -140,7 +148,8 @@ class RequestLog(models.Model):
         Returns:
             String representation.
         """
-        return self.url
+        method = f'{self.method.upper()} ' if self.method else ''
+        return f'{method}{self.url}'
 
     @property
     def url(self) -> str:
