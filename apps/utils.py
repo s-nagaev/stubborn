@@ -93,3 +93,45 @@ def prettify_string_to_html(string: str) -> str:
     elif dom_doc := str_to_dom_document(string):
         return mark_safe(prettify_xml_html(dom_doc))
     return mark_safe(string)
+
+
+def clean_headers(headers: Dict[str, str]) -> Dict[str, str]:
+    """Remove unwilling headers: hop-by-hop headers and some client- and server-side specific headers.
+
+    Hop-by-hop headers are meaningful only for a single transport-level connection,
+    and are not stored by caches or forwarded by proxies.
+    See more at: https://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.5.1
+
+    Args:
+        headers: dictionary containing request/response headers.
+
+    Returns:
+        Headers dictionary without unwilling headers.
+    """
+
+    hop_by_hop_headers = [
+        'connection',
+        'keep-alive',
+        'proxy-authenticate',
+        'proxy-authorization',
+        'te',
+        'trailers',
+        'transfer-encoding',
+        'upgrade',
+    ]
+
+    throw_out_headers = [
+        'host',
+        'server',
+        'content-length',
+        'content-encoding'
+    ]
+
+    unwanted_headers = hop_by_hop_headers + throw_out_headers
+    headers = dict(headers)
+    headers_names = list(headers.keys())
+    for header_name in headers_names:
+        if header_name.lower() in unwanted_headers:
+            headers.pop(header_name)
+
+    return headers

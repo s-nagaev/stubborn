@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "stubborn"
-version = "0.3.1"
+version = "0.3.2"
 description = "Just a simple REST API stub service."
 authors = ["Sergei Nagaev <nagaev.sv@gmail.com>"]
 license = "MIT"
@@ -17,6 +17,8 @@ psycopg2 = "2.9.1"
 types-Pygments = "2.9.10"
 uwsgi = "2.0.20"
 whitenoise = "5.3.0"
+requests = "2.27.1"
+djangorestframework-xml = "2.0.0"
 
 [tool.poetry.dev-dependencies]
 coverage = "6.2"
@@ -28,6 +30,7 @@ flake8-isort = "4.1.1"
 ipython = "8.0.1"
 mypy = "0.910"
 pydocstyle = "6.1.1"
+types-requests = "2.27.15"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -5,12 +5,11 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.core.handlers.wsgi import WSGIRequest
-from django.forms import ModelForm
 from django.utils.safestring import mark_safe
 
 from apps import inlines, models
-from apps.forms import ResourceStubForm
-from apps.mixins import DenyCUDMixin, HideFromAdminIndexMixin
+from apps.forms import ResourceStubForm, ResponseStubForm
+from apps.mixins import DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin, RelatedCUDManagerMixin
 from apps.utils import prettify_json_html, prettify_string_to_html
 
 
@@ -67,17 +66,14 @@ class ApplicationAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.ResourceStub)
-class ResourceStubAdmin(HideFromAdminIndexMixin, admin.ModelAdmin):
+class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.ModelAdmin):
     form = ResourceStubForm
     list_display = ('uri_with_slash', 'method', 'response', 'description', 'full_url')
+    no_add_related = ('application', 'response',)
+    no_edit_related = ('application',)
 
-    def get_form(self, request: WSGIRequest, obj: Any = None, change: bool = False, **kwargs: Any) -> ModelForm:
-        form = super().get_form(request, obj, **kwargs)
-        application_widget = form.base_fields['application'].widget
-        application_widget.can_add_related = False
-        application_widget.can_change_related = False
-        application_widget.can_delete_related = False
-        return form
+    class Media:
+        js = ('admin/js/resource/responseSwitcher.js',)
 
     @staticmethod
     @admin.display(description='URI')
@@ -108,8 +104,11 @@ class ResourceStubAdmin(HideFromAdminIndexMixin, admin.ModelAdmin):
 
 
 @admin.register(models.ResponseStub)
-class ResponseStubAdmin(HideFromAdminIndexMixin, admin.ModelAdmin):
+class ResponseStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.ModelAdmin):
+    form = ResponseStubForm
     list_display = ('status_code', 'format', 'timeout', 'has_headers', 'has_body', 'description')
+    no_add_related = ('application', )
+    no_edit_related = ('application', )
 
     @staticmethod
     @admin.display(description='Has Body', boolean=True)
@@ -139,20 +138,21 @@ class ResponseStubAdmin(HideFromAdminIndexMixin, admin.ModelAdmin):
 
 
 @admin.register(models.RequestLog)
-class RequestLogAdmin(DenyCUDMixin, HideFromAdminIndexMixin, admin.ModelAdmin):
+class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin, admin.ModelAdmin):
     fields = (
         'created_at',
-        'resource',
-        'pretty_params',
+        'destination_url',
         'pretty_request_headers',
+        'pretty_params',
         'pretty_request_body',
         'pretty_response_headers',
         'pretty_response_body',
         'ipaddress',
         'x_real_ip',
+        'resource',
         'response'
     )
-    list_display = ('created_at', 'get_method', 'url', 'get_remote_ip', 'resource', 'get_resource_desc')
+    list_display = ('created_at', 'method', 'url', 'get_remote_ip', 'resource', 'get_resource_desc', 'proxied')
     readonly_fields = (
         'pretty_params',
         'pretty_request_headers',
@@ -247,19 +247,6 @@ class RequestLogAdmin(DenyCUDMixin, HideFromAdminIndexMixin, admin.ModelAdmin):
         return obj.resource.description or ''
 
     @staticmethod
-    @admin.display(description='Method')
-    def get_method(obj: models.RequestLog) -> str:
-        """Getter fot the resource method.
-
-        Args:
-            obj: RequestLog instance.
-
-        Returns:
-            String containing the resource method.
-        """
-        return obj.resource.method
-
-    @staticmethod
     @admin.display(description='Remote IP/X-Real-IP')
     def get_remote_ip(obj: models.RequestLog) -> str:
         """Getter fot the client's IP address.
@@ -272,4 +259,4 @@ class RequestLogAdmin(DenyCUDMixin, HideFromAdminIndexMixin, admin.ModelAdmin):
         Returns:
             String containing the client's IP addresses.
         """
-        return f'{obj.ipaddress}/{obj.x_real_ip}'
+        return f'{obj.ipaddress} / {obj.x_real_ip}'

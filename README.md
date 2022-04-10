@@ -108,10 +108,12 @@ The site should now be running at http://0.0.0.0:8000. To access the service adm
 - [x] add XML response support;
 - [x] add plain text response support;
 - [x] publish the application images to Docker Hub;
+- [x] add request proxy support;
 - [ ] cover code with tests;
 - [ ] add template support for the response body;
 - [ ] add client's webhook call support;
 - [ ] add GraphQL over http support;
+- [ ] add HTML-response support;
 - [ ] add the REST API for manipulation with main application entities;  
 - [ ] add the `team` entity for sharing stub methods with teammates only;
 - [ ] improve UI/UX.

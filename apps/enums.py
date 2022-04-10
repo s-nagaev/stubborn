@@ -7,6 +7,8 @@ class HTTPMethods(TextChoices):
     PUT = 'PUT', 'PUT'
     PATCH = 'PATCH', 'PATCH'
     DELETE = 'DELETE', 'DELETE'
+    HEAD = 'HEAD', 'HEAD'
+    OPTIONS = 'OPTIONS', 'OPTIONS'
 
 
 class BodyFormat(TextChoices):

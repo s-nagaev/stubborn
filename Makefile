@@ -16,7 +16,7 @@ run:
 
 #### Development #######################################################################################################
 dev:
-	python manage.py runserver 0.0.0.0:8000
+	DJANGO_SETTINGS_MODULE=stubborn.settings.local python manage.py runserver 0.0.0.0:8000
 
 reset:
 	python manage.py reset_db --noinput && make prepare
