@@ -9,7 +9,7 @@ from django.utils.safestring import mark_safe
 
 from apps import inlines, models
 from apps.forms import ResourceStubForm, ResponseStubForm
-from apps.mixins import DenyCUDMixin, HideFromAdminIndexMixin, RelatedCUDManagerMixin
+from apps.mixins import DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin, RelatedCUDManagerMixin
 from apps.utils import prettify_json_html, prettify_string_to_html
 
 
@@ -138,7 +138,7 @@ class ResponseStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
 
 
 @admin.register(models.RequestLog)
-class RequestLogAdmin(DenyCUDMixin, HideFromAdminIndexMixin, admin.ModelAdmin):
+class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin, admin.ModelAdmin):
     fields = (
         'created_at',
         'destination_url',

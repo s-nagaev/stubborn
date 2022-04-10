@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Request proxy functionality implemented.
 
+### Changed
+- Fixed a bug connected with Request Log delete permission.
+
 ## [0.3.1] - 2022-03-25
 ### Changed
 - Admin site URL fixed.
