@@ -18,6 +18,9 @@ run:
 dev:
 	DJANGO_SETTINGS_MODULE=stubborn.settings.local python manage.py runserver 0.0.0.0:8000
 
+dev_shell:
+	DJANGO_SETTINGS_MODULE=stubborn.settings.local python manage.py shell
+
 reset:
 	python manage.py reset_db --noinput && make prepare
 

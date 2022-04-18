@@ -18,6 +18,7 @@ from apps.utils import clean_headers
 
 
 class ResponseStubView(APIView):
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
     renderer_classes = (JSONRenderer, TextToXMLRenderer, SimpleTextRenderer, XMLRenderer)
 
     @staticmethod

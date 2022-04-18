@@ -144,7 +144,7 @@ python manage.py createsuperuser
 
 Run development server:
 ```shell
-python manage.py runserver
+make dev
 ```
 
 Or just run everything in docker:

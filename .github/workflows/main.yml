@@ -32,3 +32,37 @@ jobs:
       - name: Run Mypy
         run: |
           mypy .
+  PyTest:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_DB: stubborn_test
+          POSTGRES_USER: stubborn_test
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+      - uses: actions/checkout@v2
+      - name: Install Poetry
+        run: |
+          pip install poetry
+      - name: Install Deps
+        run: |
+          python -m poetry config virtualenvs.create false && poetry install
+      - name: Providing environment
+        run: |
+          ln .env.test stubborn/settings/.env
+      - name: Run migrations
+        run: |
+          python manage.py migrate
+      - name: Run PyTest
+        run: |
+          pytest -vv
