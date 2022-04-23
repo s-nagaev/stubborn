@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Tests covering the main functionality.
+- Codecov for GitHub Actions.
+- Dockerfile for local test run.
+
+### Changed
+- Dependencies updated.
+- Readme updated: tests run described, codecov badge added.
+- Minor fixes.
 
 ## [0.3.2] - 2022-04-10
 ### Added

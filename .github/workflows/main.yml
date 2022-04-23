@@ -65,4 +65,7 @@ jobs:
           python manage.py migrate
       - name: Run PyTest
         run: |
-          pytest -vv
+          coverage run -m pytest
+          coverage xml
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2

@@ -8,7 +8,7 @@ class TextToXMLRenderer(BaseRenderer):
     render_style = 'text'
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
-        data_header = f'<?xml version="1.0" encoding="{self.charset}"?>\n'
+        data_header = f'<?xml version="1.0" encoding="{self.charset}"?>'
         return data_header + str(data)
 
 
