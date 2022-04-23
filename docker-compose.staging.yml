@@ -13,7 +13,7 @@ services:
 
   django:
     restart: unless-stopped
-    image: pysergio/stubborn:0.2.0-dev
+    image: pysergio/stubborn:latest
     container_name: stubborn-django
     environment:
       DJANGO_SETTINGS_MODULE: stubborn.settings.staging

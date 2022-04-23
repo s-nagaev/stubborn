@@ -1,4 +1,5 @@
-![Build Status](https://github.com/s-nagaev/stubborn/workflows/Quality%20Gate/badge.svg)
+[![Quality Gate](https://github.com/s-nagaev/stubborn/actions/workflows/main.yml/badge.svg)](https://github.com/s-nagaev/stubborn/actions/workflows/main.yml)
+[![codecov](https://codecov.io/gh/s-nagaev/stubborn/branch/main/graph/badge.svg?token=CVVP1BEH9P)](https://codecov.io/gh/s-nagaev/stubborn)
 
 <p align="center">
   <img width=150 src="docs/logo.png" alt="logo">
@@ -118,6 +119,17 @@ The site should now be running at http://0.0.0.0:8000. To access the service adm
 - [ ] add the `team` entity for sharing stub methods with teammates only;
 - [ ] improve UI/UX.
 
+### Running tests
+Run tests:
+```shell
+make tests
+```
+
+Or just run them in docker:
+```shell
+make docker_tests
+```
+
 ### Setting Up for Development
 **To set up the development environment:**
 Install [Poetry](https://python-poetry.org/) dependency manager (please, feel free to use any other way to install it
@@ -144,7 +156,7 @@ python manage.py createsuperuser
 
 Run development server:
 ```shell
-python manage.py runserver
+make dev
 ```
 
 Or just run everything in docker:

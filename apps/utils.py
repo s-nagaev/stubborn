@@ -115,7 +115,7 @@ def clean_headers(headers: Dict[str, str]) -> Dict[str, str]:
         'proxy-authenticate',
         'proxy-authorization',
         'te',
-        'trailers',
+        'trailer',
         'transfer-encoding',
         'upgrade',
     ]
