@@ -244,6 +244,8 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
         Returns:
             String containing the resource description.
         """
+        if not obj.resource:
+            return ''
         return obj.resource.description or ''
 
     @staticmethod

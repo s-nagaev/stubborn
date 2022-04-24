@@ -1,6 +1,8 @@
+import os
 from typing import Dict
 
 import requests
+from django.conf import settings
 from requests import Response
 from rest_framework.request import Request
 
@@ -19,6 +21,7 @@ def request_log_create(application: Application,
                        destination_url: str = None,
                        ) -> RequestLog:
     log_record = RequestLog.objects.create(
+        url=os.path.join(settings.DOMAIN_DISPLAY, application.slug, resource_stub.uri),
         application=application,
         resource=resource_stub,
         response=response_stub,
