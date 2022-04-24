@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from apps import mixins, models
+from apps.templatetags.apps import application_id_by_url
 
 
 class ResourcesInline(mixins.DenyUpdateMixin, mixins.DenyDeleteMixin, admin.TabularInline):
@@ -52,7 +53,8 @@ class LogsInline(mixins.DenyCUDMixin, admin.TabularInline):
         Returns:
             QuerySet containing recent logs.
         """
-        queryset = super().get_queryset(request)
+        application_id = request.resolver_match.kwargs['object_id']
+        queryset = super().get_queryset(request).filter(application_id=application_id)
         ids = queryset.order_by('-id').values('pk')[:settings.REQUEST_LOGS_INLINE_LIMIT]
         return self.model.objects.filter(pk__in=ids).order_by('-pk')
 

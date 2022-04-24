@@ -15,7 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Dependencies updated.
-- Readme updated: tests run described, codecov badge added.
+- Readme updated: tests run described, codecov badge added, DEMO service info added.
+- Breadcrumbs bug fixed.
 - Minor fixes.
 
 ## [0.3.2] - 2022-04-10

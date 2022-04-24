@@ -40,7 +40,7 @@ class ResponseStubView(APIView):
 
             content_type = response_headers['Content-Type']
 
-            if 'application/xml' in content_type:
+            if '/xml' in content_type:
                 request.accepted_renderer = XMLRenderer()
 
             if 'text/html' in content_type:
