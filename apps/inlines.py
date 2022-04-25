@@ -6,7 +6,6 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from apps import mixins, models
-from apps.templatetags.apps import application_id_by_url
 
 
 class ResourcesInline(mixins.DenyUpdateMixin, mixins.DenyDeleteMixin, admin.TabularInline):

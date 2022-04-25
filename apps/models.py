@@ -6,7 +6,7 @@ from rest_framework.renderers import BaseRenderer, JSONRenderer
 
 from apps.enums import BodyFormat, HTTPMethods
 from apps.renderers import SimpleTextRenderer, TextToXMLRenderer
-from apps.utils import str_to_dict, str_to_dom_document
+from apps.utils import is_json, str_to_dom_document
 
 
 class Application(models.Model):
@@ -89,7 +89,7 @@ class ResponseStub(models.Model):
     def clean(self) -> None:
         if not self.body:
             return
-        if self.is_json_format and not str_to_dict(self.body):
+        if self.is_json_format and not is_json(self.body):
             raise ValidationError(_('The body is not a valid JSON.'), code='invalid')
         if self.format == BodyFormat.XML.value and not str_to_dom_document(self.body):
             raise ValidationError(_('The body is not a valid XML.'), code='invalid')

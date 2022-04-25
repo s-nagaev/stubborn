@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 from apps import inlines, models
 from apps.forms import ResourceStubForm, ResponseStubForm
 from apps.mixins import DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin, RelatedCUDManagerMixin
-from apps.utils import prettify_json_html, prettify_string_to_html
+from apps.utils import prettify_data_to_html, prettify_json_html
 
 
 @admin.register(models.Application)
@@ -245,7 +245,7 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
             HTML with the style block containing nice-looking request body.
         """
         if obj.request_body is not None:
-            return prettify_string_to_html(obj.request_body)
+            return prettify_data_to_html(obj.request_body)
         return ''
 
     @staticmethod
@@ -260,7 +260,7 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
             HTML with the style block containing nice-looking response body.
         """
         if obj.response_body is not None:
-            return prettify_string_to_html(obj.response_body)
+            return prettify_data_to_html(obj.response_body)
         return ''
 
     @staticmethod

@@ -6,17 +6,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.3.3] - 2022-04-24
+
+## [0.3.3] - 2022-04-25
 ### Added
 - Tests covering the main functionality.
 - Codecov for GitHub Actions.
 - Dockerfile for local test run.
 - DEMO-mode for application run.
+- Test covering the response timeout.
 
 ### Changed
 - Dependencies updated.
 - Readme updated: tests run described, codecov badge added, DEMO service info added.
 - Breadcrumbs bug fixed.
+- Json handling bug fixed.
 - Minor fixes.
 
 ## [0.3.2] - 2022-04-10

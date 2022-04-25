@@ -1,6 +1,6 @@
-import ast
 import json
-from typing import Any, Dict, Optional
+from json import JSONDecodeError
+from typing import Any, Dict, Optional, Union
 from xml.dom import minidom
 
 from django.utils.safestring import mark_safe
@@ -10,23 +10,20 @@ from pygments.lexers import XmlLexer
 from pygments.lexers.data import JsonLexer
 
 
-def str_to_dict(string: str) -> Optional[dict]:
-    """Convert dictionary-friendly string to python dict.
+def is_json(string: str) -> bool:
+    """Check if the string is json-friendly.
 
     Args:
-        string: string which may contain dictionary.
+        string: string for checking.
 
     Returns:
-        Python dict if conversion is possible, None otherwise.
+        True if the string is JSON, False otherwise.
     """
     try:
-        data = ast.literal_eval(string)
-        if isinstance(data, Dict):
-            return data
-    except Exception:
-        return None
-    else:
-        return None
+        json.loads(string)
+    except (JSONDecodeError, TypeError):
+        return False
+    return True
 
 
 def str_to_dom_document(string: str) -> Optional[minidom.Document]:
@@ -44,18 +41,24 @@ def str_to_dom_document(string: str) -> Optional[minidom.Document]:
         return None
 
 
-def prettify_json_html(dict_data: Dict[str, Any]) -> str:
+def prettify_json_html(data: Union[str, Dict[str, Any]]) -> str:
     """Pretty JSON data for admin fields.
 
     Args:
-        dict_data: data in the python dictionary format.
+        data: json-friendly string or python dictionary.
 
     Returns:
         HTML-code with pretty JSON and style.
     """
-    json_string = json.dumps(dict_data, sort_keys=True, indent=2)
+    if isinstance(data, dict):
+        json_string_with_indents = json.dumps(data, sort_keys=True, indent=2)
+    elif isinstance(data, str):
+        json_string_with_indents = json.dumps(json.loads(data), sort_keys=True, indent=2)
+    else:
+        raise ValueError(f'Unsupported data type received: {type(data)}. String or Dict expected.')
+
     formatter = HtmlFormatter()
-    json_prettified = highlight(json_string, JsonLexer(), formatter)
+    json_prettified = highlight(json_string_with_indents, JsonLexer(), formatter)
     style = f'<style>{formatter.get_style_defs()}</style>'
     return json_prettified + style
 
@@ -76,23 +79,23 @@ def prettify_xml_html(dom_document: minidom.Document) -> str:
     return xml_prettified + style
 
 
-def prettify_string_to_html(string: str) -> str:
+def prettify_data_to_html(data: Union[str, Dict[str, Any]]) -> str:
     """Pretty data for admin fields.
 
     Generates HTML data with styles for a pretty display of the XML or JSON data.
     If the string is not XML-friendly or JSON-friendly, it'll be returned without any modifications.
 
     Args:
-        string: string data for displaying in the admin site.
+        data: string data for displaying in the admin site.
 
     Returns:
         A string containing HTML code or marked safe original string.
     """
-    if dict_data := str_to_dict(string):
-        return mark_safe(prettify_json_html(dict_data))
-    elif dom_doc := str_to_dom_document(string):
+    if isinstance(data, dict) or is_json(data):
+        return mark_safe(prettify_json_html(data))
+    elif dom_doc := str_to_dom_document(data):
         return mark_safe(prettify_xml_html(dom_doc))
-    return mark_safe(string)
+    return mark_safe(data)
 
 
 def clean_headers(headers: Dict[str, str]) -> Dict[str, str]:
