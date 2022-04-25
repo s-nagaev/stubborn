@@ -5,17 +5,19 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.core.handlers.wsgi import WSGIRequest
+from django.http import HttpRequest, HttpResponseRedirect
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from apps import inlines, models
 from apps.forms import ResourceStubForm, ResponseStubForm
 from apps.mixins import DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin, RelatedCUDManagerMixin
-from apps.utils import prettify_json_html, prettify_string_to_html
+from apps.utils import prettify_data_to_html, prettify_json_html
 
 
 @admin.register(models.Application)
 class ApplicationAdmin(admin.ModelAdmin):
-    readonly_fields = ['owner']
+    readonly_fields = ('owner', )
     list_display = ('name', 'slug', 'resources_count', 'short_desc')
     fields = ('name', 'description', 'slug', 'owner')
     inlines = [inlines.LogsInline]
@@ -68,6 +70,7 @@ class ApplicationAdmin(admin.ModelAdmin):
 @admin.register(models.ResourceStub)
 class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.ModelAdmin):
     form = ResourceStubForm
+    readonly_fields = ('creator', )
     list_display = ('uri_with_slash', 'method', 'response', 'description', 'full_url')
     no_add_related = ('application', 'response',)
     no_edit_related = ('application',)
@@ -102,10 +105,24 @@ class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
         url = os.path.join(settings.DOMAIN_DISPLAY, obj.application.slug, obj.uri)
         return mark_safe(f'<a href={url}>{url}</a>')
 
+    def response_add(self, request: HttpRequest, obj: models.ResourceStub, post_url_continue: Optional[str] = None):
+        """Return to the application page after adding.
+
+        Args:
+            request: HttpRequest instance.
+            obj: model instance.
+            post_url_continue: default redirection URL.
+
+        Returns:
+            HttpResponse instance.
+        """
+        return HttpResponseRedirect(reverse("admin:apps_application_change", args=(obj.application.pk,)))
+
 
 @admin.register(models.ResponseStub)
 class ResponseStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.ModelAdmin):
     form = ResponseStubForm
+    readonly_fields = ('creator', )
     list_display = ('status_code', 'format', 'timeout', 'has_headers', 'has_body', 'description')
     no_add_related = ('application', )
     no_edit_related = ('application', )
@@ -135,6 +152,19 @@ class ResponseStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
             True if the response stub has a headers set up, False otherwise.
         """
         return bool(obj.headers)
+
+    def response_add(self, request: HttpRequest, obj: models.ResponseStub, post_url_continue: Optional[str] = None):
+        """Return to the application page after adding.
+
+        Args:
+            request: HttpRequest instance.
+            obj: model instance.
+            post_url_continue: default redirection URL.
+
+        Returns:
+            HttpResponse instance.
+        """
+        return HttpResponseRedirect(reverse("admin:apps_application_change", args=(obj.application.pk,)))
 
 
 @admin.register(models.RequestLog)
@@ -215,7 +245,7 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
             HTML with the style block containing nice-looking request body.
         """
         if obj.request_body is not None:
-            return prettify_string_to_html(obj.request_body)
+            return prettify_data_to_html(obj.request_body)
         return ''
 
     @staticmethod
@@ -230,7 +260,7 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
             HTML with the style block containing nice-looking response body.
         """
         if obj.response_body is not None:
-            return prettify_string_to_html(obj.response_body)
+            return prettify_data_to_html(obj.response_body)
         return ''
 
     @staticmethod
@@ -244,6 +274,8 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
         Returns:
             String containing the resource description.
         """
+        if not obj.resource:
+            return ''
         return obj.resource.description or ''
 
     @staticmethod

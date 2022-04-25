@@ -2,6 +2,7 @@ import json
 from unittest.mock import patch
 
 import pytest
+from django.utils import timezone
 
 from apps.tests.data import create_application, create_resource_stub, create_response_stub
 from apps.tests.utils import get_url
@@ -43,6 +44,20 @@ class TestResponseStub:
         response = api_client.get(path=get_url(resource))
         assert response.status_code == 200
         assert response.json() == {'Status': 'OK'}
+
+    def test_response_timeout(self, api_client):
+        application = create_application()
+        response_stub = create_response_stub(
+            application=application,
+            status_code=200,
+            timeout=2,
+        )
+        resource = create_resource_stub(application=application, response=response_stub, method='GET')
+        before_request_time = timezone.now()
+        response = api_client.get(path=get_url(resource))
+        after_request_time = timezone.now()
+        assert response.status_code == 200
+        assert (after_request_time-before_request_time).seconds == 2
 
     def test_response_body_xml(self, api_client):
         application = create_application()
@@ -160,11 +175,11 @@ class TestLogging:
 
     @patch("requests.request")
     @pytest.mark.parametrize('request_method', ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])
-    def test_proxy_request_logging(self, mock_requests_post, request_method, api_client):
-        mock_requests_post.return_value.status_code = 200
-        mock_requests_post.return_value.json.return_value = {'Status': 'OK'}
-        mock_requests_post.return_value.content.decode.return_value = '{"Status": "OK"}'
-        mock_requests_post.return_value.headers = {
+    def test_proxy_request_logging(self, mock_requests_request, request_method, api_client):
+        mock_requests_request.return_value.status_code = 200
+        mock_requests_request.return_value.json.return_value = {'Status': 'OK'}
+        mock_requests_request.return_value.content.decode.return_value = '{"Status": "OK"}'
+        mock_requests_request.return_value.headers = {
             'Custom-Serverside-Header': 'Some Value',
             'Content-Type': 'application/json'
         }
@@ -193,6 +208,7 @@ class TestLogging:
 
         assert response.status_code == 200
 
+        mock_requests_request.assert_called_once()
         request_log = resource.logs.last()
         assert request_log is not None
         assert request_log.application == application

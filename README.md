@@ -1,6 +1,8 @@
 [![Quality Gate](https://github.com/s-nagaev/stubborn/actions/workflows/main.yml/badge.svg)](https://github.com/s-nagaev/stubborn/actions/workflows/main.yml)
 [![codecov](https://codecov.io/gh/s-nagaev/stubborn/branch/main/graph/badge.svg?token=CVVP1BEH9P)](https://codecov.io/gh/s-nagaev/stubborn)
-
+[![Sonar](https://img.shields.io/sonar/quality_gate/s-nagaev_stubborn/main?label=Sonar%20QG&server=https%3A%2F%2Fsonarcloud.io)](https://sonarcloud.io/project/overview?id=s-nagaev_stubborn)
+[![Issues](https://img.shields.io/github/issues/s-nagaev/stubborn)](https://github.com/s-nagaev/stubborn/issues/new)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/s-nagaev/stubborn/pulls)
 <p align="center">
   <img width=150 src="docs/logo.png" alt="logo">
   <br>
@@ -98,6 +100,15 @@ Please, note that the parameter `-d` in the command example will tell Docker Com
 The site should now be running at http://0.0.0.0:8000. To access the service admin panel visit 
 `http://localhost:8000/admin/` and log in as a superuser.
 
+## Can I try it right now?
+Sure! You may check the DEMO-version of the service here: [https://mocked.dev](https://mocked.dev)
+
+| Login  | Password |
+|--------|----------|
+| `demo` | `demo`   |
+
+> Please note, that everything you do will be restored in 1 hour. 
+
 ## Development
 
 ### The Plan (MVP)
@@ -110,25 +121,14 @@ The site should now be running at http://0.0.0.0:8000. To access the service adm
 - [x] add plain text response support;
 - [x] publish the application images to Docker Hub;
 - [x] add request proxy support;
-- [ ] cover code with tests;
+- [x] cover code with tests;
+- [x] set up the demo server;
 - [ ] add template support for the response body;
 - [ ] add client's webhook call support;
-- [ ] add GraphQL over http support;
 - [ ] add HTML-response support;
 - [ ] add the REST API for manipulation with main application entities;  
 - [ ] add the `team` entity for sharing stub methods with teammates only;
 - [ ] improve UI/UX.
-
-### Running tests
-Run tests:
-```shell
-make tests
-```
-
-Or just run them in docker:
-```shell
-make docker_tests
-```
 
 ### Setting Up for Development
 **To set up the development environment:**
@@ -166,3 +166,13 @@ make docker_dev
 
 The site should now be running at http://localhost:8000. To access Django administration site, 
 visit `http://localhost:8000/admin/` and log in as a superuser.
+
+### Running tests
+Run tests:
+```shell
+make tests
+```
+Or just run them in docker:
+```shell
+make docker_tests
+```

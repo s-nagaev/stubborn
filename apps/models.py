@@ -1,6 +1,3 @@
-import os
-
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -9,14 +6,17 @@ from rest_framework.renderers import BaseRenderer, JSONRenderer
 
 from apps.enums import BodyFormat, HTTPMethods
 from apps.renderers import SimpleTextRenderer, TextToXMLRenderer
-from apps.utils import str_to_dict, str_to_dom_document
+from apps.utils import is_json, str_to_dom_document
 
 
 class Application(models.Model):
     name = models.CharField(max_length=50, verbose_name='Name', null=False)
     description = models.TextField(verbose_name='Description', null=True, blank=True)
     slug = models.SlugField(verbose_name='Slug', allow_unicode=True, null=False, unique=True)
-    owner = models.ForeignKey(User, verbose_name='Application Owner', null=True, blank=True, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, verbose_name='Application Owner', null=True, blank=True, on_delete=models.CASCADE,
+                              related_name='applications')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Created at')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Updated at')
 
     class Meta:
         verbose_name = 'application'
@@ -40,6 +40,10 @@ class ResponseStub(models.Model):
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='responses')
     format = models.CharField(max_length=10, choices=BodyFormat.choices, default=BodyFormat.PLAIN_TEXT.value,
                               verbose_name='Format')
+    creator = models.ForeignKey(User, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL,
+                                related_name='responses')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Created at')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Updated at')
 
     class Meta:
         verbose_name = 'response'
@@ -85,7 +89,7 @@ class ResponseStub(models.Model):
     def clean(self) -> None:
         if not self.body:
             return
-        if self.is_json_format and not str_to_dict(self.body):
+        if self.is_json_format and not is_json(self.body):
             raise ValidationError(_('The body is not a valid JSON.'), code='invalid')
         if self.format == BodyFormat.XML.value and not str_to_dom_document(self.body):
             raise ValidationError(_('The body is not a valid XML.'), code='invalid')
@@ -100,6 +104,10 @@ class ResourceStub(models.Model):
     method = models.CharField(max_length=10, choices=HTTPMethods.choices, default=HTTPMethods.GET.value,
                               verbose_name='HTTP Method', null=True, blank=True)
     proxy_destination_address = models.URLField(verbose_name='Proxy to', default=None, blank=True, null=True)
+    creator = models.ForeignKey(User, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL,
+                                related_name='resources')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Created at')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Updated at')
 
     class Meta:
         verbose_name = 'resource'
@@ -121,15 +129,16 @@ class ResourceStub(models.Model):
 
 
 class RequestLog(models.Model):
+    url = models.URLField(verbose_name='URL Called', default=None, null=True, blank=True)
     params = models.JSONField(verbose_name='Query Params', default=dict, null=True, blank=True)
     request_body = models.TextField(verbose_name='Request Body', null=True, blank=True)
     request_headers = models.JSONField(verbose_name='Headers', default=dict, null=True, blank=True)
     response_body = models.TextField(verbose_name='Request Body', null=True, blank=True)
     response_headers = models.JSONField(verbose_name='Headers', default=dict, null=True, blank=True)
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='logs')
-    resource = models.ForeignKey(ResourceStub, on_delete=models.CASCADE, related_name='logs')
-    response = models.ForeignKey(ResponseStub, verbose_name='Response', null=True, blank=True, on_delete=models.CASCADE,
-                                 related_name='logs')
+    resource = models.ForeignKey(ResourceStub, null=True, blank=True, on_delete=models.SET_NULL, related_name='logs')
+    response = models.ForeignKey(ResponseStub, verbose_name='Response', null=True, blank=True,
+                                 on_delete=models.SET_NULL, related_name='logs')
     ipaddress = models.GenericIPAddressField(verbose_name='Remote IP', default='127.0.0.1')
     x_real_ip = models.GenericIPAddressField(verbose_name='X-REAL-IP', default='127.0.0.1', null=True, blank=True)
     proxied = models.BooleanField(verbose_name='Proxied', default=False, null=False, blank=False)
@@ -137,6 +146,7 @@ class RequestLog(models.Model):
     status_code = models.IntegerField(verbose_name='Status Code', null=True, blank=True)
     method = models.CharField(verbose_name='Method', max_length=10, default=None, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Received at')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Updated at')
 
     class Meta:
         verbose_name = 'request log'
@@ -150,7 +160,3 @@ class RequestLog(models.Model):
         """
         method = f'{self.method.upper()} ' if self.method else ''
         return f'{method}{self.url}'
-
-    @property
-    def url(self) -> str:
-        return os.path.join(settings.DOMAIN_DISPLAY, self.application.slug, self.resource.uri)

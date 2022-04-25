@@ -107,3 +107,8 @@ STATIC_URL = '/static/'
 
 # APPLICATION
 REQUEST_LOGS_INLINE_LIMIT = 5
+
+# DEMO MODE SETTINGS
+DEMO_MODE = env.bool('DEMO_MODE', default=False)
+DEMO_USER_NAME = env.str('DEMO_USER_NAME', default='demo')
+DEMO_RECORDS_TTL = env.int('DEMO_RECORDS_TTL', default=3600)  # Demo DB records lifetime in seconds

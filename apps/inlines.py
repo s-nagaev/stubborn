@@ -36,8 +36,8 @@ class LogsInline(mixins.DenyCUDMixin, admin.TabularInline):
     parent_model = models.Application
     fk_name = 'application'
     template = 'admin/apps/request_log/inlines/tabular.html'
-    fields = ('created_at', 'get_method', 'url', 'get_remote_ip', 'resource', 'status_code')
-    readonly_fields = ('created_at', 'get_method', 'url', 'get_remote_ip')
+    fields = ('created_at', 'method', 'url', 'get_remote_ip', 'resource', 'status_code')
+    readonly_fields = ('created_at', 'url', 'get_remote_ip')
     show_change_link = False
     extra = 0
 
@@ -52,22 +52,10 @@ class LogsInline(mixins.DenyCUDMixin, admin.TabularInline):
         Returns:
             QuerySet containing recent logs.
         """
-        queryset = super().get_queryset(request)
+        application_id = request.resolver_match.kwargs['object_id']
+        queryset = super().get_queryset(request).filter(application_id=application_id)
         ids = queryset.order_by('-id').values('pk')[:settings.REQUEST_LOGS_INLINE_LIMIT]
         return self.model.objects.filter(pk__in=ids).order_by('-pk')
-
-    @staticmethod
-    @admin.display(description='Method')
-    def get_method(obj: models.RequestLog) -> str:
-        """Getter for the resource method.
-
-        Args:
-            obj: RequestLog instance.
-
-        Returns:
-            String containing the resource method.
-        """
-        return obj.resource.method or 'n/a'
 
     @staticmethod
     @admin.display(description='Remote IP/X-Real-IP')
