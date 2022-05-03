@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2022-05-02
+### Changed
+- Bug preventing the creation of a new application record fixed. 
 
 ## [0.3.3] - 2022-04-25
 ### Added
