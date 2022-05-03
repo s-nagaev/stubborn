@@ -52,8 +52,11 @@ class LogsInline(mixins.DenyCUDMixin, admin.TabularInline):
         Returns:
             QuerySet containing recent logs.
         """
-        application_id = request.resolver_match.kwargs['object_id']
-        queryset = super().get_queryset(request).filter(application_id=application_id)
+        default_queryset = super().get_queryset(request)
+        application_id = request.resolver_match.kwargs.get('object_id')
+        if not application_id:
+            return default_queryset
+        queryset = default_queryset.filter(application_id=application_id)
         ids = queryset.order_by('-id').values('pk')[:settings.REQUEST_LOGS_INLINE_LIMIT]
         return self.model.objects.filter(pk__in=ids).order_by('-pk')
 
