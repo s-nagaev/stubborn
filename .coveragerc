@@ -2,6 +2,8 @@
 include =
     apps/*
 omit =
+    *admin*
+    *inlines*
     *conftest*
     *migrations*
     *tests*

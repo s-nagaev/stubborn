@@ -4,7 +4,6 @@ from typing import Any, Optional, cast
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import User
-from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -28,11 +27,23 @@ class ApplicationAdmin(admin.ModelAdmin):
             'all': ('admin/css/application.css',)
         }
 
-    def save_model(self, request: WSGIRequest, obj: models.Application, *args: Any, **kwargs: Any) -> None:
+    def get_inlines(self, request: HttpRequest, obj: models.Application = None):
+        """Hook for specifying custom inlines.
+
+        Args:
+            request: HttpRequest instance.
+            obj: model instance.
+
+        Returns:
+            List containing InlineModelAdmin objects if there is Application object data, empty list otherwise.
+        """
+        return self.inlines if obj else []
+
+    def save_model(self, request: HttpRequest, obj: models.Application, *args: Any, **kwargs: Any) -> None:
         """Save model with current user fixation in the owner field.
 
         Args:
-            request: WSGIRequest instance.
+            request: HttpRequest instance.
             obj: model instance.
         """
         obj.owner = cast(User, request.user)
