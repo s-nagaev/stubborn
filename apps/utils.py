@@ -51,9 +51,9 @@ def prettify_json_html(data: Union[str, Dict[str, Any]]) -> str:
         HTML-code with pretty JSON and style.
     """
     if isinstance(data, dict):
-        json_string_with_indents = json.dumps(data, sort_keys=True, indent=2)
+        json_string_with_indents = json.dumps(data, sort_keys=True, indent=2, ensure_ascii=False)
     elif isinstance(data, str):
-        json_string_with_indents = json.dumps(json.loads(data), sort_keys=True, indent=2)
+        json_string_with_indents = json.dumps(json.loads(data), sort_keys=True, indent=2, ensure_ascii=False)
     else:
         raise ValueError(f'Unsupported data type received: {type(data)}. String or Dict expected.')
 
