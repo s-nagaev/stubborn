@@ -28,6 +28,7 @@ class ResourceStubForm(ModelForm):
 class ResponseStubForm(ModelForm):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+        self.fields['body'].strip = False
 
         if args:
             return
