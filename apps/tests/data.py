@@ -39,7 +39,7 @@ def create_response_stub(**kwargs) -> ResponseStub:
 
 
 def create_resource_stub(**kwargs) -> ResourceStub:
-    kwargs.setdefault('uri', fake.slug())
+    kwargs.setdefault('slug', fake.slug())
     kwargs.setdefault('description', fake.paragraph(nb_sentences=3))
     kwargs.setdefault('method', fake.http_method())
     kwargs.setdefault('application', create_application())

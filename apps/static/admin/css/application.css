@@ -22,6 +22,15 @@ a.button {
     width: 100em;
     height: 5em;
 }
+
+a.stubitlink:link, a.stubitlink:visited {
+    background: #2C3F60;  /* 2C3F60 */
+}
+
+a.stubitlink:focus, a.stubitlink:hover {
+    background: #405982;
+    text-decoration: none;
+}
 fieldset.module:nth-child(5) > h2:nth-child(1) {
     text-align: center;
 }

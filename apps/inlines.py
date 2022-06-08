@@ -13,7 +13,7 @@ class ResourcesInline(mixins.DenyUpdateMixin, mixins.DenyDeleteMixin, admin.Tabu
     classes = ('collapse',)
     show_change_link = True
     extra = 0
-    fields = ('method', 'uri', 'description', 'response')
+    fields = ('method', 'slug', 'description', 'response')
     readonly_fields = ('get_url', )
 
     @staticmethod

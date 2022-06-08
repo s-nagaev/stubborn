@@ -1,10 +1,13 @@
+import os.path
+
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 from django.db import models
 from django.utils.translation import gettext as _
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 
-from apps.enums import BodyFormat, HTTPMethods
+from apps.enums import BodyFormat, HTTPMethods, ResponseChoices
 from apps.renderers import SimpleTextRenderer, TextToXMLRenderer
 from apps.utils import is_json, str_to_dom_document
 
@@ -96,7 +99,10 @@ class ResponseStub(models.Model):
 
 
 class ResourceStub(models.Model):
-    uri = models.SlugField(verbose_name='URI', allow_unicode=True, null=False)
+    response_type = models.CharField(max_length=30, choices=ResponseChoices.choices,
+                                     default=ResponseChoices.CUSTOM.value, verbose_name='Response Type')
+    slug = models.SlugField(verbose_name='Slug', allow_unicode=True, null=False)
+    tail = models.CharField(verbose_name='URL Tail', max_length=120, default='', blank=True)
     response = models.ForeignKey(ResponseStub, verbose_name='Response', related_name='resources',
                                  on_delete=models.CASCADE, null=True, blank=True)
     description = models.TextField(verbose_name='Description', null=True, blank=True)
@@ -112,7 +118,7 @@ class ResourceStub(models.Model):
     class Meta:
         verbose_name = 'resource'
         verbose_name_plural = 'resources'
-        unique_together = ('uri', 'method')
+        unique_together = ('slug', 'method', 'tail')
 
     def __str__(self) -> str:
         """Object's string representation.
@@ -120,12 +126,16 @@ class ResourceStub(models.Model):
         Returns:
             String representation.
         """
-        return f'{self.uri}'
+        return f'{self.slug}'
 
     def clean(self) -> None:
         if not self.response and not self.proxy_destination_address:
             raise ValidationError(_('The resource stub must be created with the response or proxy instruction.'),
                                   code='invalid')
+        if self.tail:
+            validator = URLValidator(message=_('Wrong URL tail format.'))
+            url = os.path.join('https://test.com', self.slug, self.tail)
+            validator(url)
 
 
 class RequestLog(models.Model):
@@ -160,3 +170,12 @@ class RequestLog(models.Model):
         """
         method = f'{self.method.upper()} ' if self.method else ''
         return f'{method}{self.url}'
+
+    @property
+    def response_format(self) -> str:
+        content_type = self.response_headers.get('Content-Type')
+        if 'json' in content_type:
+            return BodyFormat.JSON
+        if 'xml' in content_type:
+            return BodyFormat.XML
+        return BodyFormat.PLAIN_TEXT
