@@ -31,8 +31,7 @@
 {% endblock %}
 
 {% block object-tools-items %}
-{#{{ block.super }}#}
-
+<ul>
 {% if original.proxied %}
     <li>
         <form name="submitForm" method="POST" action="/log/{{ original.pk }}/stub/">
@@ -43,8 +42,9 @@
     </li>
 {% endif %}
 
-<li>
-    <a class="viewsitelink" href="{% url 'admin:apps_application_change' original.application.pk %}"> {% translate 'Back to Application' %}</a>
-</li>
+    <li>
+        <a class="viewsitelink" href="{% url 'admin:apps_application_change' original.application.pk %}"> {% translate 'Back to Application' %}</a>
+    </li>
+</ul>
 {% endblock %}
 
