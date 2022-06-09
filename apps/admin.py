@@ -82,7 +82,7 @@ class ApplicationAdmin(admin.ModelAdmin):
 class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.ModelAdmin):
     form = ResourceStubForm
     readonly_fields = ('creator', )
-    list_display = ('uri_with_slash', 'method', 'response', 'description', 'full_url')
+    list_display = ('method', 'uri_with_slash', 'response', 'description', 'full_url', 'proxied')
     no_add_related = ('application', 'response',)
     no_edit_related = ('application',)
 
@@ -100,7 +100,7 @@ class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
         Returns:
             URI with the leading slash.
         """
-        return f'/{obj.uri}'
+        return f'/{obj.slug}'
 
     @staticmethod
     @admin.display(description='Full URL')
@@ -113,7 +113,7 @@ class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
         Returns:
             The full application resource URL.
         """
-        url = os.path.join(settings.DOMAIN_DISPLAY, obj.application.slug, obj.uri)
+        url = os.path.join(settings.DOMAIN_DISPLAY, obj.application.slug, obj.slug, obj.tail)
         return mark_safe(f'<a href={url}>{url}</a>')
 
     def response_add(self, request: HttpRequest, obj: models.ResourceStub, post_url_continue: Optional[str] = None):
@@ -128,6 +128,19 @@ class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
             HttpResponse instance.
         """
         return HttpResponseRedirect(reverse("admin:apps_application_change", args=(obj.application.pk,)))
+
+    @staticmethod
+    @admin.display(boolean=True, description='Proxied')
+    def proxied(obj: models.ResourceStub) -> bool:
+        """Get the request proxy status.
+
+        Args:
+            obj: model instance.
+
+        Returns:
+            True if the request is proxied, False otherwise.
+        """
+        return bool(obj.proxy_destination_address)
 
 
 @admin.register(models.ResponseStub)
@@ -180,6 +193,8 @@ class ResponseStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
 
 @admin.register(models.RequestLog)
 class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin, admin.ModelAdmin):
+    change_form_template = 'admin/apps/request_log/change_form.html'
+
     fields = (
         'created_at',
         'destination_url',
@@ -201,6 +216,11 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
         'pretty_response_headers',
         'pretty_response_body'
     )
+
+    class Media:
+        css = {
+            'all': ('admin/css/application.css',)
+        }
 
     @staticmethod
     @admin.display(description='Query params')

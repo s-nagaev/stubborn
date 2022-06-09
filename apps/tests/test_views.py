@@ -4,6 +4,7 @@ from unittest.mock import patch
 import pytest
 from django.utils import timezone
 
+from apps.enums import ResponseChoices
 from apps.tests.data import create_application, create_resource_stub, create_response_stub
 from apps.tests.utils import get_url
 
@@ -115,7 +116,8 @@ class TestResponseStub:
         resource = create_resource_stub(
             application=application,
             method='GET',
-            proxy_destination_address='https://example.com/foo'
+            proxy_destination_address='https://example.com/foo',
+            response_type=ResponseChoices.PROXY_CURRENT
         )
 
         response = api_client.get(path=get_url(resource))
@@ -188,7 +190,8 @@ class TestLogging:
         resource = create_resource_stub(
             application=application,
             method=request_method,
-            proxy_destination_address='https://example.com/foo'
+            proxy_destination_address='https://example.com/foo',
+            response_type=ResponseChoices.PROXY_CURRENT
         )
         request_params = '?param1=value1&param2=value2'
         request_body = {

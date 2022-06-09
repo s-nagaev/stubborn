@@ -6,9 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Global proxy functionality implemented.
+- Ability to stub the specific resource from proxy logging added.
+
 ## [0.4.1] - 2022-05-15
 ### Changed
-- Cyrillic display in logs fixed.
+- Fixed display of Cyrillic characters in logs.
 - Response body strip disabled.
 
 ## [0.4.0] - 2022-05-02

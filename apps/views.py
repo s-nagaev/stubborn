@@ -1,9 +1,8 @@
-import ast
-from time import sleep
 from typing import Any, cast
+from urllib.parse import urlparse
 
-from django.shortcuts import get_object_or_404
-from requests import JSONDecodeError
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from rest_framework.renderers import JSONRenderer
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -11,10 +10,9 @@ from rest_framework.views import APIView
 from rest_framework_xml.renderers import XMLRenderer
 
 from apps import models
-from apps.models import ResponseStub
+from apps.enums import ResponseChoices
 from apps.renderers import SimpleTextRenderer, TextToXMLRenderer
-from apps.services import proxy_request, request_log_create
-from apps.utils import clean_headers
+from apps.services import get_regular_response, get_resource_from_request, get_third_party_service_response
 
 
 class ResponseStubView(APIView):
@@ -24,71 +22,16 @@ class ResponseStubView(APIView):
     @staticmethod
     def make_response(request: Request, **kwargs: Any) -> Response:
         application = get_object_or_404(models.Application, slug=kwargs.get('app_slug', ''))
-        resource = get_object_or_404(models.ResourceStub,
-                                     application=application,
-                                     uri=kwargs.get('resource_slug', ''),
-                                     method=request.method)
+        resource = get_resource_from_request(request, kwargs)
         request.accepted_renderer = JSONRenderer()
 
-        if resource.proxy_destination_address:
-            destination_response = proxy_request(
-                incoming_request=request,
-                destination_url=resource.proxy_destination_address
-            )
-            response_body = destination_response.content.decode()
-            response_headers = clean_headers(dict(destination_response.headers))
+        if resource.response_type in (ResponseChoices.PROXY_CURRENT, ResponseChoices.PROXY_GLOBAL):
+            return get_third_party_service_response(application=application,
+                                                    request=request,
+                                                    resource=resource,
+                                                    tail=kwargs.get('tail', ''))
 
-            content_type = response_headers['Content-Type']
-
-            if '/xml' in content_type:
-                request.accepted_renderer = XMLRenderer()
-
-            if 'text/html' in content_type:
-                request.accepted_renderer = SimpleTextRenderer()
-
-            request_log_create(application=application,
-                               resource_stub=resource,
-                               request=request,
-                               response_status_code=destination_response.status_code,
-                               response_body=response_body,
-                               response_headers=response_headers,
-                               proxied=True,
-                               destination_url=resource.proxy_destination_address)
-
-            try:
-                response_body = destination_response.json()
-            except JSONDecodeError:
-                pass
-
-            return Response(
-                data=response_body,
-                status=destination_response.status_code,
-                headers=response_headers
-            )
-
-        response_stub = cast(ResponseStub, resource.response)
-        request.accepted_renderer = response_stub.renderer
-
-        request_log_create(application=application,
-                           resource_stub=resource,
-                           response_stub=response_stub,
-                           request=request,
-                           response_status_code=response_stub.status_code,
-                           response_body=response_stub.body,
-                           response_headers=response_stub.headers)
-
-        sleep(response_stub.timeout)
-
-        if response_stub.is_json_format:
-            response_data = ast.literal_eval(response_stub.body or '')
-        else:
-            response_data = response_stub.body
-
-        return Response(
-            data=response_data,
-            status=response_stub.status_code,
-            headers=response_stub.headers
-        )
+        return get_regular_response(application=application, request=request, resource=resource)
 
     @staticmethod
     def get(request: Request, **kwargs: Any) -> Response:
@@ -109,3 +52,40 @@ class ResponseStubView(APIView):
     @staticmethod
     def delete(request: Request, **kwargs: Any) -> Response:
         return ResponseStubView.make_response(request=request, **kwargs)
+
+
+class StubRequestView(APIView):
+    """Stub selected request from the log view window.
+
+    Composing the response stub according to the logged data.
+    """
+    http_method_names = ['post']
+    renderer_classes = (JSONRenderer, )
+
+    def post(self, request: Request, **kwargs: Any):
+        log_id = kwargs.get('log_id', 0)
+        log = get_object_or_404(models.RequestLog, pk=log_id)
+        parsed_url = urlparse(log.url)
+        path = cast(str, parsed_url.path)
+        _, app_slug, resource_slug, tail = path.split('/', 3)
+
+        response = models.ResponseStub.objects.create(
+            status_code=cast(int, log.status_code),
+            headers=log.response_headers,
+            body=log.response_body,
+            application=log.application,
+            format=log.response_format,
+            creator=request.user,
+            description=f'(for {resource_slug})'
+        )
+        resource = models.ResourceStub.objects.create(
+            response_type=ResponseChoices.CUSTOM,
+            slug=resource_slug,
+            tail=tail,
+            response=response,
+            description='Auto-created proxy stub',
+            application=log.application,
+            method=log.method,
+            creator=request.user
+        )
+        return redirect(reverse('admin:apps_resourcestub_change', args=(resource.pk,)))
