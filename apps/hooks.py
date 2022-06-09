@@ -1,13 +1,12 @@
-from typing import cast
-from time import sleep
-
 import logging
+from time import sleep
+from typing import cast
 
 import requests
 from django.conf import settings
 from django.db.models import QuerySet
 
-from apps import models, enums
+from apps import enums, models
 
 logger = logging.getLogger(__name__)
 

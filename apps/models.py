@@ -2,13 +2,13 @@ import os.path
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.core.validators import URLValidator, MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, URLValidator
 from django.db import models
 from django.db.models import UniqueConstraint
 from django.utils.translation import gettext as _
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 
-from apps.enums import BodyFormat, HTTPMethods, ResponseChoices, Lifecycle, Action
+from apps.enums import Action, BodyFormat, HTTPMethods, Lifecycle, ResponseChoices
 from apps.renderers import SimpleTextRenderer, TextToXMLRenderer
 from apps.utils import is_json, str_to_dom_document
 

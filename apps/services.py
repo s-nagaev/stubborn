@@ -1,7 +1,6 @@
 import ast
 import os
 from json import JSONDecodeError
-from time import sleep
 from typing import Any, Dict, Optional, cast
 
 import requests
@@ -14,7 +13,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response as RestResponse
 from rest_framework_xml.renderers import XMLRenderer
 
-from apps import models, hooks
+from apps import hooks, models
 from apps.enums import ResponseChoices
 from apps.models import Application, RequestLog, ResourceStub, ResponseStub
 from apps.renderers import SimpleTextRenderer

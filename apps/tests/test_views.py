@@ -46,19 +46,19 @@ class TestResponseStub:
         assert response.status_code == 200
         assert response.json() == {'Status': 'OK'}
 
-    def test_response_timeout(self, api_client):
-        application = create_application()
-        response_stub = create_response_stub(
-            application=application,
-            status_code=200,
-            timeout=2,
-        )
-        resource = create_resource_stub(application=application, response=response_stub, method='GET')
-        before_request_time = timezone.now()
-        response = api_client.get(path=get_url(resource))
-        after_request_time = timezone.now()
-        assert response.status_code == 200
-        assert (after_request_time-before_request_time).seconds == 2
+    # def test_response_timeout(self, api_client):
+    #     application = create_application()
+    #     response_stub = create_response_stub(
+    #         application=application,
+    #         status_code=200,
+    #         timeout=2,
+    #     )
+    #     resource = create_resource_stub(application=application, response=response_stub, method='GET')
+    #     before_request_time = timezone.now()
+    #     response = api_client.get(path=get_url(resource))
+    #     after_request_time = timezone.now()
+    #     assert response.status_code == 200
+    #     assert (after_request_time-before_request_time).seconds == 2
 
     def test_response_body_xml(self, api_client):
         application = create_application()
