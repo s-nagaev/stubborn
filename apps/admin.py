@@ -10,6 +10,7 @@ from django.utils.safestring import mark_safe
 
 from apps import inlines, models
 from apps.forms import ResourceStubForm, ResponseStubForm
+from apps.inlines import ResourceHookAdminInline
 from apps.mixins import DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin, RelatedCUDManagerMixin
 from apps.utils import prettify_data_to_html, prettify_json_html
 
@@ -81,13 +82,6 @@ class ApplicationAdmin(admin.ModelAdmin):
 @admin.register(models.RequestStub)
 class RequestStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.ModelAdmin):
     search_fields = ('description', 'uri', 'method', )
-
-
-class ResourceHookAdminInline(admin.TabularInline):
-    extra = 0
-    model = models.ResourceHook
-    # ToDo Filter by application
-    autocomplete_fields = ('request', )
 
 
 @admin.register(models.ResourceStub)

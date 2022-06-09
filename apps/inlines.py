@@ -8,6 +8,13 @@ from django.utils.safestring import mark_safe
 from apps import mixins, models
 
 
+class ResourceHookAdminInline(admin.TabularInline):
+    extra = 0
+    model = models.ResourceHook
+    # ToDo Filter by application
+    autocomplete_fields = ('request', )
+
+
 class ResourcesInline(mixins.DenyUpdateMixin, mixins.DenyDeleteMixin, admin.TabularInline):
     model = models.ResourceStub
     classes = ('collapse',)
