@@ -78,6 +78,18 @@ class ApplicationAdmin(admin.ModelAdmin):
         return obj.description
 
 
+@admin.register(models.RequestStub)
+class RequestStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.ModelAdmin):
+    search_fields = ('description', 'uri', 'method', )
+
+
+class ResourceHookAdminInline(admin.TabularInline):
+    extra = 0
+    model = models.ResourceHook
+    # ToDo Filter by application
+    autocomplete_fields = ('request', )
+
+
 @admin.register(models.ResourceStub)
 class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.ModelAdmin):
     form = ResourceStubForm
@@ -85,6 +97,7 @@ class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
     list_display = ('method', 'uri_with_slash', 'response', 'description', 'full_url', 'proxied')
     no_add_related = ('application', 'response',)
     no_edit_related = ('application',)
+    inlines = (ResourceHookAdminInline, )
 
     class Media:
         js = ('admin/js/resource/responseSwitcher.js',)
@@ -147,7 +160,7 @@ class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
 class ResponseStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.ModelAdmin):
     form = ResponseStubForm
     readonly_fields = ('creator', )
-    list_display = ('status_code', 'format', 'timeout', 'has_headers', 'has_body', 'description')
+    list_display = ('id', 'status_code', 'format', 'has_headers', 'has_body', 'description')
     no_add_related = ('application', )
     no_edit_related = ('application', )
 

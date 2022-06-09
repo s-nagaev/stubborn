@@ -22,3 +22,14 @@ class BodyFormat(TextChoices):
     JSON = 'JSON', 'JSON'
     XML = 'XML', 'XML'
     PLAIN_TEXT = 'PLAIN_TEXT', 'Text'
+
+
+class Lifecycle(TextChoices):
+    BEFORE_REQUEST = 'before', 'Before request processed'
+    AFTER_REQUEST = 'after_req', 'After request processed'
+    AFTER_RESPONSE = 'after_resp', 'After response returned'
+
+
+class Action(TextChoices):
+    WAIT = 'wait', 'Wait'
+    WEBHOOK = 'webhook', 'Webhook'

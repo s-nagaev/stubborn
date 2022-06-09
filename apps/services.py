@@ -14,7 +14,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response as RestResponse
 from rest_framework_xml.renderers import XMLRenderer
 
-from apps import models
+from apps import models, hooks
 from apps.enums import ResponseChoices
 from apps.models import Application, RequestLog, ResourceStub, ResponseStub
 from apps.renderers import SimpleTextRenderer
@@ -88,8 +88,6 @@ def get_regular_response(application, request, resource) -> RestResponse:
                        response_body=response_stub.body,
                        response_headers=response_stub.headers)
 
-    sleep(response_stub.timeout)
-
     if response_stub.is_json_format:
         response_data = ast.literal_eval(response_stub.body or '')
     else:
@@ -111,10 +109,13 @@ def get_third_party_service_response(application: Application,
 
     destination_address = str(resource.proxy_destination_address)
     remote_url = os.path.join(destination_address, tail) if tail else destination_address
+
+    hooks.before_request(resource)
     destination_response = proxy_request(
         incoming_request=request,
         destination_url=remote_url
     )
+    hooks.after_request(resource)
     response_body = destination_response.content.decode()
     response_headers = clean_headers(dict(destination_response.headers))
 
@@ -140,11 +141,14 @@ def get_third_party_service_response(application: Application,
     except JSONDecodeError:
         pass
 
-    return RestResponse(
-        data=response_body,
-        status=destination_response.status_code,
-        headers=response_headers
-    )
+    try:
+        return RestResponse(
+            data=response_body,
+            status=destination_response.status_code,
+            headers=response_headers
+        )
+    finally:
+        hooks.after_response(resource)
 
 
 def get_resource_from_request(request: Request, kwargs: Dict[Any, Any]) -> ResourceStub:

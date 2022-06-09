@@ -39,6 +39,7 @@
     <a href="{% url 'admin:apps_resourcestub_changelist' %}?application={{ original.pk }}" class="button">{% translate 'Resources' %}</a>
     <a href="{% url 'admin:apps_responsestub_changelist' %}?application={{ original.pk }}" class="button">{% translate 'Responses' %}</a>
     <a href="{% url 'admin:apps_requestlog_changelist' %}?application={{ original.pk }}" class="button">{% translate 'Logs' %}</a>
+    <a href="{% url 'admin:apps_requeststub_changelist' %}?application={{ original.pk }}" class="button">{% translate 'Request' %}</a>
     <p> {{ opts.original.id }} </p>
 </div>
 {% endif %}
