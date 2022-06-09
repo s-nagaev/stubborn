@@ -1,6 +1,6 @@
 import logging
 from time import sleep
-from typing import cast
+from typing import cast, Union, Callable, Dict
 
 import requests
 from django.conf import settings
@@ -36,15 +36,14 @@ def process_webhook(*, headers, body, uri, method, **kwargs):
 HOOK_FIELDS = ["action", "timeout", ]
 REQUEST_STUB_FIELDS = ["headers", "body", "method", "uri", "format"]
 
-process_action = {
+process_action: Dict[str, Callable] = {
     enums.Action.WAIT: process_wait,
     enums.Action.WEBHOOK: process_webhook,
 }
 
 
-def process_hook(hooks: QuerySet, **context):
+def process_hook(hooks: QuerySet[models.ResourceHook], **context):
     for hook in hooks:
-        cast(hook, models.ResourceHook)
         _context = {
             **context,
             **{k: v for k, v in hook.__dict__.items() if k in HOOK_FIELDS}
@@ -52,7 +51,8 @@ def process_hook(hooks: QuerySet, **context):
         if hasattr(hook, "request") and hook.request:
             _context.update(**{k: v for k, v in hook.request.__dict__.items() if k in REQUEST_STUB_FIELDS})
 
-        process_action[hook.action](**_context)
+        action: Callable = process_action[hook.action]
+        return action(**_context)
 
 
 def before_request(resource: models.ResourceStub):
