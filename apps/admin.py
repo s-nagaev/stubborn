@@ -10,6 +10,7 @@ from django.utils.safestring import mark_safe
 
 from apps import inlines, models
 from apps.forms import ResourceStubForm, ResponseStubForm
+from apps.inlines import ResourceHookAdminInline
 from apps.mixins import DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin, RelatedCUDManagerMixin
 from apps.utils import prettify_data_to_html, prettify_json_html
 
@@ -78,6 +79,11 @@ class ApplicationAdmin(admin.ModelAdmin):
         return obj.description
 
 
+@admin.register(models.RequestStub)
+class RequestStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.ModelAdmin):
+    search_fields = ('description', 'uri', 'method', )
+
+
 @admin.register(models.ResourceStub)
 class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.ModelAdmin):
     form = ResourceStubForm
@@ -85,6 +91,7 @@ class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
     list_display = ('method', 'uri_with_slash', 'response', 'description', 'full_url', 'proxied')
     no_add_related = ('application', 'response',)
     no_edit_related = ('application',)
+    inlines = (ResourceHookAdminInline, )
 
     class Media:
         js = ('admin/js/resource/responseSwitcher.js',)
@@ -147,7 +154,7 @@ class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
 class ResponseStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.ModelAdmin):
     form = ResponseStubForm
     readonly_fields = ('creator', )
-    list_display = ('status_code', 'format', 'timeout', 'has_headers', 'has_body', 'description')
+    list_display = ('id', 'status_code', 'format', 'has_headers', 'has_body', 'description')
     no_add_related = ('application', )
     no_edit_related = ('application', )
 
