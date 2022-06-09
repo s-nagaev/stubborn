@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from faker import Faker
 
+from apps.enums import ResponseChoices
 from apps.models import Application, ResourceStub, ResponseStub
 from apps.tests import factories
 
@@ -45,5 +46,6 @@ def create_resource_stub(**kwargs) -> ResourceStub:
     kwargs.setdefault('application', create_application())
     kwargs.setdefault('response', create_response_stub())
     kwargs.setdefault('proxy_destination_address', None)
+    kwargs.setdefault('response_type', ResponseChoices.CUSTOM)
 
     return factories.ResourceStubFactory.create(**kwargs)

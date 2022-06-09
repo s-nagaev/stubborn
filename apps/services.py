@@ -157,13 +157,21 @@ def get_resource_from_request(request: Request, kwargs: Dict[Any, Any]) -> Resou
         slug=slug,
     )
 
-    if resources.count() == 1:
-        return cast(ResourceStub, resources.last())
+    if resource := resources.filter(
+            method=request.method,
+            tail=tail,
+            response_type=ResponseChoices.CUSTOM
+    ).last():  # custom response
+        return resource
 
-    if resource := resources.filter(method=request.method, tail=tail).last():  # custom response
+    if resource := resources.filter(
+            method=request.method,
+            tail=tail,
+            response_type=ResponseChoices.PROXY_CURRENT
+    ).last():  # proxy specific URL
         return resource
 
     if resource := resources.filter(response_type=ResponseChoices.PROXY_GLOBAL).last():  # global proxy
         return resource
 
-    raise Http404('No resource found.')
+    raise Http404('No stub resource found.')

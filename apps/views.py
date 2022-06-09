@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, cast
 from urllib.parse import urlparse
 
 from django.shortcuts import get_object_or_404, redirect
@@ -55,7 +55,10 @@ class ResponseStubView(APIView):
 
 
 class StubRequestView(APIView):
-    """View to select order to joint purchase."""
+    """Stub selected request from the log view window.
+
+    Composing the response stub according to the logged data.
+    """
     http_method_names = ['post']
     renderer_classes = (JSONRenderer, )
 
@@ -63,11 +66,11 @@ class StubRequestView(APIView):
         log_id = kwargs.get('log_id', 0)
         log = get_object_or_404(models.RequestLog, pk=log_id)
         parsed_url = urlparse(log.url)
-        path: str = parsed_url.path
+        path = cast(str, parsed_url.path)
         _, app_slug, resource_slug, tail = path.split('/', 3)
 
         response = models.ResponseStub.objects.create(
-            status_code=log.status_code,
+            status_code=cast(int, log.status_code),
             headers=log.response_headers,
             body=log.response_body,
             application=log.application,
