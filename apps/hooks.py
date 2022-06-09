@@ -1,6 +1,6 @@
 import logging
 from time import sleep
-from typing import cast, Union, Callable, Dict
+from typing import Callable, Dict
 
 import requests
 from django.conf import settings
@@ -18,13 +18,14 @@ def process_wait(*, timeout, **kwargs):
     sleep(timeout)
 
 
-def process_webhook(*, headers, body, uri, method, **kwargs):
-    logger.debug(f"Run webhook. headers={headers}, body={body}, destination_url={uri}, method={method}")
+def process_webhook(*, headers, body, uri, method, query_params, **kwargs):
+    logger.debug(f"Run webhook. headers={headers}, body={body}, destination_url={uri},"
+                 f" method={method}, query_params={query_params}")
     try:
         requests.request(
             method=method,
             url=uri,
-            # params=query_params,
+            params=query_params,
             headers=headers,
             data=body
         )
@@ -34,7 +35,7 @@ def process_webhook(*, headers, body, uri, method, **kwargs):
 
 
 HOOK_FIELDS = ["action", "timeout", ]
-REQUEST_STUB_FIELDS = ["headers", "body", "method", "uri", "format"]
+REQUEST_STUB_FIELDS = ["headers", "body", "method", "uri", "format", "query_params"]
 
 process_action: Dict[str, Callable] = {
     enums.Action.WAIT: process_wait,

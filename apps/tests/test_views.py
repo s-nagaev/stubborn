@@ -2,7 +2,6 @@ import json
 from unittest.mock import patch
 
 import pytest
-from django.utils import timezone
 
 from apps.enums import ResponseChoices
 from apps.tests.data import create_application, create_resource_stub, create_response_stub
