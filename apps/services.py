@@ -76,6 +76,7 @@ def proxy_request(incoming_request: Request, destination_url: str) -> Response:
 
 
 def get_regular_response(application, request, resource) -> RestResponse:
+    hooks.before_request(resource)
     response_stub = cast(ResponseStub, resource.response)
     request.accepted_renderer = response_stub.renderer
 
@@ -92,11 +93,15 @@ def get_regular_response(application, request, resource) -> RestResponse:
     else:
         response_data = response_stub.body
 
-    return RestResponse(
-        data=response_data,
-        status=response_stub.status_code,
-        headers=response_stub.headers
-    )
+    hooks.after_request(resource)
+    try:
+        return RestResponse(
+            data=response_data,
+            status=response_stub.status_code,
+            headers=response_stub.headers
+        )
+    finally:
+        hooks.after_response(resource.pk)
 
 
 def get_third_party_service_response(application: Application,
@@ -147,7 +152,7 @@ def get_third_party_service_response(application: Application,
             headers=response_headers
         )
     finally:
-        hooks.after_response(resource)
+        hooks.after_response(resource.pk)
 
 
 def get_resource_from_request(request: Request, kwargs: Dict[Any, Any]) -> ResourceStub:

@@ -1,4 +1,7 @@
 import json
+import logging
+import threading
+from functools import wraps
 from json import JSONDecodeError
 from typing import Any, Dict, Optional, Union
 from xml.dom import minidom
@@ -8,6 +11,8 @@ from pygments import highlight
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexers import XmlLexer
 from pygments.lexers.data import JsonLexer
+
+logger = logging.getLogger(__name__)
 
 
 def is_json(string: str) -> bool:
@@ -138,3 +143,22 @@ def clean_headers(headers: Dict[str, str]) -> Dict[str, str]:
             headers.pop(header_name)
 
     return headers
+
+
+def run_in_separate_thread(func):
+    """
+    Decorated function will be called in separate thread
+    @return Instead of execution result - will return Thread object
+    """
+
+    @wraps(func)
+    def run(*args, **kwargs) -> threading.Thread:
+        logger.info(f"Run function {func.__name__} from {func.__module__} in separate thread")
+
+        t = threading.Thread(target=func, args=args, kwargs=kwargs)
+        t.setName(f"{func.__module__}.{func.__name__}")
+        t.setDaemon(True)
+        t.start()
+        return t
+
+    return run
