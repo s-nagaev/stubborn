@@ -208,6 +208,7 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
         'pretty_request_headers',
         'pretty_params',
         'pretty_request_body',
+        'status_code',
         'pretty_response_headers',
         'pretty_response_body',
         'ipaddress',
@@ -215,7 +216,7 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
         'resource',
         'response'
     )
-    list_display = ('created_at', 'method', 'url', 'get_remote_ip', 'resource', 'get_resource_desc', 'proxied')
+    list_display = ('created_at', 'method', 'status_code', 'url', 'get_remote_ip', 'resource', 'get_resource_desc', 'proxied')
     readonly_fields = (
         'pretty_params',
         'pretty_request_headers',

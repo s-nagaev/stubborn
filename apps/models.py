@@ -1,3 +1,4 @@
+import json
 import os.path
 
 from django.contrib.auth.models import User
@@ -48,6 +49,10 @@ class AbstractHTTPObject(models.Model):
         if self.format == BodyFormat.PLAIN_TEXT.value:
             return SimpleTextRenderer()
         raise ValueError(f'Not set renderer for the response body formant: {self.format}')
+
+    @property
+    def is_template_in_body(self) -> bool:
+        return '{{' in self.body
 
     @property
     def is_json_format(self) -> bool:

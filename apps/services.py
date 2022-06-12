@@ -8,6 +8,8 @@ from django.conf import settings
 from django.db.models import QuerySet
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from faker import Faker
+from jinja2 import Template
 from requests import Response
 from rest_framework.request import Request
 from rest_framework.response import Response as RestResponse
@@ -65,6 +67,15 @@ def proxy_request(incoming_request: Request, destination_url: str) -> Response:
     body = incoming_request.body.decode()
     headers = clean_headers(incoming_request.headers)
 
+    print('')
+    print(' Incoming Request '.center(120, '='))
+    print('URL: ', destination_url)
+    print('Method: ', method)
+    print('Params: ', query_params)
+    print('Body: ', body)
+    print('Headers: ', headers)
+    print('-' * 120)
+
     destination_response = requests.request(
         method=method,
         url=destination_url,
@@ -72,6 +83,12 @@ def proxy_request(incoming_request: Request, destination_url: str) -> Response:
         headers=headers,
         data=body
     )
+    print(' Remote Response '.center(120, '='))
+    print('Status Code: ', destination_response.status_code)
+    print('Body: ', destination_response.content.decode())
+    print('Headers: ', dict(destination_response.headers))
+    print('Headers Cleaned: ', clean_headers(dict(destination_response.headers)))
+    print('=' * 120)
     return destination_response
 
 
@@ -123,7 +140,7 @@ def get_third_party_service_response(application: Application,
     response_body = destination_response.content.decode()
     response_headers = clean_headers(dict(destination_response.headers))
 
-    content_type = response_headers['Content-Type']
+    content_type = response_headers.get('Content-Type', 'application/json')  # assume that
 
     if '/xml' in content_type:
         request.accepted_renderer = XMLRenderer()
@@ -183,3 +200,10 @@ def get_resource_from_request(request: Request, kwargs: Dict[Any, Any]) -> Resou
         return resource
 
     raise Http404('No stub resource found.')
+
+
+def render_template(template: str) -> str:
+    jinja_template = Template(template)
+    fake = Faker()
+    document = jinja_template.render(fake=fake)
+    return document

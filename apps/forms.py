@@ -1,8 +1,10 @@
+import json
 from typing import Any
 
 from django.forms import ModelForm
 
 from apps.models import Application, ResourceStub, ResponseStub
+from apps.wigdets import Editor
 
 
 class ResourceStubForm(ModelForm):
@@ -43,3 +45,8 @@ class ResponseStubForm(ModelForm):
 
     class Meta:
         model: ResponseStub
+        fields = '__all__'
+        widgets = {
+            'headers': Editor(attrs={'style': 'width: 90%; height: 100%;'}),
+            'body': Editor(attrs={'style': 'width: 90%; height: 100%;'}),
+        }
