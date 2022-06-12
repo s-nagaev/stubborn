@@ -34,6 +34,8 @@ class ResponseStubForm(ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['body'].strip = False
 
+        print(dir(self.fields['headers'])) # = json.dumps(self.fields['headers'], indent=4)
+
         if args:
             return
         if data := kwargs.get('initial'):
