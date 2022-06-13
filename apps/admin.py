@@ -9,11 +9,10 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from apps import inlines, models
-from apps.forms import ResourceStubForm, ResponseStubForm
+from apps.forms import ResourceStubForm, ResponseStubForm, WebHookRequestForm
 from apps.inlines import ResourceHookAdminInline
 from apps.mixins import DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin, RelatedCUDManagerMixin
 from apps.utils import prettify_data_to_html, prettify_json_html
-from apps.wigdets import Editor
 
 
 @admin.register(models.Application)
@@ -83,6 +82,7 @@ class ApplicationAdmin(admin.ModelAdmin):
 @admin.register(models.RequestStub)
 class RequestStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.ModelAdmin):
     search_fields = ('description', 'uri', 'method', )
+    form = WebHookRequestForm
 
 
 @admin.register(models.ResourceStub)
@@ -217,7 +217,8 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
         'resource',
         'response'
     )
-    list_display = ('created_at', 'method', 'status_code', 'url', 'get_remote_ip', 'resource', 'get_resource_desc', 'proxied')
+    list_display = ('created_at', 'method', 'status_code', 'url', 'get_remote_ip', 'resource', 'get_resource_desc',
+                    'proxied')
     readonly_fields = (
         'pretty_params',
         'pretty_request_headers',

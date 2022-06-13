@@ -1,4 +1,4 @@
-import ast
+import json
 import os
 from json import JSONDecodeError
 from typing import Any, Dict, Optional, cast
@@ -8,8 +8,6 @@ from django.conf import settings
 from django.db.models import QuerySet
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from faker import Faker
-from jinja2 import Template
 from requests import Response
 from rest_framework.request import Request
 from rest_framework.response import Response as RestResponse
@@ -96,19 +94,20 @@ def get_regular_response(application, request, resource) -> RestResponse:
     hooks.before_request(resource)
     response_stub = cast(ResponseStub, resource.response)
     request.accepted_renderer = response_stub.renderer
+    response_body = response_stub.body_rendered
 
     request_log_create(application=application,
                        resource_stub=resource,
                        response_stub=response_stub,
                        request=request,
                        response_status_code=response_stub.status_code,
-                       response_body=response_stub.body,
+                       response_body=response_body,
                        response_headers=response_stub.headers)
 
     if response_stub.is_json_format:
-        response_data = ast.literal_eval(response_stub.body or '')
+        response_data = json.loads(response_body) or ''
     else:
-        response_data = response_stub.body
+        response_data = response_body
 
     hooks.after_request(resource)
     try:
@@ -200,10 +199,3 @@ def get_resource_from_request(request: Request, kwargs: Dict[Any, Any]) -> Resou
         return resource
 
     raise Http404('No stub resource found.')
-
-
-def render_template(template: str) -> str:
-    jinja_template = Template(template)
-    fake = Faker()
-    document = jinja_template.render(fake=fake)
-    return document
