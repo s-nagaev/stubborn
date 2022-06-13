@@ -65,15 +65,6 @@ def proxy_request(incoming_request: Request, destination_url: str) -> Response:
     body = incoming_request.body.decode()
     headers = clean_headers(incoming_request.headers)
 
-    print('')
-    print(' Incoming Request '.center(120, '='))
-    print('URL: ', destination_url)
-    print('Method: ', method)
-    print('Params: ', query_params)
-    print('Body: ', body)
-    print('Headers: ', headers)
-    print('-' * 120)
-
     destination_response = requests.request(
         method=method,
         url=destination_url,
@@ -81,12 +72,7 @@ def proxy_request(incoming_request: Request, destination_url: str) -> Response:
         headers=headers,
         data=body
     )
-    print(' Remote Response '.center(120, '='))
-    print('Status Code: ', destination_response.status_code)
-    print('Body: ', destination_response.content.decode())
-    print('Headers: ', dict(destination_response.headers))
-    print('Headers Cleaned: ', clean_headers(dict(destination_response.headers)))
-    print('=' * 120)
+
     return destination_response
 
 
