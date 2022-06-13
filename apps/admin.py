@@ -13,7 +13,7 @@ from apps.forms import ResourceStubForm, ResponseStubForm
 from apps.inlines import ResourceHookAdminInline
 from apps.mixins import DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin, RelatedCUDManagerMixin
 from apps.utils import prettify_data_to_html, prettify_json_html
-from apps.wigdets import HtmlEditor
+from apps.wigdets import Editor
 
 
 @admin.register(models.Application)
