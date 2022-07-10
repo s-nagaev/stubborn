@@ -1,4 +1,5 @@
 import os.path
+import random
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -6,6 +7,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator, URLVali
 from django.db import models
 from django.db.models import UniqueConstraint
 from django.utils.translation import gettext as _
+from faker import Faker
+from jinja2 import Template
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 
 from apps.enums import Action, BodyFormat, HTTPMethods, Lifecycle, ResponseChoices
@@ -61,10 +64,23 @@ class AbstractHTTPObject(models.Model):
     def clean(self) -> None:
         if not self.body:
             return
-        if self.is_json_format and not is_json(self.body):
+        if self.is_json_format and not is_json(self.body_rendered):
             raise ValidationError(_('The body is not a valid JSON.'), code='invalid')
-        if self.format == BodyFormat.XML.value and not str_to_dom_document(self.body):
+        if self.format == BodyFormat.XML.value and not str_to_dom_document(self.body_rendered):
             raise ValidationError(_('The body is not a valid XML.'), code='invalid')
+
+    @property
+    def body_rendered(self) -> str:
+        """Get response body rendered with Jinja (if it contains template tags).
+
+        Returns:
+            Response body (ready to send).
+        """
+        if not self.body:
+            return ''
+
+        jinja_template = Template(self.body)
+        return jinja_template.render(fake=Faker(), random=random)
 
 
 class Application(BaseStubModel):

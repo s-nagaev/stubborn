@@ -1,4 +1,4 @@
-import ast
+import json
 import os
 from json import JSONDecodeError
 from typing import Any, Dict, Optional, cast
@@ -13,7 +13,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response as RestResponse
 from rest_framework_xml.renderers import XMLRenderer
 
-from apps import hooks, models
+from apps import enums, hooks, models
 from apps.enums import ResponseChoices
 from apps.models import Application, RequestLog, ResourceStub, ResponseStub
 from apps.renderers import SimpleTextRenderer
@@ -72,6 +72,7 @@ def proxy_request(incoming_request: Request, destination_url: str) -> Response:
         headers=headers,
         data=body
     )
+
     return destination_response
 
 
@@ -79,19 +80,20 @@ def get_regular_response(application, request, resource) -> RestResponse:
     hooks.before_request(resource)
     response_stub = cast(ResponseStub, resource.response)
     request.accepted_renderer = response_stub.renderer
+    response_body = response_stub.body_rendered
 
     request_log_create(application=application,
                        resource_stub=resource,
                        response_stub=response_stub,
                        request=request,
                        response_status_code=response_stub.status_code,
-                       response_body=response_stub.body,
+                       response_body=response_body,
                        response_headers=response_stub.headers)
 
     if response_stub.is_json_format:
-        response_data = ast.literal_eval(response_stub.body or '')
+        response_data = json.loads(response_body) or ''
     else:
-        response_data = response_stub.body
+        response_data = response_body
 
     hooks.after_request(resource)
     try:
@@ -101,7 +103,8 @@ def get_regular_response(application, request, resource) -> RestResponse:
             headers=response_stub.headers
         )
     finally:
-        hooks.after_response(resource.pk)
+        if resource.resourcehook_set.filter(lifecycle=enums.Lifecycle.AFTER_RESPONSE).exists():
+            hooks.after_response(resource.pk)
 
 
 def get_third_party_service_response(application: Application,
@@ -123,7 +126,7 @@ def get_third_party_service_response(application: Application,
     response_body = destination_response.content.decode()
     response_headers = clean_headers(dict(destination_response.headers))
 
-    content_type = response_headers['Content-Type']
+    content_type = response_headers.get('Content-Type', 'application/json')  # assume that
 
     if '/xml' in content_type:
         request.accepted_renderer = XMLRenderer()
@@ -152,7 +155,8 @@ def get_third_party_service_response(application: Application,
             headers=response_headers
         )
     finally:
-        hooks.after_response(resource.pk)
+        if resource.resourcehook_set.filter(lifecycle=enums.Lifecycle.AFTER_RESPONSE).exists():
+            hooks.after_response(resource.pk)
 
 
 def get_resource_from_request(request: Request, kwargs: Dict[Any, Any]) -> ResourceStub:

@@ -12,6 +12,8 @@ from pygments.formatters.html import HtmlFormatter
 from pygments.lexers import XmlLexer
 from pygments.lexers.data import JsonLexer
 
+from apps.styles import StubbornDark
+
 logger = logging.getLogger(__name__)
 
 
@@ -62,7 +64,7 @@ def prettify_json_html(data: Union[str, Dict[str, Any]]) -> str:
     else:
         raise ValueError(f'Unsupported data type received: {type(data)}. String or Dict expected.')
 
-    formatter = HtmlFormatter()
+    formatter = HtmlFormatter(style=StubbornDark)
     json_prettified = highlight(json_string_with_indents, JsonLexer(), formatter)
     style = f'<style>{formatter.get_style_defs()}</style>'
     return json_prettified + style
@@ -78,7 +80,7 @@ def prettify_xml_html(dom_document: minidom.Document) -> str:
         HTML-code with pretty XML and style.
     """
     xml_string = dom_document.toprettyxml(indent=' ')
-    formatter = HtmlFormatter()
+    formatter = HtmlFormatter(style=StubbornDark)
     xml_prettified = highlight(xml_string, XmlLexer(), formatter)
     style = f'<style>{formatter.get_style_defs()}</style>'
     return xml_prettified + style
@@ -146,11 +148,14 @@ def clean_headers(headers: Dict[str, str]) -> Dict[str, str]:
 
 
 def run_in_separate_thread(func):
-    """
-    Decorated function will be called in separate thread
-    @return Instead of execution result - will return Thread object
-    """
+    """Decorated function will be called in separate thread.
 
+    Args:
+        func: function to decorate.
+
+    Returns:
+        Thread object instead of execution result.
+    """
     @wraps(func)
     def run(*args, **kwargs) -> threading.Thread:
         logger.info(f"Run function {func.__name__} from {func.__module__} in separate thread")

@@ -35,12 +35,22 @@
 {% endif %}{% endif %}
 {% endblock %}
 {% if change %}
-<div class="submit-row special">
+<div class="menu">
+<div class="application-menu">
+    <div class="button-box box1">
     <a href="{% url 'admin:apps_resourcestub_changelist' %}?application={{ original.pk }}" class="button">{% translate 'Resources' %}</a>
+    </div>
+    <div class="button-box box2">
     <a href="{% url 'admin:apps_responsestub_changelist' %}?application={{ original.pk }}" class="button">{% translate 'Responses' %}</a>
+    </div>
+    <div class="button-box box3">
+    <a href="{% url 'admin:apps_requeststub_changelist' %}?application={{ original.pk }}" class="button">{% translate 'Webhook Requests' %}</a>
+    </div>
+    <div class="button-box box4">
     <a href="{% url 'admin:apps_requestlog_changelist' %}?application={{ original.pk }}" class="button">{% translate 'Logs' %}</a>
-    <a href="{% url 'admin:apps_requeststub_changelist' %}?application={{ original.pk }}" class="button">{% translate 'Request' %}</a>
+    </div>
     <p> {{ opts.original.id }} </p>
+</div>
 </div>
 {% endif %}
 <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}{% if form_url %}action="{{ form_url }}" {% endif %}method="post" id="{{ opts.model_name }}_form" novalidate>{% csrf_token %}{% block form_top %}{% endblock %}

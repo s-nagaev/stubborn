@@ -29,11 +29,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'apps'
 ]
 
 # MIDDLEWARE
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -111,6 +113,8 @@ STATIC_URL = '/static/'
 
 # APPLICATION
 REQUEST_LOGS_INLINE_LIMIT = 5
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 # DEMO MODE SETTINGS
 DEMO_MODE = env.bool('DEMO_MODE', default=False)

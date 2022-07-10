@@ -7,8 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Global proxy functionality implemented.
-- Ability to stub the specific resource from proxy logging added.
+- Global proxy functionality.
+- Ability to stub the specific resource from proxy logging.
+- Client's webhook call support.
+- Jinja template support for the response body.
+- Syntax highlighting for the Response and Hooks TextEdit fields.
+
+### Changed
+- Syntax highlighting theme for Log view.
 
 ## [0.4.1] - 2022-05-15
 ### Changed

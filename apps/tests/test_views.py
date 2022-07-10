@@ -2,15 +2,16 @@ import json
 from unittest.mock import patch
 
 import pytest
+from django.utils import timezone
 
-from apps.enums import ResponseChoices
-from apps.tests.data import create_application, create_resource_stub, create_response_stub
+from apps.enums import Action, Lifecycle, ResponseChoices
+from apps.tests.data import create_application, create_resource_hook, create_resource_stub, create_response_stub
 from apps.tests.utils import get_url
 
 
 @pytest.mark.django_db
 class TestResponseStub:
-    @pytest.mark.parametrize('method', ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'])
+    @pytest.mark.parametrize('method', ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'])
     def test_response_with_allowed_request(self, method, api_client):
         application = create_application()
         response_stub = create_response_stub(application=application, status_code=200)
@@ -45,19 +46,24 @@ class TestResponseStub:
         assert response.status_code == 200
         assert response.json() == {'Status': 'OK'}
 
-    # def test_response_timeout(self, api_client):
-    #     application = create_application()
-    #     response_stub = create_response_stub(
-    #         application=application,
-    #         status_code=200,
-    #         timeout=2,
-    #     )
-    #     resource = create_resource_stub(application=application, response=response_stub, method='GET')
-    #     before_request_time = timezone.now()
-    #     response = api_client.get(path=get_url(resource))
-    #     after_request_time = timezone.now()
-    #     assert response.status_code == 200
-    #     assert (after_request_time-before_request_time).seconds == 2
+    def test_response_timeout(self, api_client):
+        application = create_application()
+        response_stub = create_response_stub(
+            application=application,
+            status_code=200
+        )
+        resource = create_resource_stub(application=application, response=response_stub, method='GET')
+        create_resource_hook(
+            lifecycle=Lifecycle.AFTER_REQUEST.value,
+            action=Action.WAIT.value,
+            timeout=2,
+            resource=resource
+        )
+        before_request_time = timezone.now()
+        response = api_client.get(path=get_url(resource))
+        after_request_time = timezone.now()
+        assert response.status_code == 200
+        assert (after_request_time-before_request_time).seconds == 2
 
     def test_response_body_xml(self, api_client):
         application = create_application()

@@ -1,20 +1,41 @@
-a.button {
-    text-align: center;
-    display: inline-block;
-    width: calc(30% - 50px);
-    margin: 0 .5em ;
-    /*background: #212122;*/
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    color: var(--button-fg);
-    cursor: pointer;
-    transition: background 0.15s;
+.menu {
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
 }
 
-.special {
+.application-menu {
+    width: 85%;
+    min-height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
+.box2, .box3 {
+    display: flex;
+    flex-basis: 50%;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.box1, .box4 {
+    display: flex;
+    margin-top: 0;
+    flex-basis: 100%;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.application-menu > div > a {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+}
+
+a.button {
     text-align: center;
-    border: none;
-    background: none;
+    margin: 5px 5px;
 }
 
 .vLargeTextField {
