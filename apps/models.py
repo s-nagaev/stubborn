@@ -1,4 +1,5 @@
 import os.path
+import random
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -52,10 +53,6 @@ class AbstractHTTPObject(models.Model):
         raise ValueError(f'Not set renderer for the response body formant: {self.format}')
 
     @property
-    def is_template_in_body(self) -> bool:
-        return '{{' in self.body
-
-    @property
     def is_json_format(self) -> bool:
         """Return JSON format flag.
 
@@ -74,8 +71,16 @@ class AbstractHTTPObject(models.Model):
 
     @property
     def body_rendered(self) -> str:
+        """Get response body rendered with Jinja (if it contains template tags).
+
+        Returns:
+            Response body (ready to send).
+        """
+        if not self.body:
+            return ''
+
         jinja_template = Template(self.body)
-        return jinja_template.render(fake=Faker())
+        return jinja_template.render(fake=Faker(), random=random)
 
 
 class Application(BaseStubModel):

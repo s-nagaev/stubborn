@@ -23,7 +23,7 @@ class Editor(forms.Textarea):
         css = {
             'all': (
                 '/static/vendor/codemirror_5.65.5/css/codemirror.css',
-                '/static/vendor/codemirror_5.65.5/css/seti.css'
+                '/static/admin/css/seti.css'
             )
         }
         js = (

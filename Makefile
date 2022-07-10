@@ -14,6 +14,9 @@ uwsgi:
 run:
 	make migrate admin uwsgi
 
+linters:
+	flake8 . && mypy .
+
 tests:
 	pytest -vv
 

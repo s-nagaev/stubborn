@@ -13,7 +13,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response as RestResponse
 from rest_framework_xml.renderers import XMLRenderer
 
-from apps import hooks, models
+from apps import enums, hooks, models
 from apps.enums import ResponseChoices
 from apps.models import Application, RequestLog, ResourceStub, ResponseStub
 from apps.renderers import SimpleTextRenderer
@@ -103,7 +103,8 @@ def get_regular_response(application, request, resource) -> RestResponse:
             headers=response_stub.headers
         )
     finally:
-        hooks.after_response(resource.pk)
+        if resource.resourcehook_set.filter(lifecycle=enums.Lifecycle.AFTER_RESPONSE).exists():
+            hooks.after_response(resource.pk)
 
 
 def get_third_party_service_response(application: Application,
@@ -154,7 +155,8 @@ def get_third_party_service_response(application: Application,
             headers=response_headers
         )
     finally:
-        hooks.after_response(resource.pk)
+        if resource.resourcehook_set.filter(lifecycle=enums.Lifecycle.AFTER_RESPONSE).exists():
+            hooks.after_response(resource.pk)
 
 
 def get_resource_from_request(request: Request, kwargs: Dict[Any, Any]) -> ResourceStub:
