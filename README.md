@@ -123,11 +123,11 @@ Sure! You may check the DEMO-version of the service here: [https://mocked.dev](h
 - [x] add request proxy support;
 - [x] cover code with tests;
 - [x] set up the demo server;
-- [ ] add template support for the response body;
-- [ ] add client's webhook call support;
+- [x] add template support for the response body;
+- [x] add client's webhook call support;
 - [ ] add HTML-response support;
-- [ ] add the REST API for manipulation with main application entities;  
 - [ ] add the `team` entity for sharing stub methods with teammates only;
+- [ ] add the REST API for manipulation with main application entities;  
 - [ ] improve UI/UX.
 
 ### Setting Up for Development
