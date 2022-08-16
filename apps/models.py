@@ -1,6 +1,7 @@
 import os.path
 import random
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator, URLValidator
@@ -101,6 +102,14 @@ class Application(BaseStubModel):
             String representation.
         """
         return f'{self.name}'
+
+    def clean(self) -> None:
+        super().clean()
+        if self.name.lower() in settings.RESERVED_APP_NAMES:
+            raise ValidationError(
+                _('The word is reserved and can not be used as an application name. Please, choose another one.'),
+                code='invalid'
+            )
 
 
 class ResponseStub(AbstractHTTPObject, BaseStubModel):
