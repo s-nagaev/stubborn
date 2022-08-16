@@ -6,13 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.5.0] - 2022-07-11
+## [0.5.0] - 2022-08-17
 ### Added
 - Global proxy functionality.
 - Ability to stub the specific resource from proxy logging.
 - Client's webhook call support.
 - Jinja template support for the response body.
 - Syntax highlighting for the Response and Hooks TextEdit fields.
+- Healthcheck API endpoint (`/srv/alive`).
+- List of reserved application names.
 
 ### Changed
 - Syntax highlighting theme for Log view.

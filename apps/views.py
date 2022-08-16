@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from rest_framework import status
 from rest_framework.renderers import JSONRenderer
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -89,3 +90,12 @@ class StubRequestView(APIView):
             creator=request.user
         )
         return redirect(reverse('admin:apps_resourcestub_change', args=(resource.pk,)))
+
+
+class HealthCheckView(APIView):
+    """Liveness probe for docker healthcheck, etc."""
+    renderer_classes = (JSONRenderer,)
+
+    @staticmethod
+    def get(request: Request) -> Response:
+        return Response(status=status.HTTP_200_OK)

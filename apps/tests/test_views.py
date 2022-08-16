@@ -2,6 +2,7 @@ import json
 from unittest.mock import patch
 
 import pytest
+from django.urls import reverse
 from django.utils import timezone
 
 from apps.enums import Action, Lifecycle, ResponseChoices
@@ -234,3 +235,10 @@ class TestLogging:
         else:
             assert request_log.request_body is not None
             assert json.loads(request_log.request_body) == request_body
+
+
+class TestServiceViews:
+    def test_healthcheck(self, api_client):
+        url = reverse('apps:alive')
+        response = api_client.get(path=url)
+        assert response.status_code == 200
