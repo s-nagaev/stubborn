@@ -6,7 +6,13 @@ from django.urls import reverse
 from django.utils import timezone
 
 from apps.enums import Action, Lifecycle, ResponseChoices
-from apps.tests.data import create_application, create_resource_hook, create_resource_stub, create_response_stub
+from apps.tests.data import (
+    create_application,
+    create_request_stub,
+    create_resource_hook,
+    create_resource_stub,
+    create_response_stub,
+)
 from apps.tests.utils import get_url
 
 
@@ -108,7 +114,7 @@ class TestResponseStub:
         assert response.status_code == 200
         assert response.headers.get('Custom-Serverside-Header') == 'Serverside Header Value'
 
-    @patch("requests.request")
+    @patch('requests.request')
     def test_proxy_resource_call_json_answer(self, mock_requests_post, api_client):
         mock_requests_post.return_value.status_code = 200
         mock_requests_post.return_value.json.return_value = {'Status': 'OK'}
@@ -131,6 +137,39 @@ class TestResponseStub:
         assert response.status_code == 200
         assert response.headers.get('Custom-Serverside-Header') == 'Some Value'
         assert response.headers.get('Content-Type') == 'application/json'
+
+    @pytest.mark.parametrize('lifecycle', [Lifecycle.BEFORE_REQUEST.value, Lifecycle.AFTER_REQUEST.value])
+    @patch('requests.request', return_value=None)
+    def test_after_response_webhook_call(self, mocked_request, lifecycle, api_client):
+        application = create_application()
+        response_stub = create_response_stub(
+            application=application,
+            status_code=200
+        )
+        resource = create_resource_stub(application=application, response=response_stub, method='GET')
+        hook_request = create_request_stub(
+            application=application,
+            method='GET',
+            query_params={'a': 'b'},
+            uri='https://test.com'
+        )
+        create_resource_hook(
+            lifecycle=lifecycle,
+            action=Action.WEBHOOK.value,
+            timeout=0,
+            resource=resource,
+            request=hook_request
+        )
+        response = api_client.get(path=get_url(resource))
+        assert response.status_code == 200
+        mocked_request.assert_called_once()
+        mocked_request.assert_called_with(
+            method='GET',
+            url='https://test.com',
+            params={'a': 'b'},
+            headers={},
+            data=None
+        )
 
 
 @pytest.mark.django_db

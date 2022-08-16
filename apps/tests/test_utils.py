@@ -1,7 +1,11 @@
+import threading
+from time import sleep
+from typing import List
+
 import pytest
 from django.utils.safestring import SafeString
 
-from apps.utils import clean_headers, is_json, prettify_data_to_html, str_to_dom_document
+from apps.utils import clean_headers, is_json, prettify_data_to_html, run_in_separate_thread, str_to_dom_document
 
 
 class TestUtils:
@@ -70,3 +74,18 @@ class TestUtils:
 
         allowed_headers = clean_headers(incoming_headers)
         assert allowed_headers == {'Content-Type': 'text/html; charset=UTF-8', 'User-Agent': 'curl/7.64.1'}
+
+    def test_run_in_separate_thread(self):
+        @run_in_separate_thread
+        def add_10_to_list(list_to_update: List) -> None:
+            sleep(2)
+            list_to_update.append(10)
+
+        test_list: List[int] = []
+
+        call_result = add_10_to_list(test_list)
+        assert isinstance(call_result, threading.Thread)
+        assert len(test_list) == 0
+        call_result.join()
+        assert len(test_list) == 1
+        assert 10 in test_list

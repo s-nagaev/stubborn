@@ -44,3 +44,8 @@ class RequestLog(factory.django.DjangoModelFactory):
 class ResourceHook(factory.django.DjangoModelFactory):
     class Meta:
         model = models.ResourceHook
+
+
+class RequestStub(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.RequestStub
