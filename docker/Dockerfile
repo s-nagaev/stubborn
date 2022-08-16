@@ -23,4 +23,4 @@ EXPOSE 8000
 
 HEALTHCHECK --interval=20s --timeout=3s --start-period=30s CMD curl --fail http://localhost:8000/srv/alive || exit 1
 ENTRYPOINT []
-CMD make run
+CMD uwsgi --ini=uwsgi/uwsgi.ini

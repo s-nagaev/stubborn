@@ -1,8 +1,8 @@
 from django.contrib.auth.models import User
 from faker import Faker
 
-from apps.enums import Action, Lifecycle, ResponseChoices
-from apps.models import Application, ResourceHook, ResourceStub, ResponseStub
+from apps.enums import Action, HTTPMethods, Lifecycle, ResponseChoices
+from apps.models import Application, RequestStub, ResourceHook, ResourceStub, ResponseStub
 from apps.tests import factories
 
 fake = Faker()
@@ -59,3 +59,14 @@ def create_resource_hook(**kwargs) -> ResourceHook:
     kwargs.setdefault('order', 1)
 
     return factories.ResourceHook.create(**kwargs)
+
+
+def create_request_stub(**kwargs) -> RequestStub:
+    kwargs.setdefault('name', 'dummy_request')
+    kwargs.setdefault('uri', 'https://example.com')
+    kwargs.setdefault('query_params', {})
+    kwargs.setdefault('method', HTTPMethods.GET.value)
+    kwargs.setdefault('application', create_application())
+    kwargs.setdefault('creator', None)
+
+    return factories.RequestStub.create(**kwargs)
