@@ -12,6 +12,6 @@
 .mypy_cache
 docker-compose.*yml
 stubborn/settings/.env
-staticfiles
+static/
 *.bak
 !.env.test

@@ -137,4 +137,4 @@ dmypy.json
 .DS_Store
 
 # Static
-staticfiles/
+static/
