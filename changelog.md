@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Jinja template support for the response body.
 - Syntax highlighting for the Response and Hooks TextEdit fields.
 - Healthcheck API endpoint (`/srv/alive`).
-- List of reserved application names.
+- List of reserved application slugs.
 
 ### Changed
 - Syntax highlighting theme for Log view.

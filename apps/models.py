@@ -105,9 +105,9 @@ class Application(BaseStubModel):
 
     def clean(self) -> None:
         super().clean()
-        if self.name.lower() in settings.RESERVED_APP_NAMES:
+        if self.slug.lower() in settings.RESERVED_APP_NAMES:
             raise ValidationError(
-                _('The word is reserved and can not be used as an application name. Please, choose another one.'),
+                _('This word is reserved and can not be used as an application slug. Please, choose another one.'),
                 code='invalid'
             )
 
