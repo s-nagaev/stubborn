@@ -15,17 +15,14 @@ services:
     restart: unless-stopped
     build:
       context: .
-      dockerfile: docker/dev.Dockerfile
+      dockerfile: docker/Dockerfile
     container_name: stubborn-django
-    command: ["make", "migrate", "static", "dev"]
     environment:
-      DJANGO_SETTINGS_MODULE: stubborn.settings.local
+      DJANGO_SETTINGS_MODULE: stubborn.settings.staging
+    env_file:
+      - .env.staging
     ports:
       - "8000:8000"
-    env_file:
-      - .env.local
-    volumes:
-      - .:/app
     depends_on:
       - postgres
     links:

@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Syntax highlighting theme for Log view.
 - Dependencies updated.
+- Whitenoise removed (serving static via uwsgi).
 
 ## [0.4.1] - 2022-05-15
 ### Changed
