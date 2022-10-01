@@ -37,6 +37,7 @@ pytest-django = "4.5.2"
 types-Pygments = "2.9.19"
 types-requests = "2.28.8"
 Sphinx = "5.1.1"
+myst-parser = "^0.18.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
