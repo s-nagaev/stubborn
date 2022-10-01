@@ -1,3 +1,4 @@
 Sphinx
 docutils
 myst-parser
+sphinx-rtd-theme
