@@ -19,7 +19,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = False
 USE_TZ = True
-DATETIME_FORMAT = 'd/m/Y h:i:s e'
+DATETIME_FORMAT = 'd/m/Y H:i:s e'
 
 # APPS
 INSTALLED_APPS = [

@@ -10,6 +10,10 @@ Welcome to Stubborn's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   About Stubborn <about.md>
+   Run in Production <about.md>
+
+
 
 
 Indices and tables
