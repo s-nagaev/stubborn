@@ -1,4 +1,4 @@
-# Running Stubborn in Production
+# Running in Production
 
 Stubborn is shipped as a [Docker image](https://hub.docker.com/r/pysergio/stubborn). To use it, you need a [Docker Engine](https://docs.docker.com/engine/installation/) installed on your machine. In addition, [Docker Compose](https://docs.docker.com/compose/install/) is highly recommended. Please, refer to their documentation about download and installation options.
 

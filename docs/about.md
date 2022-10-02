@@ -19,9 +19,9 @@ teammates and (or) use it permanently with the staging instance of the main appl
 
 ## Common usage scenarios
 
-- mock of the third-party service for QA and backend development
-- flexible mock of the backend service for QA and frontend development
-- service-in-the-middle for debugging and testing purpose
+- Flexible mock of the third-party service for QA and backend development.
+- Flexible mock of the backend service for QA and frontend development.
+- Service-in-the-middle for debugging and testing purpose.
 
 In every case of usage Stubborn will save and provide exhaustive data about received requests and responses sent.
 

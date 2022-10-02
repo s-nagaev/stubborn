@@ -11,6 +11,8 @@ Welcome to Stubborn's documentation!
 
    about.md
    run-in-prod.md
+   run-in-dev.md
+   
 
 
 
