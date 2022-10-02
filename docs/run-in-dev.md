@@ -44,8 +44,7 @@ Or just run everything in docker:
 make docker_dev
 ```
 
-The site should now be running at <http://localhost:8000>. To access Django administration site,
-visit `http://localhost:8000/admin/` and log in as a superuser.
+The site should now be running at <http://localhost:8000>. To access Django administration site, visit <http://localhost:8000/admin/> and log in as a superuser.
 
 ## Runing tests
 
