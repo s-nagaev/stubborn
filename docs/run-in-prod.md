@@ -46,8 +46,9 @@ volumes:
 docker-compose up -d
 ```
 
-Please, note that the parameter `-d` in the command example will tell Docker Compose to run the apps defined in
-`docker-compose.yml` in the background.
+```{note}
+The parameter `-d` in the command example will tell Docker Compose to run the apps defined in `docker-compose.yml` in the background.
+```
 
 The site should now be running at <http://0.0.0.0:8000>. To access the service admin panel visit <http://localhost:8000/admin/> and log in as a superuser.
 
@@ -159,3 +160,18 @@ It should looks like:
 - `ADMIN_PASSWORD` *(required for the first run only)*: a password for an administrative account.
 - `ADMIN_EMAIL` *(required for the very first run only)*: an email for an administrative account.
 - `DOMAIN_DISPLAY` *(optional)*: a protocol and domain where your application instance hosted, i.e. `https://mysite.com`, `http://192.168.1.150:8000`. The default value is `http://127.0.0.1:8000`.
+
+## Upgrade
+
+To upgrade running Stabborn just execute following commands:
+
+```shell
+cd path/containing/docker-compose/
+docker-compose down  # to stop running docker containers
+docker-compose pull  # to fetch latest versions from Docker Hub
+docker-compose up -d  # to run docker containers from updated images
+```
+
+```{note}
+The command above is suitable only if you're using a docker image with the `latest` tag. If for some reason, you prefer to use docker images with the specific version tag (i.e., `stubborn:0.5.0`), you should correspondingly update your docker-compose file first.
+```
