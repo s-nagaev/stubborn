@@ -1,9 +1,10 @@
-from typing import TYPE_CHECKING, Any, Dict, Generic, Optional, Sequence, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, Generic, Optional, Sequence, TypeVar, cast
 
 from django import forms
 from django.contrib.admin import ModelAdmin
 from django.contrib.admin.options import InlineModelAdmin
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
+from django.contrib.auth.models import User
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import Model
 from django.forms import BaseModelFormSet
@@ -165,3 +166,16 @@ class RelatedCUDManagerMixin(ModelAdminTypeClass):
         formset = super().get_formset(request, obj, **kwargs)
         self._remove_cud_links(formset.form)
         return formset
+
+
+class SaveByCurrentUserMixin(ModelAdmin):
+    def save_model(self, request: HttpRequest, obj: Model, *args: Any, **kwargs: Any) -> None:
+        """Save model with current user fixation in the owner field.
+
+        Args:
+            request: HttpRequest instance.
+            obj: model instance.
+        """
+        if hasattr(obj, 'creator'):
+            obj.creator = cast(User, request.user)  # type: ignore
+        super().save_model(request, obj, *args, **kwargs)

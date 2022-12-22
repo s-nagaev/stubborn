@@ -15,9 +15,11 @@ class ResourceStubForm(ModelForm):
         if data := kwargs.get('initial'):
             self.fields['response'].queryset = ResponseStub.objects.filter(application__pk=data.get('application'))
             self.fields['application'].queryset = Application.objects.filter(pk=data.get('application'))
+            return
         elif self.instance and hasattr(self.instance, 'application'):
             self.fields['response'].queryset = ResponseStub.objects.filter(application=self.instance.application)
             self.fields['application'].queryset = Application.objects.filter(pk=self.instance.application.pk)
+            return
         else:
             self.fields['response'].queryset = ResponseStub.objects.none()
             self.fields['application'].queryset = Application.objects.none()
@@ -70,5 +72,6 @@ class WebHookRequestForm(ModelForm):
         fields = '__all__'
         widgets = {
             'headers': Editor(attrs={'style': 'width: 90%; height: 100%;'}),
-            'body': Editor(attrs={'style': 'width: 90%; height: 100%;'}),
+            'body': Editor(attrs={'style': 'width: 50%; height: 50%;'}),
+            'query_params': Editor(attrs={'style': 'width: 90%; height: 100%;'}),
         }
