@@ -29,16 +29,14 @@ from apps.wigdets import ExtendedRelatedFieldWidgetWrapper
 
 @admin.register(models.Application)
 class ApplicationAdmin(admin.ModelAdmin):
-    readonly_fields = ('owner', )
+    readonly_fields = ('owner',)
     list_display = ('name', 'slug', 'resources_count', 'short_desc')
     fields = ('name', 'description', 'slug', 'owner')
     inlines = [inlines.LogsInline]
     change_form_template = 'admin/apps/application/change_form.html'
 
     class Media:
-        css = {
-            'all': ('admin/css/application.css',)
-        }
+        css = {'all': ('admin/css/application.css',)}
 
     def get_inlines(self, request: HttpRequest, obj: models.Application = None):
         """Hook for specifying custom inlines.
@@ -103,24 +101,28 @@ class RequestStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, SaveByCu
         'uri',
         'format',
         'application',
-        'creator'
+        'creator',
     )
     readonly_fields = ('creator',)
-    search_fields = ('description', 'uri', 'method', )
+    search_fields = (
+        'description',
+        'uri',
+        'method',
+    )
     form = WebHookRequestForm
-    no_add_related = ('application', )
-    no_edit_related = ('application', )
+    no_add_related = ('application',)
+    no_edit_related = ('application',)
 
 
 @admin.register(models.ResourceStub)
 class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.ModelAdmin):
     form = ResourceStubForm
-    readonly_fields = ('creator', )
+    readonly_fields = ('creator',)
     list_display = ('method', 'uri_with_slash', 'response', 'description', 'full_url', 'proxied')
     no_add_related = ('application',)
     no_edit_related = ('application',)
     no_delete_related = ('application',)
-    inlines = (ResourceHookAdminInline, )
+    inlines = (ResourceHookAdminInline,)
 
     class Media:
         js = ('admin/js/resource/responseSwitcher.js',)
@@ -158,7 +160,7 @@ class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
                     request_data = request.GET.dict()
                     if filter_data := request_data.get('_changelist_filters'):
                         additional_url_params = (
-                            dict((k, v) for k, v in (filter_data.split('='), )) if isinstance(filter_data, str) else {}
+                            dict((k, v) for k, v in (filter_data.split('='),)) if isinstance(filter_data, str) else {}
                         )
                     elif request_data.get('application'):
                         additional_url_params = request_data
@@ -168,7 +170,7 @@ class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
                     rel=db_field.remote_field,  # type: ignore
                     admin_site=self.admin_site,
                     additional_url_params=additional_url_params,
-                    **wrapper_kwargs
+                    **wrapper_kwargs,
                 )
 
             return formfield  # type: ignore
@@ -218,7 +220,7 @@ class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
         Returns:
             HttpResponse instance.
         """
-        return HttpResponseRedirect(reverse("admin:apps_application_change", args=(obj.application.pk,)))
+        return HttpResponseRedirect(reverse('admin:apps_application_change', args=(obj.application.pk,)))
 
     @staticmethod
     @admin.display(boolean=True, description='Proxied')
@@ -237,10 +239,10 @@ class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
 @admin.register(models.ResponseStub)
 class ResponseStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.ModelAdmin):
     form = ResponseStubForm
-    readonly_fields = ('creator', )
+    readonly_fields = ('creator',)
     list_display = ('id', 'status_code', 'format', 'has_headers', 'has_body', 'description')
-    no_add_related = ('application', )
-    no_edit_related = ('application', )
+    no_add_related = ('application',)
+    no_edit_related = ('application',)
 
     @staticmethod
     @admin.display(description='Has Body', boolean=True)
@@ -279,7 +281,7 @@ class ResponseStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
         Returns:
             HttpResponse instance.
         """
-        return HttpResponseRedirect(reverse("admin:apps_application_change", args=(obj.application.pk,)))
+        return HttpResponseRedirect(reverse('admin:apps_application_change', args=(obj.application.pk,)))
 
 
 @admin.register(models.RequestLog)
@@ -298,16 +300,24 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
         'ipaddress',
         'x_real_ip',
         'resource',
-        'response'
+        'response',
     )
-    list_display = ('created_at', 'method', 'status_code', 'url', 'get_remote_ip', 'resource', 'get_resource_desc',
-                    'proxied')
+    list_display = (
+        'created_at',
+        'method',
+        'status_code',
+        'url',
+        'get_remote_ip',
+        'resource',
+        'get_resource_desc',
+        'proxied',
+    )
     readonly_fields = (
         'pretty_params',
         'pretty_request_headers',
         'pretty_request_body',
         'pretty_response_headers',
-        'pretty_response_body'
+        'pretty_response_body',
     )
     search_fields = (
         'url',
@@ -321,14 +331,12 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
     )
 
     class Media:
-        css = {
-            'all': ('admin/css/application.css',)
-        }
+        css = {'all': ('admin/css/application.css',)}
 
     def get_queryset(self, request: HttpRequest) -> QuerySet:
         params = request.GET.dict()
 
-        application_id = cast(Optional[str], params.get("application"))
+        application_id = cast(Optional[str], params.get('application'))
         if not application_id:
             return super().get_queryset(request)
 

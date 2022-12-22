@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 def process_wait(*, timeout, **kwargs):
-    logger.debug(f"Run wait hook. timeout={timeout}")
+    logger.debug(f'Run wait hook. timeout={timeout}')
     if settings.DEBUG:
         timeout = 1
 
@@ -25,23 +25,22 @@ def process_wait(*, timeout, **kwargs):
 
 
 def process_webhook(*, headers, body, uri, method, query_params, **kwargs):
-    logger.debug(f"Run webhook. headers={headers}, body={body}, destination_url={uri}, "
-                 f"method={method}, query_params={query_params}")
+    logger.debug(
+        f'Run webhook. headers={headers}, body={body}, destination_url={uri}, '
+        f'method={method}, query_params={query_params}'
+    )
     try:
-        response = requests.request(
-            method=method,
-            url=uri,
-            params=query_params,
-            headers=headers,
-            data=body
-        )
+        response = requests.request(method=method, url=uri, params=query_params, headers=headers, data=body)
         logger.debug(response)
     except Exception as e:
-        logger.debug(f"Hook failed. Error - {e}")
+        logger.debug(f'Hook failed. Error - {e}')
 
 
-HOOK_FIELDS = ["action", "timeout", ]
-REQUEST_STUB_FIELDS = ["headers", "body", "method", "uri", "format", "query_params"]
+HOOK_FIELDS = [
+    'action',
+    'timeout',
+]
+REQUEST_STUB_FIELDS = ['headers', 'body', 'method', 'uri', 'format', 'query_params']
 
 process_action: Dict[str, Callable] = {
     enums.Action.WAIT: process_wait,
@@ -54,12 +53,14 @@ def _get_hook_context(hook: models.ResourceHook, extra_context: Dict) -> Dict:
     for context_field in [*HOOK_FIELDS, *REQUEST_STUB_FIELDS]:
         context.setdefault(context_field, None)
 
-    context.update({
-        **extra_context,
-        **{k: getattr(hook, k, None) for k in HOOK_FIELDS},
-    })
+    context.update(
+        {
+            **extra_context,
+            **{k: getattr(hook, k, None) for k in HOOK_FIELDS},
+        }
+    )
 
-    if hasattr(hook, "request") and hook.request:
+    if hasattr(hook, 'request') and hook.request:
         context.update(**{k: getattr(hook.request, k, None) for k in REQUEST_STUB_FIELDS})
 
     return context
@@ -70,7 +71,7 @@ def process_hook(hooks: QuerySet[models.ResourceHook], **extra_context):
         _context = _get_hook_context(hook, extra_context)
         action: Callable = process_action[hook.action]
         action(**_context)
-    logger.debug("Hooks processed!")
+    logger.debug('Hooks processed!')
 
 
 def before_request(resource: models.ResourceStub):

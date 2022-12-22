@@ -11,12 +11,14 @@ from django.forms import BaseModelFormSet
 from django.http import HttpRequest
 
 if TYPE_CHECKING:
+
     class ModelAdminTypeClass(ModelAdmin, InlineModelAdmin):
         ...
+
 else:
     ModelAdminTypeClass = object
 
-_ModelT = TypeVar("_ModelT", bound=Model)
+_ModelT = TypeVar('_ModelT', bound=Model)
 
 
 class HideFromAdminIndexMixin(Generic[_ModelT]):
@@ -35,6 +37,7 @@ class HideFromAdminIndexMixin(Generic[_ModelT]):
 
 class DenyCreateMixin:
     """Mixin for blocking the creation of a new record through the admin site."""
+
     def has_add_permission(self, request: HttpRequest, obj: Optional[Model] = None) -> bool:
         """Check user "add" permission.
 
@@ -50,6 +53,7 @@ class DenyCreateMixin:
 
 class DenyUpdateMixin:
     """Mixin for blocking the update of an existent record through the admin site."""
+
     def has_change_permission(self, request: HttpRequest, obj: Optional[Model] = None) -> bool:
         """Check user "change" permission.
 
@@ -65,6 +69,7 @@ class DenyUpdateMixin:
 
 class DenyDeleteMixin:
     """Mixin for blocking the deletion of an existent record through the admin site."""
+
     def has_delete_permission(self, request: HttpRequest, obj: Optional[Model] = None) -> bool:
         """Check user "delete" permission.
 
@@ -80,6 +85,7 @@ class DenyDeleteMixin:
 
 class DenyCUDMixin(DenyCreateMixin, DenyUpdateMixin, DenyDeleteMixin):
     """Mixin for blocking the CRUD functionality for a record through the admin site."""
+
     pass
 
 
@@ -134,11 +140,9 @@ class RelatedCUDManagerMixin(ModelAdminTypeClass):
 
         return form
 
-    def get_form(self,
-                 request: WSGIRequest,
-                 obj: Optional[_ModelT] = None,
-                 change: bool = False,
-                 **kwargs: Any) -> forms.ModelForm:
+    def get_form(
+        self, request: WSGIRequest, obj: Optional[_ModelT] = None, change: bool = False, **kwargs: Any
+    ) -> forms.ModelForm:
         """Remove CUD icons for related object fields in ModelAdmin.
 
         Args:
@@ -153,7 +157,7 @@ class RelatedCUDManagerMixin(ModelAdminTypeClass):
         self._remove_cud_links(form)
         return form
 
-    def get_formset(self, request: WSGIRequest, obj:  Optional[_ModelT] = None, **kwargs: Any) -> BaseModelFormSet:
+    def get_formset(self, request: WSGIRequest, obj: Optional[_ModelT] = None, **kwargs: Any) -> BaseModelFormSet:
         """Remove CUD icons for related object fields in InlineModelAdmin.
 
         Args:

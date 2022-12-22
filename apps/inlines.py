@@ -12,7 +12,7 @@ class ResourceHookAdminInline(admin.TabularInline):
     extra = 0
     model = models.ResourceHook
     # ToDo Filter by application
-    autocomplete_fields = ('request', )
+    autocomplete_fields = ('request',)
 
 
 class ResourcesInline(mixins.DenyUpdateMixin, mixins.DenyDeleteMixin, admin.TabularInline):
@@ -21,7 +21,7 @@ class ResourcesInline(mixins.DenyUpdateMixin, mixins.DenyDeleteMixin, admin.Tabu
     show_change_link = True
     extra = 0
     fields = ('method', 'slug', 'description', 'response')
-    readonly_fields = ('get_url', )
+    readonly_fields = ('get_url',)
 
     @staticmethod
     @admin.display(description='Description')
@@ -34,7 +34,7 @@ class ResourcesInline(mixins.DenyUpdateMixin, mixins.DenyDeleteMixin, admin.Tabu
         Returns:
             String containing the resource description.
         """
-        resource_url = reverse("admin:apps_resourcestub_change", args=(obj.pk,))
+        resource_url = reverse('admin:apps_resourcestub_change', args=(obj.pk,))
         return mark_safe(f'<a href="{resource_url}" class="inlineviewlink">Change</a>')
 
 
@@ -64,7 +64,7 @@ class LogsInline(mixins.DenyCUDMixin, admin.TabularInline):
         if not application_id:
             return default_queryset
         queryset = default_queryset.filter(application_id=application_id)
-        ids = queryset.order_by('-id').values('pk')[:settings.REQUEST_LOGS_INLINE_LIMIT]
+        ids = queryset.order_by('-id').values('pk')[: settings.REQUEST_LOGS_INLINE_LIMIT]
         return self.model.objects.filter(pk__in=ids).order_by('-pk')
 
     @staticmethod

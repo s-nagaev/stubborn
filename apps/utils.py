@@ -130,12 +130,7 @@ def clean_headers(headers: Dict[str, str]) -> Dict[str, str]:
         'upgrade',
     ]
 
-    throw_out_headers = [
-        'host',
-        'server',
-        'content-length',
-        'content-encoding'
-    ]
+    throw_out_headers = ['host', 'server', 'content-length', 'content-encoding']
 
     unwanted_headers = hop_by_hop_headers + throw_out_headers
     headers = dict(headers)
@@ -156,6 +151,7 @@ def run_in_separate_thread(func):
     Returns:
         Thread object instead of execution result.
     """
+
     @wraps(func)
     def run(*args, **kwargs) -> threading.Thread:
         logger.info(f"Run function {func.__name__} from {func.__module__} in separate thread")

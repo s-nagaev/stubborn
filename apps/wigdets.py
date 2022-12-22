@@ -25,16 +25,11 @@ class Editor(forms.Textarea):
         return super().render(name, value, attrs, renderer)
 
     class Media:
-        css = {
-            'all': (
-                '/static/vendor/codemirror_5.65.5/css/codemirror.css',
-                '/static/admin/css/seti.css'
-            )
-        }
+        css = {'all': ('/static/vendor/codemirror_5.65.5/css/codemirror.css', '/static/admin/css/seti.css')}
         js = (
             '/static/vendor/codemirror_5.65.5/js/codemirror.min.js',
             '/static/vendor/codemirror_5.65.5/js/modes/javascript.min.js',
-            '/static/admin/js/widgets/codemirror-init.js'
+            '/static/admin/js/widgets/codemirror-init.js',
         )
 
 
@@ -42,15 +37,15 @@ class ExtendedRelatedFieldWidgetWrapper(RelatedFieldWidgetWrapper):
     template_name = 'admin/related_widget_wrapper.html'
 
     def __init__(
-            self,
-            widget: forms.Widget,
-            rel: ForeignObjectRel,
-            admin_site: AdminSite,
-            can_add_related: Optional[bool],
-            can_change_related: bool,
-            can_delete_related: bool,
-            can_view_related: bool,
-            additional_url_params: dict[str, Any] = None
+        self,
+        widget: forms.Widget,
+        rel: ForeignObjectRel,
+        admin_site: AdminSite,
+        can_add_related: Optional[bool],
+        can_change_related: bool,
+        can_delete_related: bool,
+        can_view_related: bool,
+        additional_url_params: dict[str, Any] = None,
     ) -> None:
         super().__init__(
             widget, rel, admin_site, can_add_related, can_change_related, can_delete_related, can_view_related
@@ -62,10 +57,7 @@ class ExtendedRelatedFieldWidgetWrapper(RelatedFieldWidgetWrapper):
         rel_opts = self.rel.model._meta  # type: ignore
         info = (rel_opts.app_label, rel_opts.model_name)
         self.widget.choices = self.choices  # type: ignore
-        params = {
-            TO_FIELD_VAR: self.rel.get_related_field().name,
-            IS_POPUP_VAR: 1
-        }
+        params = {TO_FIELD_VAR: self.rel.get_related_field().name, IS_POPUP_VAR: 1}
         if self.additional_url_params:
             params.update(self.additional_url_params)
 

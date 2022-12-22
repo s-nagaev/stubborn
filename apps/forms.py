@@ -26,8 +26,16 @@ class ResourceStubForm(ModelForm):
 
     class Meta:
         model: ResourceStub
-        fields = ['response_type', 'method', 'slug', 'tail', 'response', 'proxy_destination_address', 'description',
-                  'application']
+        fields = [
+            'response_type',
+            'method',
+            'slug',
+            'tail',
+            'response',
+            'proxy_destination_address',
+            'description',
+            'application',
+        ]
 
 
 class ResponseStubForm(ModelForm):

@@ -29,8 +29,9 @@ class AbstractHTTPObject(models.Model):
     headers = models.JSONField(verbose_name='Headers', default=dict, blank=True)
     body = models.TextField(verbose_name='Response Body', null=True, blank=True)
     description = models.CharField(max_length=30, verbose_name='Short Description', null=True, blank=True)
-    format = models.CharField(max_length=10, choices=BodyFormat.choices, default=BodyFormat.PLAIN_TEXT.value,
-                              verbose_name='Format')
+    format = models.CharField(
+        max_length=10, choices=BodyFormat.choices, default=BodyFormat.PLAIN_TEXT.value, verbose_name='Format'
+    )
 
     class Meta:
         abstract = True
@@ -88,8 +89,14 @@ class Application(BaseStubModel):
     name = models.CharField(max_length=50, verbose_name='Name', null=False)
     description = models.TextField(verbose_name='Description', null=True, blank=True)
     slug = models.SlugField(verbose_name='Slug', allow_unicode=True, null=False, unique=True)
-    owner = models.ForeignKey(User, verbose_name='Application Owner', null=True, blank=True, on_delete=models.CASCADE,
-                              related_name='applications')
+    owner = models.ForeignKey(
+        User,
+        verbose_name='Application Owner',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name='applications',
+    )
 
     class Meta:
         verbose_name = 'application'
@@ -108,15 +115,16 @@ class Application(BaseStubModel):
         if self.slug.lower() in settings.RESERVED_APP_NAMES:
             raise ValidationError(
                 _('This word is reserved and can not be used as an application slug. Please, choose another one.'),
-                code='invalid'
+                code='invalid',
             )
 
 
 class ResponseStub(AbstractHTTPObject, BaseStubModel):
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='responses')
     status_code = models.PositiveSmallIntegerField(verbose_name='Status code', null=False)
-    creator = models.ForeignKey(User, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL,
-                                related_name='responses')
+    creator = models.ForeignKey(
+        User, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL, related_name='responses'
+    )
 
     class Meta:
         verbose_name = 'response'
@@ -145,8 +153,9 @@ class RequestStub(AbstractHTTPObject, BaseStubModel):
     )
 
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='request')
-    creator = models.ForeignKey(User, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL,
-                                related_name='request')
+    creator = models.ForeignKey(
+        User, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL, related_name='request'
+    )
 
     class Meta:
         verbose_name = 'request'
@@ -162,19 +171,31 @@ class RequestStub(AbstractHTTPObject, BaseStubModel):
 
 
 class ResourceStub(BaseStubModel):
-    response_type = models.CharField(max_length=30, choices=ResponseChoices.choices,
-                                     default=ResponseChoices.CUSTOM.value, verbose_name='Response Type')
+    response_type = models.CharField(
+        max_length=30,
+        choices=ResponseChoices.choices,
+        default=ResponseChoices.CUSTOM.value,
+        verbose_name='Response Type',
+    )
     slug = models.SlugField(verbose_name='Slug', allow_unicode=True, null=False)
     tail = models.CharField(verbose_name='URL Tail', max_length=120, default='', blank=True)
-    response = models.ForeignKey(ResponseStub, verbose_name='Response', related_name='resources',
-                                 on_delete=models.CASCADE, null=True, blank=True)
+    response = models.ForeignKey(
+        ResponseStub, verbose_name='Response', related_name='resources', on_delete=models.CASCADE, null=True, blank=True
+    )
     description = models.TextField(verbose_name='Description', null=True, blank=True)
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='resources')
-    method = models.CharField(max_length=10, choices=HTTPMethods.choices, default=HTTPMethods.GET.value,
-                              verbose_name='HTTP Method', null=True, blank=True)
+    method = models.CharField(
+        max_length=10,
+        choices=HTTPMethods.choices,
+        default=HTTPMethods.GET.value,
+        verbose_name='HTTP Method',
+        null=True,
+        blank=True,
+    )
     proxy_destination_address = models.URLField(verbose_name='Proxy to', default=None, blank=True, null=True)
-    creator = models.ForeignKey(User, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL,
-                                related_name='resources')
+    creator = models.ForeignKey(
+        User, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL, related_name='resources'
+    )
 
     class Meta:
         verbose_name = 'resource'
@@ -191,8 +212,9 @@ class ResourceStub(BaseStubModel):
 
     def clean(self) -> None:
         if not self.response and not self.proxy_destination_address:
-            raise ValidationError(_('The resource stub must be created with the response or proxy instruction.'),
-                                  code='invalid')
+            raise ValidationError(
+                _('The resource stub must be created with the response or proxy instruction.'), code='invalid'
+            )
         if self.tail:
             validator = URLValidator(message=_('Wrong URL tail format.'))
             url = os.path.join('https://test.com', self.slug, self.tail)
@@ -225,15 +247,22 @@ class ResourceHook(BaseStubModel):
             raise ValidationError(_("'timeout' field is required if 'Action.WAIT' used"), code='invalid')
 
         if self.action == Action.WEBHOOK and not self.request:
-            raise ValidationError(_("'request' field is required if 'Action.WEBHOOK' used"), code='invalid',)
+            raise ValidationError(
+                _("'request' field is required if 'Action.WEBHOOK' used"),
+                code='invalid',
+            )
 
     class Meta:
         verbose_name = 'hook'
         verbose_name_plural = 'hooks'
-        ordering = ('order', )
+        ordering = ('order',)
         constraints = [
             UniqueConstraint(
-                fields=["order", "lifecycle", "resource", ],
+                fields=[
+                    "order",
+                    "lifecycle",
+                    "resource",
+                ],
                 name="unique_order_per_resource",
             ),
         ]
@@ -248,8 +277,9 @@ class RequestLog(models.Model):
     response_headers = models.JSONField(verbose_name='Headers', default=dict, null=True, blank=True)
     application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='logs')
     resource = models.ForeignKey(ResourceStub, null=True, blank=True, on_delete=models.SET_NULL, related_name='logs')
-    response = models.ForeignKey(ResponseStub, verbose_name='Response', null=True, blank=True,
-                                 on_delete=models.SET_NULL, related_name='logs')
+    response = models.ForeignKey(
+        ResponseStub, verbose_name='Response', null=True, blank=True, on_delete=models.SET_NULL, related_name='logs'
+    )
     ipaddress = models.GenericIPAddressField(verbose_name='Remote IP', default='127.0.0.1')
     x_real_ip = models.GenericIPAddressField(verbose_name='X-REAL-IP', default='127.0.0.1', null=True, blank=True)
     proxied = models.BooleanField(verbose_name='Proxied', default=False, null=False, blank=False)
