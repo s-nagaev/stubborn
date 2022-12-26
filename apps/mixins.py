@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Dict, Generic, Optional, Sequence, TypeVa
 
 from django import forms
 from django.contrib.admin import ModelAdmin
-from django.contrib.admin.options import BaseModelAdmin, InlineModelAdmin
+from django.contrib.admin.options import InlineModelAdmin
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
 from django.contrib.auth.models import User
 from django.core.handlers.wsgi import WSGIRequest
@@ -190,10 +190,9 @@ class SaveByCurrentUserMixin(ModelAdmin):
         super().save_model(request, obj, *args, **kwargs)
 
 
-class AddApplicationRelatedObjectMixin(BaseModelAdmin):
+class AddApplicationRelatedObjectMixin(ModelAdminTypeClass):
     def formfield_for_dbfield(self, db_field: Field, request: Optional[HttpRequest], **kwargs: Any) -> Optional[Field]:
-        """Hook for specifying the form Field instance for a given database Field
-        instance.
+        """Hook for specifying the form Field instance for a given database Field instance.
 
         If kwargs are given, they're passed to the form Field's constructor.
         """
@@ -210,7 +209,7 @@ class AddApplicationRelatedObjectMixin(BaseModelAdmin):
                 formfield = self.formfield_for_manytomany(db_field, request, **kwargs)
 
             if formfield and db_field.name not in self.raw_id_fields:
-                related_modeladmin = self.admin_site._registry.get(db_field.remote_field.model)  # type: ignore
+                related_modeladmin = self.admin_site._registry.get(db_field.remote_field.model)
                 wrapper_kwargs: dict[str, Any] = {}
                 if related_modeladmin and request:
                     wrapper_kwargs.update(
@@ -232,7 +231,7 @@ class AddApplicationRelatedObjectMixin(BaseModelAdmin):
                 formfield.widget = ExtendedRelatedFieldWidgetWrapper(
                     widget=formfield.widget,  # type: ignore
                     rel=db_field.remote_field,  # type: ignore
-                    admin_site=self.admin_site,  # type: ignore
+                    admin_site=self.admin_site,
                     additional_url_params=additional_url_params,
                     **wrapper_kwargs,
                 )
