@@ -67,7 +67,7 @@ def proxy_request(incoming_request: Request, destination_url: str) -> Response:
     headers = clean_headers(incoming_request.headers)
 
     destination_response = requests.request(
-        method=method, url=destination_url, params=query_params, headers=headers, data=body
+        method=method, url=destination_url, params=query_params, headers=headers, data=body.encode('utf8')
     )
 
     return destination_response

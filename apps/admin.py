@@ -4,6 +4,7 @@ from typing import Any, Optional, cast
 
 from django.conf import settings
 from django.contrib import admin
+from django.contrib.admin.options import IS_POPUP_VAR
 from django.contrib.auth.models import User
 from django.db import models as django_models
 from django.db.models import QuerySet
@@ -16,6 +17,7 @@ from apps import inlines, models
 from apps.forms import ResourceStubForm, ResponseStubForm, WebHookRequestForm
 from apps.inlines import ResourceHookAdminInline
 from apps.mixins import (
+    AddApplicationRelatedObjectMixin,
     DenyCreateMixin,
     DenyUpdateMixin,
     HideFromAdminIndexMixin,
@@ -90,7 +92,13 @@ class ApplicationAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.RequestStub)
-class RequestStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, SaveByCurrentUserMixin, admin.ModelAdmin):
+class RequestStubAdmin(
+    HideFromAdminIndexMixin,
+    RelatedCUDManagerMixin,
+    SaveByCurrentUserMixin,
+    AddApplicationRelatedObjectMixin,
+    admin.ModelAdmin,
+):
     fields = (
         'name',
         'headers',
@@ -112,6 +120,21 @@ class RequestStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, SaveByCu
     form = WebHookRequestForm
     no_add_related = ('application',)
     no_edit_related = ('application',)
+
+    def response_add(self, request: HttpRequest, obj: models.ResponseStub, post_url_continue: Optional[str] = None):
+        """Return to the application page after adding.
+
+        Args:
+            request: HttpRequest instance.
+            obj: model instance.
+            post_url_continue: default redirection URL.
+
+        Returns:
+            HttpResponse instance.
+        """
+        if IS_POPUP_VAR in request.POST:
+            return super().response_add(request, obj, post_url_continue)
+        return HttpResponseRedirect(reverse('admin:apps_application_change', args=(obj.application.pk,)))
 
 
 @admin.register(models.ResourceStub)
@@ -281,6 +304,8 @@ class ResponseStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
         Returns:
             HttpResponse instance.
         """
+        if IS_POPUP_VAR in request.POST:
+            return super().response_add(request, obj, post_url_continue)
         return HttpResponseRedirect(reverse('admin:apps_application_change', args=(obj.application.pk,)))
 
 
