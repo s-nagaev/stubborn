@@ -1,5 +1,6 @@
 import os.path
 import random
+import uuid
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -20,6 +21,7 @@ from apps.utils import is_json, str_to_dom_document
 class BaseStubModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Created at')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Updated at')
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     class Meta:
         abstract = True
@@ -120,7 +122,13 @@ class Application(BaseStubModel):
 
 
 class ResponseStub(AbstractHTTPObject, BaseStubModel):
-    application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='responses')
+    application = models.ForeignKey(
+        Application,
+        on_delete=models.CASCADE,
+        related_name='responses',
+        blank=True,
+        null=True,
+    )
     status_code = models.PositiveSmallIntegerField(verbose_name='Status code', null=False)
     creator = models.ForeignKey(
         User, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL, related_name='responses'
@@ -152,7 +160,13 @@ class RequestStub(AbstractHTTPObject, BaseStubModel):
         verbose_name='HTTP Method',
     )
 
-    application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='request')
+    application = models.ForeignKey(
+        Application,
+        on_delete=models.CASCADE,
+        related_name='requests',
+        blank=True,
+        null=True,
+    )
     creator = models.ForeignKey(
         User, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL, related_name='request'
     )
@@ -180,10 +194,21 @@ class ResourceStub(BaseStubModel):
     slug = models.SlugField(verbose_name='Slug', allow_unicode=True, null=False)
     tail = models.CharField(verbose_name='URL Tail', max_length=120, default='', blank=True)
     response = models.ForeignKey(
-        ResponseStub, verbose_name='Response', related_name='resources', on_delete=models.CASCADE, null=True, blank=True
+        ResponseStub,
+        verbose_name='Response',
+        related_name='resources',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
     description = models.TextField(verbose_name='Description', null=True, blank=True)
-    application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='resources')
+    application = models.ForeignKey(
+        Application,
+        on_delete=models.CASCADE,
+        related_name='resources',
+        blank=True,
+        null=True,
+    )
     method = models.CharField(
         max_length=10,
         choices=HTTPMethods.choices,
@@ -231,8 +256,20 @@ class ResourceHook(BaseStubModel):
             MaxValueValidator(100),
         ],
     )
-    request = models.ForeignKey(RequestStub, on_delete=models.deletion.CASCADE, blank=True, null=True)
-    resource = models.ForeignKey(ResourceStub, on_delete=models.deletion.CASCADE, blank=True, null=True)
+    request = models.ForeignKey(
+        RequestStub,
+        on_delete=models.deletion.CASCADE,
+        blank=True,
+        null=True,
+        related_name='hooks',
+    )
+    resource = models.ForeignKey(
+        ResourceStub,
+        on_delete=models.deletion.CASCADE,
+        blank=True,
+        null=True,
+        related_name='hooks',
+    )
     order = models.PositiveSmallIntegerField(
         verbose_name='Order',
         default=1,
@@ -268,26 +305,42 @@ class ResourceHook(BaseStubModel):
         ]
 
 
-class RequestLog(models.Model):
+class RequestLog(BaseStubModel):
     url = models.URLField(verbose_name='URL Called', default=None, null=True, blank=True)
     params = models.JSONField(verbose_name='Query Params', default=dict, null=True, blank=True)
     request_body = models.TextField(verbose_name='Request Body', null=True, blank=True)
     request_headers = models.JSONField(verbose_name='Headers', default=dict, null=True, blank=True)
     response_body = models.TextField(verbose_name='Request Body', null=True, blank=True)
     response_headers = models.JSONField(verbose_name='Headers', default=dict, null=True, blank=True)
-    application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='logs')
-    resource = models.ForeignKey(ResourceStub, null=True, blank=True, on_delete=models.SET_NULL, related_name='logs')
-    response = models.ForeignKey(
-        ResponseStub, verbose_name='Response', null=True, blank=True, on_delete=models.SET_NULL, related_name='logs'
-    )
     ipaddress = models.GenericIPAddressField(verbose_name='Remote IP', default='127.0.0.1')
     x_real_ip = models.GenericIPAddressField(verbose_name='X-REAL-IP', default='127.0.0.1', null=True, blank=True)
     proxied = models.BooleanField(verbose_name='Proxied', default=False, null=False, blank=False)
     destination_url = models.URLField(verbose_name='Proxied to', default=None, null=True, blank=True)
     status_code = models.IntegerField(verbose_name='Status Code', null=True, blank=True)
     method = models.CharField(verbose_name='Method', max_length=10, default=None, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Received at')
-    updated_at = models.DateTimeField(auto_now=True, verbose_name='Updated at')
+
+    resource = models.ForeignKey(
+        ResourceStub,
+        on_delete=models.deletion.CASCADE,
+        blank=True,
+        null=True,
+        related_name='logs',
+    )
+    response = models.ForeignKey(
+        ResponseStub,
+        verbose_name='Response',
+        related_name='logs',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    application = models.ForeignKey(
+        Application,
+        on_delete=models.CASCADE,
+        related_name='logs',
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = 'request log'
