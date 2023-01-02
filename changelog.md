@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0] - 2022-08-17
+## [1.0.0] - 2022-01-03
 ### Changed
 - Now using UUID as and ID and PK for every entity.
 - Fixed a 500 error occurred while proxying data containing request body in latin-1 encoding.
