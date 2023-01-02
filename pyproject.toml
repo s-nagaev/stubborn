@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "stubborn"
-version = "0.5.1"
+version = "1.0.0"
 description = "Just a simple REST API stub service."
 authors = ["Sergei Nagaev <nagaev.sv@gmail.com>"]
 license = "MIT"
@@ -12,6 +12,7 @@ Jinja2 = "3.1.2"
 Pygments = "2.11.2"
 argon2-cffi = "21.3.0"
 django = "3.2.16"
+django-admin-rangefilter = "0.9.0"
 django-cors-headers = "3.13.0"
 django-environ = "0.9.0"
 djangorestframework = "3.14.0"
@@ -19,8 +20,7 @@ djangorestframework-xml = "2.0.0"
 ipdb = "0.13.11"
 psycopg2-binary = "2.9.5"
 requests = "2.28.1"
-uwsgi = "2.0.21"
-django-admin-rangefilter = "0.9.0"
+uWSGI = "2.0.21"
 
 [tool.poetry.dev-dependencies]
 black = "22.12.0"

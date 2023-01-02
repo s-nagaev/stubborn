@@ -48,3 +48,18 @@ staging_run:
 
 staging_down:
 	docker-compose -f docker-compose.staging.yml down
+
+#### Build #############################################################################################################
+export_req:
+	poetry export -f requirements.txt --output requirements.txt
+
+VERSION ?= dev
+
+build:
+	docker buildx build --platform linux/amd64,linux/arm64/v8,linux/arm/v7 \
+		-t pysergio/stubborn:$(VERSION) -f docker/Dockerfile . --push
+
+build_latest:
+	docker buildx build --platform linux/amd64,linux/arm64/v8,linux/arm/v7 \
+		-t pysergio/stubborn:$(VERSION) -f docker/Dockerfile \
+		-t pysergio/stubborn:latest -f docker/Dockerfile . --push

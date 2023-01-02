@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Code refactored.
 - Improved logging of incoming API requests and service responses.
 - Dependencies updated.
+- Dockerfile updated: removed poetry from the docker image build steps.
 
 ## [0.5.0] - 2022-08-17
 ### Added
