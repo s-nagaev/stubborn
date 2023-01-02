@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from json import JSONDecodeError
 from typing import Any, Dict, Optional, cast
@@ -17,7 +18,9 @@ from apps import enums, hooks, models
 from apps.enums import ResponseChoices
 from apps.models import Application, RequestLog, ResourceStub, ResponseStub
 from apps.renderers import SimpleTextRenderer
-from apps.utils import clean_headers
+from apps.utils import clean_headers, log_response
+
+logger = logging.getLogger(__name__)
 
 
 def request_log_create(
@@ -79,7 +82,7 @@ def get_regular_response(application, request, resource) -> RestResponse:
     request.accepted_renderer = response_stub.renderer
     response_body = response_stub.body_rendered
 
-    request_log_create(
+    request_log_record = request_log_create(
         application=application,
         resource_stub=resource,
         response_stub=response_stub,
@@ -95,6 +98,16 @@ def get_regular_response(application, request, resource) -> RestResponse:
         response_data = response_body
 
     hooks.after_request(resource)
+
+    log_response(
+        response_logger=logger,
+        resource_type='STUB',
+        status_code=response_stub.status_code,
+        request_log_id=request_log_record.id,
+        body=response_data,
+        headers=response_stub.headers,
+    )
+
     try:
         return RestResponse(data=response_data, status=response_stub.status_code, headers=response_stub.headers)
     finally:
@@ -125,7 +138,7 @@ def get_third_party_service_response(
     if 'text/html' in content_type:
         request.accepted_renderer = SimpleTextRenderer()
 
-    request_log_create(
+    request_log_record = request_log_create(
         application=application,
         resource_stub=resource,
         request=request,
@@ -140,6 +153,15 @@ def get_third_party_service_response(
         response_body = destination_response.json()
     except JSONDecodeError:
         pass
+
+    log_response(
+        response_logger=logger,
+        resource_type='PROXY',
+        status_code=destination_response.status_code,
+        request_log_id=request_log_record.id,
+        body=response_body,
+        headers=str(response_headers),
+    )
 
     try:
         return RestResponse(data=response_body, status=destination_response.status_code, headers=response_headers)

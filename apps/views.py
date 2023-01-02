@@ -1,3 +1,4 @@
+import logging
 from typing import Any, cast
 from urllib.parse import urlparse
 
@@ -14,6 +15,9 @@ from apps import models
 from apps.enums import ResponseChoices
 from apps.renderers import SimpleTextRenderer, TextToXMLRenderer
 from apps.services import get_regular_response, get_resource_from_request, get_third_party_service_response
+from apps.utils import log_request
+
+logger = logging.getLogger()
 
 
 class ResponseStubView(APIView):
@@ -22,6 +26,8 @@ class ResponseStubView(APIView):
 
     @staticmethod
     def make_response(request: Request, **kwargs: Any) -> Response:
+        log_request(request_logger=logger, request=request)
+
         application = get_object_or_404(models.Application, slug=kwargs.get('app_slug', ''))
         resource = get_resource_from_request(request, kwargs)
         request.accepted_renderer = JSONRenderer()

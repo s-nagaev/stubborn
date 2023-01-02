@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2022-08-17
+### Changed
+- Now using UUID as and ID and PK for every entity.
+- Fixed a 500 error occurred while proxying data containing request body in latin-1 encoding.
+- Request Logs UI improved: added search functionality and data filters.
+- Hooks UI improved: removed the ability to configure hooks using mutually exclusive options.
+- Code refactored.
+- Improved logging of incoming API requests and service responses.
+- Dependencies updated.
+
 ## [0.5.0] - 2022-08-17
 ### Added
 - Global proxy functionality.
@@ -122,7 +132,8 @@ environment variables.
 - This changelog file.
 - Initial Readme file. 
 
-[Unreleased]: https://github.com/s-nagaev/stubborn/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/s-nagaev/stubborn/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/s-nagaev/stubborn/compare/v0.5.0...v1.0.0
 [0.5.0]: https://github.com/s-nagaev/stubborn/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/s-nagaev/stubborn/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/s-nagaev/stubborn/compare/v0.3.3...v0.4.0
