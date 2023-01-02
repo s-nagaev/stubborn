@@ -223,7 +223,9 @@ class AddApplicationRelatedObjectMixin(ModelAdminTypeClass):
                     request_data = request.GET.dict()
                     if filter_data := request_data.get('_changelist_filters'):
                         additional_url_params = (
-                            dict((k, v) for k, v in (filter_data.split('='),)) if isinstance(filter_data, str) else {}
+                            dict((key, val) for key, val in (filter_data.split('='),))
+                            if isinstance(filter_data, str)
+                            else {}
                         )
                     elif request_data.get('application'):
                         additional_url_params = request_data

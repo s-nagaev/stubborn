@@ -75,17 +75,17 @@ def process_hook(hooks: QuerySet[models.ResourceHook], **extra_context):
 
 
 def before_request(resource: models.ResourceStub):
-    hooks = resource.resourcehook_set.filter(lifecycle=enums.Lifecycle.BEFORE_REQUEST)
+    hooks = resource.hooks.filter(lifecycle=enums.Lifecycle.BEFORE_REQUEST)
     return process_hook(hooks=hooks)
 
 
 def after_request(resource: models.ResourceStub):
-    hooks = resource.resourcehook_set.filter(lifecycle=enums.Lifecycle.AFTER_REQUEST)
+    hooks = resource.hooks.filter(lifecycle=enums.Lifecycle.AFTER_REQUEST)
     return process_hook(hooks=hooks)
 
 
 @run_in_separate_thread
 def after_response(resource_pk: str):
     resource = models.ResourceStub.objects.get(pk=resource_pk)
-    hooks = resource.resourcehook_set.filter(lifecycle=enums.Lifecycle.AFTER_RESPONSE)
+    hooks = resource.hooks.filter(lifecycle=enums.Lifecycle.AFTER_RESPONSE)
     return process_hook(hooks=hooks, threading_mode=True)

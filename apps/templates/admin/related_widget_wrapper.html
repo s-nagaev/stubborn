@@ -12,10 +12,9 @@
         </a>
         {% endif %}
         {% if can_add_related %}
-    {{ qqqq }}
         <a class="related-widget-wrapper-link add-related" id="add_id_{{ name }}"
             href="{{ add_related_url }}?{{ url_params }}"
-            title="{% blocktranslate %}Add another {{ attr.qqqq }}{% endblocktranslate %}">
+            title="{% blocktranslate %}Add another {{ model }}{% endblocktranslate %}">
             <img src="{% static 'admin/img/icon-addlink.svg' %}" alt="{% translate 'Add' %}">
         </a>
         {% endif %}

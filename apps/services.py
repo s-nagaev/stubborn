@@ -98,7 +98,7 @@ def get_regular_response(application, request, resource) -> RestResponse:
     try:
         return RestResponse(data=response_data, status=response_stub.status_code, headers=response_stub.headers)
     finally:
-        if resource.resourcehook_set.filter(lifecycle=enums.Lifecycle.AFTER_RESPONSE).exists():
+        if resource.hooks.filter(lifecycle=enums.Lifecycle.AFTER_RESPONSE).exists():
             hooks.after_response(resource.pk)
 
 
@@ -144,7 +144,7 @@ def get_third_party_service_response(
     try:
         return RestResponse(data=response_body, status=destination_response.status_code, headers=response_headers)
     finally:
-        if resource.resourcehook_set.filter(lifecycle=enums.Lifecycle.AFTER_RESPONSE).exists():
+        if resource.hooks.filter(lifecycle=enums.Lifecycle.AFTER_RESPONSE).exists():
             hooks.after_response(resource.pk)
 
 

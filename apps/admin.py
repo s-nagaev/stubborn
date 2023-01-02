@@ -1,4 +1,3 @@
-import copy
 import os
 from typing import Any, Optional, cast
 
@@ -6,14 +5,14 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.options import IS_POPUP_VAR
 from django.contrib.auth.models import User
-from django.db import models as django_models
 from django.db.models import QuerySet
-from django.db.models.fields import Field
 from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from rangefilter.filters import DateRangeFilter
 
 from apps import inlines, models
+from apps.enums import ResponseChoices
 from apps.forms import ResourceStubForm, ResponseStubForm, WebHookRequestForm
 from apps.inlines import ResourceHookAdminInline
 from apps.mixins import (
@@ -26,7 +25,6 @@ from apps.mixins import (
 )
 from apps.models import RequestLog
 from apps.utils import prettify_data_to_html, prettify_json_html
-from apps.wigdets import ExtendedRelatedFieldWidgetWrapper
 
 
 @admin.register(models.Application)
@@ -104,10 +102,10 @@ class RequestStubAdmin(
         'headers',
         'body',
         'query_params',
-        'description',
-        'method',
         'uri',
+        'method',
         'format',
+        'description',
         'application',
         'creator',
     )
@@ -138,72 +136,29 @@ class RequestStubAdmin(
 
 
 @admin.register(models.ResourceStub)
-class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.ModelAdmin):
+class ResourceStubAdmin(
+    HideFromAdminIndexMixin, RelatedCUDManagerMixin, AddApplicationRelatedObjectMixin, admin.ModelAdmin
+):
     form = ResourceStubForm
     readonly_fields = ('creator',)
-    list_display = ('method', 'uri_with_slash', 'response', 'description', 'full_url', 'proxied')
+    list_display = ('get_method', 'uri_with_slash', 'response', 'description', 'full_url', 'proxied')
     no_add_related = ('application',)
     no_edit_related = ('application',)
     no_delete_related = ('application',)
     inlines = (ResourceHookAdminInline,)
 
     class Media:
-        js = ('admin/js/resource/responseSwitcher.js',)
+        js = (
+            'admin/js/resource/responseSwitcher.js',
+            'admin/js/resource/hooksSwitcher.js',
+        )
 
-    def formfield_for_dbfield(self, db_field: Field, request: Optional[HttpRequest], **kwargs: Any) -> Optional[Field]:
-        """Hook for specifying the form Field instance for a given database Field
-        instance.
-
-        If kwargs are given, they're passed to the form Field's constructor.
-        """
-        if db_field.choices:
-            return self.formfield_for_choice_field(db_field, request, **kwargs)  # type: ignore
-
-        if isinstance(db_field, (django_models.ForeignKey, django_models.ManyToManyField)):
-            if db_field.__class__ in self.formfield_overrides:
-                kwargs = {**self.formfield_overrides[db_field.__class__], **kwargs}
-
-            if isinstance(db_field, django_models.ForeignKey):
-                formfield = self.formfield_for_foreignkey(db_field, request, **kwargs)
-            elif isinstance(db_field, django_models.ManyToManyField):
-                formfield = self.formfield_for_manytomany(db_field, request, **kwargs)
-
-            if formfield and db_field.name not in self.raw_id_fields:
-                related_modeladmin = self.admin_site._registry.get(db_field.remote_field.model)
-                wrapper_kwargs: dict[str, Any] = {}
-                if related_modeladmin and request:
-                    wrapper_kwargs.update(
-                        can_add_related=related_modeladmin.has_add_permission(request),
-                        can_change_related=related_modeladmin.has_change_permission(request),
-                        can_delete_related=related_modeladmin.has_delete_permission(request),
-                        can_view_related=related_modeladmin.has_view_permission(request),
-                    )
-                additional_url_params: dict[str, Any] = {}
-                if request:
-                    request_data = request.GET.dict()
-                    if filter_data := request_data.get('_changelist_filters'):
-                        additional_url_params = (
-                            dict((k, v) for k, v in (filter_data.split('='),)) if isinstance(filter_data, str) else {}
-                        )
-                    elif request_data.get('application'):
-                        additional_url_params = request_data
-
-                formfield.widget = ExtendedRelatedFieldWidgetWrapper(
-                    widget=formfield.widget,  # type: ignore
-                    rel=db_field.remote_field,  # type: ignore
-                    admin_site=self.admin_site,
-                    additional_url_params=additional_url_params,
-                    **wrapper_kwargs,
-                )
-
-            return formfield  # type: ignore
-
-        for klass in db_field.__class__.mro():
-            if klass in self.formfield_overrides:
-                kwargs = {**copy.deepcopy(self.formfield_overrides[klass]), **kwargs}
-                return db_field.formfield(**kwargs)
-
-        return db_field.formfield(**kwargs)
+    @staticmethod
+    @admin.display(description='method')
+    def get_method(obj: models.ResourceStub) -> str:
+        if obj.response_type == ResponseChoices.PROXY_GLOBAL:
+            return 'ANY'
+        return obj.method or '-'
 
     @staticmethod
     @admin.display(description='URI')
@@ -264,6 +219,7 @@ class ResponseStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
     form = ResponseStubForm
     readonly_fields = ('creator',)
     list_display = ('id', 'status_code', 'format', 'has_headers', 'has_body', 'description')
+    fields = ('headers', 'body', 'status_code', 'format', 'description', 'application', 'creator')
     no_add_related = ('application',)
     no_edit_related = ('application',)
 
@@ -353,6 +309,12 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
         'response_headers',
         'ipaddress',
         'x_real_ip',
+    )
+    list_filter = (
+        ('created_at', DateRangeFilter),
+        'status_code',
+        'proxied',
+        'method',
     )
 
     class Media:

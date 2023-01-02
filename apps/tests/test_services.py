@@ -22,5 +22,5 @@ class TestProxy:
             url=destination_url,
             params={'param1': 'val1', 'param2': 'val2'},
             headers={'Content-Type': 'application/json'},
-            data='{"Status":"OK"}',
+            data=b'{"Status":"OK"}',
         )

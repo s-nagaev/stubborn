@@ -217,6 +217,14 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-admin-rangefilter"
+version = "0.9.0"
+description = "django-admin-rangefilter app, add the filter by a custom date range on the admin UI."
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+[[package]]
 name = "django-cors-headers"
 version = "3.13.0"
 description = "django-cors-headers is a Django application for handling the server headers required for Cross-Origin Resource Sharing (CORS)."
@@ -968,7 +976,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "445b41ca44c8c407dffefffc0f4d9531544e78dc9300a7cc2e1566b7f1155837"
+content-hash = "9d8170852d32881fe1baffb19e15e14702d01a9c38cd7ad609ceadd31a9d5724"
 
 [metadata.files]
 appnope = [
@@ -1183,6 +1191,10 @@ defusedxml = [
 django = [
     {file = "Django-3.2.16-py3-none-any.whl", hash = "sha256:18ba8efa36b69cfcd4b670d0fa187c6fe7506596f0ababe580e16909bcdec121"},
     {file = "Django-3.2.16.tar.gz", hash = "sha256:3adc285124244724a394fa9b9839cc8cd116faf7d159554c43ecdaa8cdf0b94d"},
+]
+django-admin-rangefilter = [
+    {file = "django-admin-rangefilter-0.9.0.tar.gz", hash = "sha256:e6aea6d6e9882b716beca7350a2a14db35c4cec204682b5a94dfd8110628e8ac"},
+    {file = "django_admin_rangefilter-0.9.0-py2.py3-none-any.whl", hash = "sha256:d028cea6a1ec8f8ac98c34cf79950c03641ab4942a5cd5b285ef35ccef0595b6"},
 ]
 django-cors-headers = [
     {file = "django-cors-headers-3.13.0.tar.gz", hash = "sha256:f9dc6b4e3f611c3199700b3e5f3398c28757dcd559c2f82932687f3d0443cfdf"},

@@ -127,8 +127,6 @@ class ResponseStub(AbstractHTTPObject, BaseStubModel):
         Application,
         on_delete=models.CASCADE,
         related_name='responses',
-        blank=True,
-        null=True,
     )
     creator = models.ForeignKey(
         User, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL, related_name='responses'
@@ -164,8 +162,6 @@ class RequestStub(AbstractHTTPObject, BaseStubModel):
         Application,
         on_delete=models.CASCADE,
         related_name='requests',
-        blank=True,
-        null=True,
     )
     creator = models.ForeignKey(
         User, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL, related_name='request'
@@ -207,8 +203,6 @@ class ResourceStub(BaseStubModel):
         Application,
         on_delete=models.CASCADE,
         related_name='resources',
-        blank=True,
-        null=True,
     )
     response = models.ForeignKey(
         ResponseStub,
@@ -313,8 +307,6 @@ class RequestLog(BaseStubModel):
         Application,
         on_delete=models.CASCADE,
         related_name='logs',
-        blank=True,
-        null=True,
     )
     resource = models.ForeignKey(
         ResourceStub,
