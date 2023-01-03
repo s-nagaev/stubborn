@@ -3,30 +3,40 @@ from typing import Any, Optional, cast
 
 from django.conf import settings
 from django.contrib import admin
+from django.contrib.admin.options import IS_POPUP_VAR
 from django.contrib.auth.models import User
+from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from rangefilter.filters import DateRangeFilter
 
 from apps import inlines, models
+from apps.enums import ResponseChoices
 from apps.forms import ResourceStubForm, ResponseStubForm, WebHookRequestForm
 from apps.inlines import ResourceHookAdminInline
-from apps.mixins import DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin, RelatedCUDManagerMixin
+from apps.mixins import (
+    AddApplicationRelatedObjectMixin,
+    DenyCreateMixin,
+    DenyUpdateMixin,
+    HideFromAdminIndexMixin,
+    RelatedCUDManagerMixin,
+    SaveByCurrentUserMixin,
+)
+from apps.models import RequestLog
 from apps.utils import prettify_data_to_html, prettify_json_html
 
 
 @admin.register(models.Application)
 class ApplicationAdmin(admin.ModelAdmin):
-    readonly_fields = ('owner', )
+    readonly_fields = ('owner',)
     list_display = ('name', 'slug', 'resources_count', 'short_desc')
     fields = ('name', 'description', 'slug', 'owner')
     inlines = [inlines.LogsInline]
     change_form_template = 'admin/apps/application/change_form.html'
 
     class Media:
-        css = {
-            'all': ('admin/css/application.css',)
-        }
+        css = {'all': ('admin/css/application.css',)}
 
     def get_inlines(self, request: HttpRequest, obj: models.Application = None):
         """Hook for specifying custom inlines.
@@ -80,22 +90,75 @@ class ApplicationAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.RequestStub)
-class RequestStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.ModelAdmin):
-    search_fields = ('description', 'uri', 'method', )
+class RequestStubAdmin(
+    HideFromAdminIndexMixin,
+    RelatedCUDManagerMixin,
+    SaveByCurrentUserMixin,
+    AddApplicationRelatedObjectMixin,
+    admin.ModelAdmin,
+):
+    fields = (
+        'name',
+        'headers',
+        'body',
+        'query_params',
+        'uri',
+        'method',
+        'format',
+        'description',
+        'application',
+        'creator',
+    )
+    readonly_fields = ('creator',)
+    search_fields = (
+        'description',
+        'uri',
+        'method',
+    )
     form = WebHookRequestForm
+    no_add_related = ('application',)
+    no_edit_related = ('application',)
+
+    def response_add(self, request: HttpRequest, obj: models.ResponseStub, post_url_continue: Optional[str] = None):
+        """Return to the application page after adding.
+
+        Args:
+            request: HttpRequest instance.
+            obj: model instance.
+            post_url_continue: default redirection URL.
+
+        Returns:
+            HttpResponse instance.
+        """
+        if IS_POPUP_VAR in request.POST:
+            return super().response_add(request, obj, post_url_continue)
+        return HttpResponseRedirect(reverse('admin:apps_application_change', args=(obj.application.pk,)))
 
 
 @admin.register(models.ResourceStub)
-class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.ModelAdmin):
+class ResourceStubAdmin(
+    HideFromAdminIndexMixin, RelatedCUDManagerMixin, AddApplicationRelatedObjectMixin, admin.ModelAdmin
+):
     form = ResourceStubForm
-    readonly_fields = ('creator', )
-    list_display = ('method', 'uri_with_slash', 'response', 'description', 'full_url', 'proxied')
-    no_add_related = ('application', 'response',)
+    readonly_fields = ('creator',)
+    list_display = ('get_method', 'uri_with_slash', 'response', 'description', 'full_url', 'proxied')
+    no_add_related = ('application',)
     no_edit_related = ('application',)
-    inlines = (ResourceHookAdminInline, )
+    no_delete_related = ('application',)
+    inlines = (ResourceHookAdminInline,)
 
     class Media:
-        js = ('admin/js/resource/responseSwitcher.js',)
+        js = (
+            'admin/js/resource/responseSwitcher.js',
+            'admin/js/resource/hooksSwitcher.js',
+        )
+
+    @staticmethod
+    @admin.display(description='method')
+    def get_method(obj: models.ResourceStub) -> str:
+        if obj.response_type == ResponseChoices.PROXY_GLOBAL:
+            return 'ANY'
+        return obj.method or '-'
 
     @staticmethod
     @admin.display(description='URI')
@@ -135,7 +198,7 @@ class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
         Returns:
             HttpResponse instance.
         """
-        return HttpResponseRedirect(reverse("admin:apps_application_change", args=(obj.application.pk,)))
+        return HttpResponseRedirect(reverse('admin:apps_application_change', args=(obj.application.pk,)))
 
     @staticmethod
     @admin.display(boolean=True, description='Proxied')
@@ -154,10 +217,11 @@ class ResourceStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
 @admin.register(models.ResponseStub)
 class ResponseStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.ModelAdmin):
     form = ResponseStubForm
-    readonly_fields = ('creator', )
+    readonly_fields = ('creator',)
     list_display = ('id', 'status_code', 'format', 'has_headers', 'has_body', 'description')
-    no_add_related = ('application', )
-    no_edit_related = ('application', )
+    fields = ('headers', 'body', 'status_code', 'format', 'description', 'application', 'creator')
+    no_add_related = ('application',)
+    no_edit_related = ('application',)
 
     @staticmethod
     @admin.display(description='Has Body', boolean=True)
@@ -196,7 +260,9 @@ class ResponseStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
         Returns:
             HttpResponse instance.
         """
-        return HttpResponseRedirect(reverse("admin:apps_application_change", args=(obj.application.pk,)))
+        if IS_POPUP_VAR in request.POST:
+            return super().response_add(request, obj, post_url_continue)
+        return HttpResponseRedirect(reverse('admin:apps_application_change', args=(obj.application.pk,)))
 
 
 @admin.register(models.RequestLog)
@@ -215,22 +281,53 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
         'ipaddress',
         'x_real_ip',
         'resource',
-        'response'
+        'response',
     )
-    list_display = ('created_at', 'method', 'status_code', 'url', 'get_remote_ip', 'resource', 'get_resource_desc',
-                    'proxied')
+    list_display = (
+        'created_at',
+        'method',
+        'status_code',
+        'url',
+        'get_remote_ip',
+        'resource',
+        'get_resource_desc',
+        'proxied',
+    )
     readonly_fields = (
         'pretty_params',
         'pretty_request_headers',
         'pretty_request_body',
         'pretty_response_headers',
-        'pretty_response_body'
+        'pretty_response_body',
+    )
+    search_fields = (
+        'url',
+        'params',
+        'request_body',
+        'request_headers',
+        'response_body',
+        'response_headers',
+        'ipaddress',
+        'x_real_ip',
+    )
+    list_filter = (
+        ('created_at', DateRangeFilter),
+        'status_code',
+        'proxied',
+        'method',
     )
 
     class Media:
-        css = {
-            'all': ('admin/css/application.css',)
-        }
+        css = {'all': ('admin/css/application.css',)}
+
+    def get_queryset(self, request: HttpRequest) -> QuerySet:
+        params = request.GET.dict()
+
+        application_id = cast(Optional[str], params.get('application'))
+        if not application_id:
+            return super().get_queryset(request)
+
+        return RequestLog.objects.filter(application__pk=application_id)
 
     @staticmethod
     @admin.display(description='Query params')

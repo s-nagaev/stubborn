@@ -46,7 +46,7 @@ class TestResponseStub:
             status_code=200,
             body=json.dumps({'Status': 'OK'}),
             format='JSON',
-            headers={'Content-Type': 'application/json'}
+            headers={'Content-Type': 'application/json'},
         )
         resource = create_resource_stub(application=application, response=response_stub, method='GET')
         response = api_client.get(path=get_url(resource))
@@ -55,22 +55,16 @@ class TestResponseStub:
 
     def test_response_timeout(self, api_client):
         application = create_application()
-        response_stub = create_response_stub(
-            application=application,
-            status_code=200
-        )
+        response_stub = create_response_stub(application=application, status_code=200)
         resource = create_resource_stub(application=application, response=response_stub, method='GET')
         create_resource_hook(
-            lifecycle=Lifecycle.AFTER_REQUEST.value,
-            action=Action.WAIT.value,
-            timeout=2,
-            resource=resource
+            lifecycle=Lifecycle.AFTER_REQUEST.value, action=Action.WAIT.value, timeout=2, resource=resource
         )
         before_request_time = timezone.now()
         response = api_client.get(path=get_url(resource))
         after_request_time = timezone.now()
         assert response.status_code == 200
-        assert (after_request_time-before_request_time).seconds == 2
+        assert (after_request_time - before_request_time).seconds == 2
 
     def test_response_body_xml(self, api_client):
         application = create_application()
@@ -79,7 +73,7 @@ class TestResponseStub:
             status_code=200,
             body='<Response><Status>OK</Status></Response>',
             format='XML',
-            headers={'Content-Type': 'application/xml'}
+            headers={'Content-Type': 'application/xml'},
         )
         resource = create_resource_stub(application=application, response=response_stub, method='GET')
         response = api_client.get(path=get_url(resource))
@@ -95,7 +89,7 @@ class TestResponseStub:
             status_code=200,
             body='Status: OK',
             format='PLAIN_TEXT',
-            headers={'Content-Type': 'application/text'}
+            headers={'Content-Type': 'application/text'},
         )
         resource = create_resource_stub(application=application, response=response_stub, method='GET')
         response = api_client.get(path=get_url(resource))
@@ -121,7 +115,7 @@ class TestResponseStub:
         mock_requests_post.return_value.content.decode.return_value = '{"Status": "OK"}'
         mock_requests_post.return_value.headers = {
             'Custom-Serverside-Header': 'Some Value',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         }
 
         application = create_application()
@@ -129,7 +123,7 @@ class TestResponseStub:
             application=application,
             method='GET',
             proxy_destination_address='https://example.com/foo',
-            response_type=ResponseChoices.PROXY_CURRENT
+            response_type=ResponseChoices.PROXY_CURRENT,
         )
 
         response = api_client.get(path=get_url(resource))
@@ -142,33 +136,19 @@ class TestResponseStub:
     @patch('requests.request', return_value=None)
     def test_after_response_webhook_call(self, mocked_request, lifecycle, api_client):
         application = create_application()
-        response_stub = create_response_stub(
-            application=application,
-            status_code=200
-        )
+        response_stub = create_response_stub(application=application, status_code=200)
         resource = create_resource_stub(application=application, response=response_stub, method='GET')
         hook_request = create_request_stub(
-            application=application,
-            method='GET',
-            query_params={'a': 'b'},
-            uri='https://test.com'
+            application=application, method='GET', query_params={'a': 'b'}, uri='https://test.com'
         )
         create_resource_hook(
-            lifecycle=lifecycle,
-            action=Action.WEBHOOK.value,
-            timeout=0,
-            resource=resource,
-            request=hook_request
+            lifecycle=lifecycle, action=Action.WEBHOOK.value, timeout=0, resource=resource, request=hook_request
         )
         response = api_client.get(path=get_url(resource))
         assert response.status_code == 200
         mocked_request.assert_called_once()
         mocked_request.assert_called_with(
-            method='GET',
-            url='https://test.com',
-            params={'a': 'b'},
-            headers={},
-            data=None
+            method='GET', url='https://test.com', params={'a': 'b'}, headers={}, data=None
         )
 
 
@@ -181,7 +161,7 @@ class TestLogging:
             application=application,
             status_code=200,
             headers={'Custom-Serverside-Header': 'Serverside Header Value'},
-            body=json.dumps({'Status': 'OK'})
+            body=json.dumps({'Status': 'OK'}),
         )
         resource = create_resource_stub(application=application, response=response_stub, method=request_method)
 
@@ -198,7 +178,7 @@ class TestLogging:
             path=f'{get_url(resource)}{request_params}',
             data=payload,
             content_type='application/json',
-            HTTP_CUSTOM_CLIENT_HEADER='Custom Header Value'
+            HTTP_CUSTOM_CLIENT_HEADER='Custom Header Value',
         )
         assert response.status_code == 200
 
@@ -228,7 +208,7 @@ class TestLogging:
         mock_requests_request.return_value.content.decode.return_value = '{"Status": "OK"}'
         mock_requests_request.return_value.headers = {
             'Custom-Serverside-Header': 'Some Value',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         }
 
         application = create_application()
@@ -236,7 +216,7 @@ class TestLogging:
             application=application,
             method=request_method,
             proxy_destination_address='https://example.com/foo',
-            response_type=ResponseChoices.PROXY_CURRENT
+            response_type=ResponseChoices.PROXY_CURRENT,
         )
         request_params = '?param1=value1&param2=value2'
         request_body = {
@@ -251,7 +231,7 @@ class TestLogging:
             path=f'{get_url(resource)}{request_params}',
             data=payload,
             content_type='application/json',
-            HTTP_CUSTOM_CLIENT_HEADER='Custom Header Value'
+            HTTP_CUSTOM_CLIENT_HEADER='Custom Header Value',
         )
 
         assert response.status_code == 200

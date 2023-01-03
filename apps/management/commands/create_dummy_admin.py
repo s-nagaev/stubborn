@@ -6,8 +6,10 @@ from django.db.utils import IntegrityError
 
 
 class Command(BaseCommand):
-    help = ('Create a TECHNICAL administrator account for testing and debugging purposes. '
-            'The command is NOT intended to run in Production and will not work there.')
+    help = (
+        'Create a TECHNICAL administrator account for testing and debugging purposes. '
+        'The command is NOT intended to run in Production and will not work there.'
+    )
 
     def handle(self, *args: str, **options: str) -> None:
         """Create a TECHNICAL superuser with login 'admin' and password 'admin'.

@@ -14,8 +14,8 @@ class TestUtils:
         [
             '{"Some_key": "some val", "Some Another Key": "some another val"}',
             '[{"Some_key": "some val"}, {"Some Another Key": "some another val"}]',
-            '{"one": {"two": 2}}'
-        ]
+            '{"one": {"two": 2}}',
+        ],
     )
     def test_is_json_true(self, incoming_string):
         result = is_json(incoming_string)
@@ -45,11 +45,7 @@ class TestUtils:
 
     @pytest.mark.parametrize(
         'incoming_string',
-        [
-            '<Response><Status>OK</Status></Response>',
-            '{"Some_key": "some val"}',
-            {"Some_key": "some val"}
-        ]
+        ['<Response><Status>OK</Status></Response>', '{"Some_key": "some val"}', {"Some_key": "some val"}],
     )
     def test_prettify_string_to_html_success_return_type(self, incoming_string):
         result = prettify_data_to_html(incoming_string)
@@ -69,7 +65,7 @@ class TestUtils:
             'Trailer': 'Expires',
             'Transfer-Encoding': 'gzip',
             'Upgrade': 'example/1, foo/2',
-            'User-Agent': 'curl/7.64.1'
+            'User-Agent': 'curl/7.64.1',
         }
 
         allowed_headers = clean_headers(incoming_headers)

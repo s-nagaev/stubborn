@@ -10,12 +10,10 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = (
-        """Create a superuser with login, email and password according to environment variables:
+    help = """Create a superuser with login, email and password according to environment variables:
         - ADMIN_USERNAME
         - ADMIN_EMAIL
         - ADMIN_PASSWORD"""
-    )
 
     def create_parser(self, prog_name: str, subcommand: str, **kwargs: Any) -> CommandParser:
         parser = super().create_parser(prog_name, subcommand, **kwargs)

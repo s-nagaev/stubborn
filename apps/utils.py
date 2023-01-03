@@ -4,6 +4,7 @@ import threading
 from functools import wraps
 from json import JSONDecodeError
 from typing import Any, Dict, Optional, Union
+from uuid import UUID
 from xml.dom import minidom
 
 from django.utils.safestring import mark_safe
@@ -11,6 +12,7 @@ from pygments import highlight
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexers import XmlLexer
 from pygments.lexers.data import JsonLexer
+from rest_framework.request import Request
 
 from apps.styles import StubbornDark
 
@@ -130,12 +132,7 @@ def clean_headers(headers: Dict[str, str]) -> Dict[str, str]:
         'upgrade',
     ]
 
-    throw_out_headers = [
-        'host',
-        'server',
-        'content-length',
-        'content-encoding'
-    ]
+    throw_out_headers = ['host', 'server', 'content-length', 'content-encoding']
 
     unwanted_headers = hop_by_hop_headers + throw_out_headers
     headers = dict(headers)
@@ -156,6 +153,7 @@ def run_in_separate_thread(func):
     Returns:
         Thread object instead of execution result.
     """
+
     @wraps(func)
     def run(*args, **kwargs) -> threading.Thread:
         logger.info(f"Run function {func.__name__} from {func.__module__} in separate thread")
@@ -167,3 +165,53 @@ def run_in_separate_thread(func):
         return t
 
     return run
+
+
+def log_request(request_logger: logging.Logger, request: Request) -> None:
+    """Log the incoming request data.
+
+    Args:
+        request_logger: logger instance.
+        request: Django REST Framework request instance.
+    """
+
+    try:
+        method = request.method.upper()
+        query_params = request.query_params or 'empty'
+        body = json.loads(request.body.decode()) if request.body else 'empty'
+        url = request.get_full_path()
+        headers = request.headers
+        request_logger.info(
+            f'Incoming request: {method} {url}. Body: {body}. Params: {query_params}. Headers: {headers}.'
+        )
+    except Exception as e:
+        request_logger.error(f'Could not log an incoming request due to exception: {e}')
+
+
+def log_response(
+    response_logger: logging.Logger,
+    resource_type: str,
+    status_code: int,
+    request_log_id: UUID,
+    body: Union[dict, str] = 'empty',
+    headers: Union[dict, str] = 'empty',
+) -> None:
+    """Log the returning response data.
+
+    Args:
+        response_logger: logger instance.
+        resource_type: request type (STUB or PROXY).
+        status_code: response status code.
+        request_log_id: request log record ID.
+        body: response body (if exists).
+        headers: response headers (if exists).
+    """
+    try:
+        log_message = (
+            f'Returning {resource_type} response: Status: {status_code}. '
+            f'Body: {body}. '
+            f'Headers: {headers}. Request Log Record: {request_log_id}.'
+        )
+        response_logger.info(log_message)
+    except Exception as e:
+        response_logger.error(f'Could not log response data due to exception: {e}')

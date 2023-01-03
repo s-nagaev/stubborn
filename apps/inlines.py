@@ -1,18 +1,32 @@
+from typing import Any, TypeVar
+
+from django import forms
 from django.conf import settings
 from django.contrib import admin
+from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import QuerySet
+from django.db.models.base import Model
 from django.http import HttpRequest
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from apps import mixins, models
+from apps.mixins import AddApplicationRelatedObjectMixin
+
+_ModelT = TypeVar("_ModelT", bound=Model)
 
 
-class ResourceHookAdminInline(admin.TabularInline):
+class ResourceHookAdminInline(AddApplicationRelatedObjectMixin, admin.TabularInline):
     extra = 0
     model = models.ResourceHook
-    # ToDo Filter by application
-    autocomplete_fields = ('request', )
+
+    def get_formset(self, request: WSGIRequest, obj: Any = None, **kwargs: Any) -> forms.formsets.BaseFormSet:
+        formset = super().get_formset(request, obj, **kwargs)
+
+        if obj:
+            application = models.Application.objects.get(resources__pk=obj.pk)
+            formset.form.base_fields['request'].queryset = models.RequestStub.objects.filter(application=application)
+        return formset
 
 
 class ResourcesInline(mixins.DenyUpdateMixin, mixins.DenyDeleteMixin, admin.TabularInline):
@@ -21,7 +35,7 @@ class ResourcesInline(mixins.DenyUpdateMixin, mixins.DenyDeleteMixin, admin.Tabu
     show_change_link = True
     extra = 0
     fields = ('method', 'slug', 'description', 'response')
-    readonly_fields = ('get_url', )
+    readonly_fields = ('get_url',)
 
     @staticmethod
     @admin.display(description='Description')
@@ -34,7 +48,7 @@ class ResourcesInline(mixins.DenyUpdateMixin, mixins.DenyDeleteMixin, admin.Tabu
         Returns:
             String containing the resource description.
         """
-        resource_url = reverse("admin:apps_resourcestub_change", args=(obj.pk,))
+        resource_url = reverse('admin:apps_resourcestub_change', args=(obj.pk,))
         return mark_safe(f'<a href="{resource_url}" class="inlineviewlink">Change</a>')
 
 
@@ -64,7 +78,7 @@ class LogsInline(mixins.DenyCUDMixin, admin.TabularInline):
         if not application_id:
             return default_queryset
         queryset = default_queryset.filter(application_id=application_id)
-        ids = queryset.order_by('-id').values('pk')[:settings.REQUEST_LOGS_INLINE_LIMIT]
+        ids = queryset.order_by('-id').values('pk')[: settings.REQUEST_LOGS_INLINE_LIMIT]
         return self.model.objects.filter(pk__in=ids).order_by('-pk')
 
     @staticmethod

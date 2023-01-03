@@ -10,7 +10,7 @@ DEBUG = env.bool('DJANGO_DEBUG_MODE', default=False)
 ALLOWED_HOSTS = ['*']
 SECRET_KEY = env.str('SECRET_KEY')
 
-ROOT_DIR = (environ.Path(__file__) - 3)
+ROOT_DIR = environ.Path(__file__) - 3
 APPS_DIR = ROOT_DIR.path('apps')
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -30,7 +30,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
-    'apps'
+    'rangefilter',
+    'apps',
 ]
 
 # MIDDLEWARE
@@ -47,13 +48,11 @@ MIDDLEWARE = [
 
 # DJANGO REST FRAMEWORK
 REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer'
-    ),
+    'DEFAULT_RENDERER_CLASSES': ('rest_framework.renderers.JSONRenderer'),
     'DEFAULT_AUTHENTICATION_CLASSES': [
         # 'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-    ]
+    ],
 }
 
 # URLS

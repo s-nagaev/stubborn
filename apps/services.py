@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from json import JSONDecodeError
 from typing import Any, Dict, Optional, cast
@@ -17,19 +18,22 @@ from apps import enums, hooks, models
 from apps.enums import ResponseChoices
 from apps.models import Application, RequestLog, ResourceStub, ResponseStub
 from apps.renderers import SimpleTextRenderer
-from apps.utils import clean_headers
+from apps.utils import clean_headers, log_response
+
+logger = logging.getLogger(__name__)
 
 
-def request_log_create(application: Application,
-                       resource_stub: ResourceStub,
-                       request: Request,
-                       response_stub: ResponseStub = None,
-                       response_status_code: int = None,
-                       response_body: str = None,
-                       response_headers: Dict = None,
-                       proxied: bool = False,
-                       destination_url: str = None,
-                       ) -> RequestLog:
+def request_log_create(
+    application: Application,
+    resource_stub: ResourceStub,
+    request: Request,
+    response_stub: ResponseStub = None,
+    response_status_code: int = None,
+    response_body: str = None,
+    response_headers: Dict = None,
+    proxied: bool = False,
+    destination_url: str = None,
+) -> RequestLog:
     log_record = RequestLog.objects.create(
         url=os.path.join(settings.DOMAIN_DISPLAY, request.META.get('PATH_INFO')[1:]),
         application=application,
@@ -45,7 +49,7 @@ def request_log_create(application: Application,
         ipaddress=request.META.get('REMOTE_ADDR'),
         x_real_ip=request.headers.get('X-REAL-IP'),
         proxied=proxied,
-        destination_url=destination_url
+        destination_url=destination_url,
     )
     return log_record
 
@@ -66,11 +70,7 @@ def proxy_request(incoming_request: Request, destination_url: str) -> Response:
     headers = clean_headers(incoming_request.headers)
 
     destination_response = requests.request(
-        method=method,
-        url=destination_url,
-        params=query_params,
-        headers=headers,
-        data=body
+        method=method, url=destination_url, params=query_params, headers=headers, data=body.encode('utf8')
     )
 
     return destination_response
@@ -82,13 +82,15 @@ def get_regular_response(application, request, resource) -> RestResponse:
     request.accepted_renderer = response_stub.renderer
     response_body = response_stub.body_rendered
 
-    request_log_create(application=application,
-                       resource_stub=resource,
-                       response_stub=response_stub,
-                       request=request,
-                       response_status_code=response_stub.status_code,
-                       response_body=response_body,
-                       response_headers=response_stub.headers)
+    request_log_record = request_log_create(
+        application=application,
+        resource_stub=resource,
+        response_stub=response_stub,
+        request=request,
+        response_status_code=response_stub.status_code,
+        response_body=response_body,
+        response_headers=response_stub.headers,
+    )
 
     if response_stub.is_json_format:
         response_data = json.loads(response_body) or ''
@@ -96,21 +98,26 @@ def get_regular_response(application, request, resource) -> RestResponse:
         response_data = response_body
 
     hooks.after_request(resource)
+
+    log_response(
+        response_logger=logger,
+        resource_type='STUB',
+        status_code=response_stub.status_code,
+        request_log_id=request_log_record.id,
+        body=response_data,
+        headers=response_stub.headers,
+    )
+
     try:
-        return RestResponse(
-            data=response_data,
-            status=response_stub.status_code,
-            headers=response_stub.headers
-        )
+        return RestResponse(data=response_data, status=response_stub.status_code, headers=response_stub.headers)
     finally:
-        if resource.resourcehook_set.filter(lifecycle=enums.Lifecycle.AFTER_RESPONSE).exists():
+        if resource.hooks.filter(lifecycle=enums.Lifecycle.AFTER_RESPONSE).exists():
             hooks.after_response(resource.pk)
 
 
-def get_third_party_service_response(application: Application,
-                                     request: Request,
-                                     resource: ResourceStub,
-                                     tail: Optional[str] = None) -> RestResponse:
+def get_third_party_service_response(
+    application: Application, request: Request, resource: ResourceStub, tail: Optional[str] = None
+) -> RestResponse:
     if tail and resource.response_type == ResponseChoices.PROXY_CURRENT:
         raise Http404()
 
@@ -118,10 +125,7 @@ def get_third_party_service_response(application: Application,
     remote_url = os.path.join(destination_address, tail) if tail else destination_address
 
     hooks.before_request(resource)
-    destination_response = proxy_request(
-        incoming_request=request,
-        destination_url=remote_url
-    )
+    destination_response = proxy_request(incoming_request=request, destination_url=remote_url)
     hooks.after_request(resource)
     response_body = destination_response.content.decode()
     response_headers = clean_headers(dict(destination_response.headers))
@@ -134,28 +138,35 @@ def get_third_party_service_response(application: Application,
     if 'text/html' in content_type:
         request.accepted_renderer = SimpleTextRenderer()
 
-    request_log_create(application=application,
-                       resource_stub=resource,
-                       request=request,
-                       response_status_code=destination_response.status_code,
-                       response_body=response_body,
-                       response_headers=response_headers,
-                       proxied=True,
-                       destination_url=remote_url)
+    request_log_record = request_log_create(
+        application=application,
+        resource_stub=resource,
+        request=request,
+        response_status_code=destination_response.status_code,
+        response_body=response_body,
+        response_headers=response_headers,
+        proxied=True,
+        destination_url=remote_url,
+    )
 
     try:
         response_body = destination_response.json()
     except JSONDecodeError:
         pass
 
+    log_response(
+        response_logger=logger,
+        resource_type='PROXY',
+        status_code=destination_response.status_code,
+        request_log_id=request_log_record.id,
+        body=response_body,
+        headers=str(response_headers),
+    )
+
     try:
-        return RestResponse(
-            data=response_body,
-            status=destination_response.status_code,
-            headers=response_headers
-        )
+        return RestResponse(data=response_body, status=destination_response.status_code, headers=response_headers)
     finally:
-        if resource.resourcehook_set.filter(lifecycle=enums.Lifecycle.AFTER_RESPONSE).exists():
+        if resource.hooks.filter(lifecycle=enums.Lifecycle.AFTER_RESPONSE).exists():
             hooks.after_response(resource.pk)
 
 
@@ -170,16 +181,12 @@ def get_resource_from_request(request: Request, kwargs: Dict[Any, Any]) -> Resou
     )
 
     if resource := resources.filter(
-            method=request.method,
-            tail=tail,
-            response_type=ResponseChoices.CUSTOM
+        method=request.method, tail=tail, response_type=ResponseChoices.CUSTOM
     ).last():  # custom response
         return resource
 
     if resource := resources.filter(
-            method=request.method,
-            tail=tail,
-            response_type=ResponseChoices.PROXY_CURRENT
+        method=request.method, tail=tail, response_type=ResponseChoices.PROXY_CURRENT
     ).last():  # proxy specific URL
         return resource
 

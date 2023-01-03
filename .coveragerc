@@ -2,16 +2,19 @@
 include =
     apps/*
 omit =
-    *admin*
-    *inlines*
-    *conftest*
-    *migrations*
-    *tests*
-    *templates*
-    *static*
-    *data_structures*
-    *models*
     *__init__*
+    *admin*
+    *conftest*
+    *data_structures*
+    *forms*
+    *inlines*
+    *migrations*
+    *mixins*
+    *models*
+    *static*
+    *templates*
+    *tests*
+    *widgets*
 
 [report]
 ignore_errors = True
