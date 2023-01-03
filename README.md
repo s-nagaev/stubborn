@@ -4,7 +4,7 @@
 [![Issues](https://img.shields.io/github/issues/s-nagaev/stubborn)](https://github.com/s-nagaev/stubborn/issues/new)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/s-nagaev/stubborn/pulls)
 <p align="center">
-  <img width=150 src="docs/logo.png" alt="logo">
+  <img width=150 src="https://github.com/s-nagaev/stubborn/raw/main/docs/logo.png" alt="logo">
   <br>
 Just a (stupidly) simple REST API stub service.
 </p>
@@ -15,22 +15,19 @@ Just a (stupidly) simple REST API stub service.
 **Stubborn** is a free and open-source web application providing a virtual API stub service for testing and 
 development purposes.
 
-API stub methods might be handy in mocking the third-party API services. So, the main idea is to provide a minimal 
-implementation of an interface that allows the developer or tester to set up an API method that returns hardcoded 
-(and partly generated) data tightly coupled to the test suite. Also, it must be easy to share the stub with 
-teammates and (or) use it permanently with the staging instance of the main application.
-
-**The building blocks are:**
-- Python 3.9+
-- Django 3.2+
-- Django REST Framework 3+
-- PostgreSQL
+API stub methods might be handy in mocking the third-party API services. So, the main idea is to provide an interface 
+that allows the developer or tester to set up an API method that returns hardcoded or templated data tightly coupled 
+to the test suite.
 
 ## Features
 - Customizable mocking web resources.
-- JSON, XML, Plain Text response body formats support.
 - Customizable response timeout support.
-- Logging containing exhaustive request & response data.
+- Full "Service-In-The-Middle" functionality allows proxy requests to third-party resources, fully capturing all 
+interactions between the application under test and the third-party service (including the ability to selectively 
+mock endpoints).
+- Calling the webhook of the integrated application at any moment of its interaction with the Stubborn.
+- JSON, XML, and Plain Text response body formats support.
+- Exhaustive events log containing requests & response data with GUI.
 
 ## Prerequisite
 Stubborn is shipped as a [Docker image](https://hub.docker.com/r/pysergio/stubborn). 
@@ -111,6 +108,12 @@ Sure! You may check the DEMO-version of the service here: [https://mocked.dev](h
 
 ## Development
 
+**The building blocks are:**
+- Python 3.9+
+- Django 3.2+
+- Django REST Framework 3+
+- PostgreSQL
+
 ### The Plan (MVP)
 - [x] implement JSON response support;
 - [x] dockerize the application;
@@ -125,10 +128,12 @@ Sure! You may check the DEMO-version of the service here: [https://mocked.dev](h
 - [x] set up the demo server;
 - [x] add template support for the response body;
 - [x] add client's webhook call support;
+- [x] improve UI/UX.
+
+### The Plan (future versions)
 - [ ] add HTML-response support;
 - [ ] add the `team` entity for sharing stub methods with teammates only;
-- [ ] add the REST API for manipulation with main application entities;  
-- [ ] improve UI/UX.
+- [ ] add the REST API for manipulation with main application entities;
 
 ### Setting Up for Development
 **To set up the development environment:**

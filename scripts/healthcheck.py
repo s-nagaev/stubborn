@@ -1,4 +1,5 @@
 import logging
+
 import requests
 
 HOST = '127.0.0.1'
