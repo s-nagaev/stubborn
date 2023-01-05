@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2022-01-05
+### Changed
+- Default sorting fixed for Request Logs and Application change lists.
+- Response HTML code displaying fixed in the Request Log detail page. 
+- Log format slightly updated.
+
 ## [1.0.0] - 2022-01-03
 ### Changed
 - Now using UUID as and ID and PK for every entity.
@@ -133,7 +139,8 @@ environment variables.
 - This changelog file.
 - Initial Readme file. 
 
-[Unreleased]: https://github.com/s-nagaev/stubborn/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/s-nagaev/stubborn/compare/v1.0.1...HEAD
+[1.0.0]: https://github.com/s-nagaev/stubborn/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/s-nagaev/stubborn/compare/v0.5.0...v1.0.0
 [0.5.0]: https://github.com/s-nagaev/stubborn/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/s-nagaev/stubborn/compare/v0.4.0...v0.4.1

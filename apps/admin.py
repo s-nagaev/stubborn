@@ -34,6 +34,7 @@ class ApplicationAdmin(admin.ModelAdmin):
     fields = ('name', 'description', 'slug', 'owner')
     inlines = [inlines.LogsInline]
     change_form_template = 'admin/apps/application/change_form.html'
+    ordering = ('name', )
 
     class Media:
         css = {'all': ('admin/css/application.css',)}
@@ -118,6 +119,7 @@ class RequestStubAdmin(
     form = WebHookRequestForm
     no_add_related = ('application',)
     no_edit_related = ('application',)
+    ordering = ('-created_at', )
 
     def response_add(self, request: HttpRequest, obj: models.ResponseStub, post_url_continue: Optional[str] = None):
         """Return to the application page after adding.
@@ -146,6 +148,7 @@ class ResourceStubAdmin(
     no_edit_related = ('application',)
     no_delete_related = ('application',)
     inlines = (ResourceHookAdminInline,)
+    ordering = ('-created_at', )
 
     class Media:
         js = (
@@ -222,6 +225,7 @@ class ResponseStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
     fields = ('headers', 'body', 'status_code', 'format', 'description', 'application', 'creator')
     no_add_related = ('application',)
     no_edit_related = ('application',)
+    ordering = ('-created_at', )
 
     @staticmethod
     @admin.display(description='Has Body', boolean=True)
@@ -271,6 +275,8 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
 
     fields = (
         'created_at',
+        'method',
+        'url',
         'destination_url',
         'pretty_request_headers',
         'pretty_params',
@@ -301,6 +307,7 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
         'pretty_response_body',
     )
     search_fields = (
+        'id',
         'url',
         'params',
         'request_body',
@@ -316,6 +323,7 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
         'proxied',
         'method',
     )
+    ordering = ('-created_at', )
 
     class Media:
         css = {'all': ('admin/css/application.css',)}

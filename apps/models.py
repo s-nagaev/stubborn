@@ -334,8 +334,7 @@ class RequestLog(BaseStubModel):
         Returns:
             String representation.
         """
-        method = f'{self.method.upper()} ' if self.method else ''
-        return f'{method}{self.url}'
+        return f'Request Log Record #{self.id}'
 
     @property
     def response_format(self) -> str:

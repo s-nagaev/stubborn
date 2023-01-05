@@ -12,6 +12,7 @@ from pygments import highlight
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexers import XmlLexer
 from pygments.lexers.data import JsonLexer
+from pygments.lexers.html import HtmlLexer
 from rest_framework.request import Request
 
 from apps.styles import StubbornDark
@@ -88,6 +89,21 @@ def prettify_xml_html(dom_document: minidom.Document) -> str:
     return xml_prettified + style
 
 
+def prettify_html_html(html_document: str) -> str:
+    """Pretty HTML data for admin fields.
+
+    Args:
+        html_document: HTML-code of the page.
+
+    Returns:
+        HTML-code with pretty XML and style.
+    """
+    formatter = HtmlFormatter(style=StubbornDark)
+    xml_prettified = highlight(html_document, HtmlLexer(), formatter)
+    style = f'<style>{formatter.get_style_defs()}</style>'
+    return xml_prettified + style
+
+
 def prettify_data_to_html(data: Union[str, Dict[str, Any]]) -> str:
     """Pretty data for admin fields.
 
@@ -104,6 +120,8 @@ def prettify_data_to_html(data: Union[str, Dict[str, Any]]) -> str:
         return mark_safe(prettify_json_html(data))
     elif dom_doc := str_to_dom_document(data):
         return mark_safe(prettify_xml_html(dom_doc))
+    if data.startswith('<!DOCTYPE html>'):
+        return mark_safe(prettify_html_html(data))
     return mark_safe(data)
 
 

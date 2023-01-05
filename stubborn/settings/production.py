@@ -9,7 +9,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '{levelname} {asctime} ({module}) \t {message}',
+            'format': '{levelname}\t {asctime} ({module}) \t {message}',
             'style': '{',
         },
         'simple': {

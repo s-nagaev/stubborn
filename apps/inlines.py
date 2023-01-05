@@ -78,8 +78,8 @@ class LogsInline(mixins.DenyCUDMixin, admin.TabularInline):
         if not application_id:
             return default_queryset
         queryset = default_queryset.filter(application_id=application_id)
-        ids = queryset.order_by('-id').values('pk')[: settings.REQUEST_LOGS_INLINE_LIMIT]
-        return self.model.objects.filter(pk__in=ids).order_by('-pk')
+        ids = queryset.order_by('-created_at').values('pk')[: settings.REQUEST_LOGS_INLINE_LIMIT]
+        return self.model.objects.filter(pk__in=ids).order_by('-created_at')
 
     @staticmethod
     @admin.display(description='Remote IP/X-Real-IP')
