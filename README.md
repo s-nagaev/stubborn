@@ -12,12 +12,11 @@ Just a (stupidly) simple REST API stub service.
 * * *
 
 ## About
-**Stubborn** is a free and open-source web application providing a virtual API stub service for testing and 
-development purposes.
-
-API stub methods might be handy in mocking the third-party API services. So, the main idea is to provide an interface 
-that allows the developer or tester to set up an API method that returns hardcoded or templated data tightly coupled 
-to the test suite.
+**Stubborn** is an ultimate tool for testing and debugging your APIs. With Stubborn, you can easily create mock 
+responses to simulate different scenarios, proxy requests to other servers, and call webhooks to test your integration. 
+Plus, Stubborn comes with full request and response logging, so you can see exactly what's happening behind the scenes. 
+Best of all, Stubborn is open-source and self-hosted, so you can use it on your own infrastructure and customize it 
+to meet your specific needs.
 
 ## Features
 - Customizable mocking web resources.
@@ -36,7 +35,7 @@ To use it, you need a Docker Engine installed on your machine. In addition, Dock
 **Supported platforms:**
 - linux/amd64
 - linux/arm64
-- linux/arm/v7 *(Yes! You can run it on your Raspberry Pi!)*
+- linux/arm32/v7 *(Yes! You can run it on your Raspberry Pi!)*
 
 ## Quick Start
 Here is a real-world example: 
@@ -65,6 +64,7 @@ services:
       ADMIN_USERNAME: admin
       ADMIN_PASSWORD: very_secret_password
       ADMIN_EMAIL: admin@example.com
+      UWSGI_THREADS: 3
     ports:
       - "8000:8000"
     depends_on:
@@ -86,6 +86,7 @@ unpredictable value.
 - `ADMIN_EMAIL` *(required for the very first run only)*: an email for an administrative account.
 - `DOMAIN_DISPLAY` *(optional)*: a protocol and domain where your application instance hosted, i.e. 
 `https://mysite.com`, `http://192.168.1.150:8000`. The default value is `http://127.0.0.1:8000`.
+- `UWSGI_THREADS` *(optional)*: number of threads per uWSGI worker (does not connect directly with the Stubborn).
 
 2. Then run the command:
 ```shell
@@ -97,17 +98,7 @@ Please, note that the parameter `-d` in the command example will tell Docker Com
 The site should now be running at http://0.0.0.0:8000. To access the service admin panel visit 
 `http://localhost:8000/admin/` and log in as a superuser.
 
-## Can I try it right now?
-Sure! You may check the DEMO-version of the service here: [https://mocked.dev](https://mocked.dev)
-
-| Login  | Password |
-|--------|----------|
-| `demo` | `demo`   |
-
-> Please note, that everything you do will be restored in 1 hour. 
-
 ## Development
-
 **The building blocks are:**
 - Python 3.9+
 - Django 3.2+
