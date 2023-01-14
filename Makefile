@@ -57,9 +57,11 @@ VERSION ?= dev
 
 build:
 	docker buildx build --platform linux/amd64,linux/arm64/v8,linux/arm/v7 \
+		--cache-from=pysergio/stubborn:buildcache --cache-to=pysergio/stubborn:buildcache \
 		-t pysergio/stubborn:$(VERSION) -f docker/Dockerfile . --push
 
 build_latest:
 	docker buildx build --platform linux/amd64,linux/arm64/v8,linux/arm/v7 \
 		-t pysergio/stubborn:$(VERSION) -f docker/Dockerfile \
-		-t pysergio/stubborn:latest -f docker/Dockerfile . --push
+		-t pysergio/stubborn:latest --cache-from=pysergio/stubborn:buildcache \
+		--cache-to=pysergio/stubborn:buildcache -f docker/Dockerfile . --push
