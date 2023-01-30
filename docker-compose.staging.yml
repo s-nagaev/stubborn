@@ -3,12 +3,12 @@ version: '3'
 services:
   postgres:
     restart: unless-stopped
-    image: postgres:12-alpine
+    image: postgres:14-alpine
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - pg_data_new:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: stubborn_dev
-      POSTGRES_USER: stubborn_dev
+      POSTGRES_DB: stubborn_stage
+      POSTGRES_USER: stubborn_stage
       POSTGRES_PASSWORD: notsecret
 
   django:
@@ -27,4 +27,4 @@ services:
       - postgres
 
 volumes:
-  pg_data:
+  pg_data_new:
