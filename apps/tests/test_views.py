@@ -53,6 +53,18 @@ class TestResponseStub:
         assert response.status_code == 200
         assert response.json() == {'Status': 'OK'}
 
+    def test_empty_response_body_json(self, api_client):
+        application = create_application()
+        response_stub = create_response_stub(
+            application=application,
+            status_code=200,
+            format='JSON',
+            headers={'Content-Type': 'application/json'},
+        )
+        resource = create_resource_stub(application=application, response=response_stub, method='GET')
+        response = api_client.get(path=get_url(resource))
+        assert response.status_code == 200
+
     def test_response_timeout(self, api_client):
         application = create_application()
         response_stub = create_response_stub(application=application, status_code=200)
