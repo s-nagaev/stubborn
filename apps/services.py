@@ -93,7 +93,7 @@ def get_regular_response(application, request, resource) -> RestResponse:
     )
 
     if response_stub.is_json_format:
-        response_data = json.loads(response_body) or ''
+        response_data = json.loads(response_body) if response_body else None
     else:
         response_data = response_body
 
