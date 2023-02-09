@@ -1,4 +1,4 @@
-FROM python:3.9-alpine3.16 AS builder
+FROM python:3.12.0a5-alpine3.16 AS builder
 
 RUN apk update \
     && apk upgrade \
@@ -15,7 +15,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 COPY requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
 
-FROM python:3.9-alpine3.16
+FROM python:3.12.0a5-alpine3.16
 
 LABEL org.label-schema.schema-version = "1.0"
 LABEL org.label-schema.name = "Stubborn"
