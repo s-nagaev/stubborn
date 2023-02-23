@@ -177,8 +177,8 @@ def run_in_separate_thread(func):
         logger.info(f"Run function {func.__name__} from {func.__module__} in separate thread")
 
         t = threading.Thread(target=func, args=args, kwargs=kwargs)
-        t.setName(f"{func.__module__}.{func.__name__}")
-        t.setDaemon(True)
+        t.name = f"{func.__module__}.{func.__name__}"
+        t.daemon = True
         t.start()
         return t
 
