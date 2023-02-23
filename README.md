@@ -6,7 +6,7 @@
 <p align="center">
   <img width=150 src="https://github.com/s-nagaev/stubborn/raw/main/docs/logo.png" alt="logo">
   <br>
-Just a (stupidly) simple REST API stub service.
+Because sometimes, the real API just won't cut it.
 </p>
 
 * * *
@@ -47,7 +47,7 @@ version: '3'
 services:
   postgres:
     restart: unless-stopped
-    image: postgres:12-alpine
+    image: postgres:14-alpine
     volumes:
       - pg_data:/var/lib/postgresql/data
     environment:
@@ -123,6 +123,7 @@ The site should now be running at http://0.0.0.0:8000. To access the service adm
 
 ### The Plan (future versions)
 - [ ] add HTML-response support;
+- [ ] implement request-based responses and webhook calls;
 - [ ] add the `team` entity for sharing stub methods with teammates only;
 - [ ] add the REST API for manipulation with main application entities;
 
