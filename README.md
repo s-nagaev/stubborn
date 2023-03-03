@@ -59,6 +59,7 @@ services:
     restart: unless-stopped
     image: pysergio/stubborn:latest
     environment:
+      DJANGO_SETTINGS_MODULE: stubborn.settings.production
       DATABASE_URL: postgres://stubborn_user:pg_secret_password@postgres:5432/stubborn_db
       SECRET_KEY: 'stubborn-secure!$k%6kqx641a)-a6d7j8*n(!154#t+^5f)#^z5mjvlrf#u!'
       ADMIN_USERNAME: admin
