@@ -208,7 +208,8 @@ environment variables.
 - This changelog file.
 - Initial Readme file.
 
-[Unreleased]: https://github.com/s-nagaev/stubborn/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/s-nagaev/stubborn/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/s-nagaev/stubborn/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/s-nagaev/stubborn/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/s-nagaev/stubborn/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/s-nagaev/stubborn/compare/v1.0.1...v1.0.2
