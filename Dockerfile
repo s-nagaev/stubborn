@@ -32,9 +32,7 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 WORKDIR /app
 COPY . .
 
-RUN ln -f .env.test /app/stubborn/settings/.env
 RUN python manage.py collectstatic --no-input
-RUN rm /app/stubborn/settings/.env
 
 RUN addgroup -S django && adduser -S django -G django
 USER django
