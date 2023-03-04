@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    restart: unless-stopped
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: stubborn
+      POSTGRES_USER: stubborn
+      POSTGRES_PASSWORD: notsecret
+
+  stubborn:
+    image: pysergio/stubborn:latest
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://stubborn:notsecret@postgres:5432/stubborn
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_PASSWORD: admin
+      ADMIN_USERNAME: admin
+      SECRET_KEY: 'stubborn-not-secure!k%6kqx6a)-a6d7j8*n(!154#t+^5f)#^z5mjvlrf#u!'
+      UWSGI_THREADS: 3
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+
+volumes:
+  pg_data:

@@ -2,13 +2,15 @@ import os
 
 import environ
 
+from django.core.management.utils import get_random_secret_key
+
 env = environ.Env()
 environ.Env.read_env()
 
 # GENERAL
 DEBUG = env.bool('DJANGO_DEBUG_MODE', default=False)
 ALLOWED_HOSTS = ['*']
-SECRET_KEY = env.str('SECRET_KEY')
+SECRET_KEY = env.str('SECRET_KEY', default=get_random_secret_key())
 
 ROOT_DIR = environ.Path(__file__) - 3
 APPS_DIR = ROOT_DIR.path('apps')

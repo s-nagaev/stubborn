@@ -1,4 +1,5 @@
 # Changelog
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
@@ -6,29 +7,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.1.1] - 2022-02-23
+## [1.2.0] - 2023-03-05
+
+### Added
+
+- docker-compose examples updated and moved to the separate directory.
+
 ### Changed
+
+- Fixed bug when the clicking "Stub it!" button on the request log page could cause an exception.
+- Default environment set to "production".
+- Project files structure slightly updated.
+- `README.md` file updated: outdated info (from the MVP milestopne) removed.
+- Typos in the `changelog.md` file fixed.
+
+## [1.1.1] - 2023-02-23
+
+### Changed
+
 - Updated project dependencies to package versions that do not contain known vulnerabilities.
 
+## [1.1.0] - 2023-02-01
 
-## [1.1.0] - 2022-02-01
 ### Changed
+
 - Fixed bug when the stub response with an empty body could cause an exception.
 
+## [1.0.2] - 2023-01-14
 
-## [1.0.2] - 2022-01-14
 ### Changed
+
 - Dockerfile updated, docker image size reduced.
 - README file slightly updated.
 
-## [1.0.1] - 2022-01-05
+## [1.0.1] - 2023-01-05
+
 ### Changed
+
 - Default sorting fixed for Request Logs and Application change lists.
-- Response HTML code displaying fixed in the Request Log detail page. 
+- Response HTML code displaying fixed in the Request Log detail page.
 - Log format slightly updated.
 
-## [1.0.0] - 2022-01-03
+## [1.0.0] - 2023-01-03
+
 ### Changed
+
 - Now using UUID as and ID and PK for every entity.
 - Fixed a 500 error occurred while proxying data containing request body in latin-1 encoding.
 - Request Logs UI improved: added search functionality and data filters.
@@ -39,7 +62,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dockerfile updated: removed poetry from the docker image build steps.
 
 ## [0.5.0] - 2022-08-17
+
 ### Added
+
 - Global proxy functionality.
 - Ability to stub the specific resource from proxy logging.
 - Client's webhook call support.
@@ -49,21 +74,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - List of reserved application slugs.
 
 ### Changed
+
 - Syntax highlighting theme for Log view.
 - Dependencies updated.
 - Whitenoise removed (serving static via uwsgi).
 
 ## [0.4.1] - 2022-05-15
+
 ### Changed
+
 - Fixed display of Cyrillic characters in logs.
 - Response body strip disabled.
 
 ## [0.4.0] - 2022-05-02
+
 ### Changed
-- Bug preventing the creation of a new application record fixed. 
+
+- Bug preventing the creation of a new application record fixed.
 
 ## [0.3.3] - 2022-04-25
+
 ### Added
+
 - Tests covering the main functionality.
 - Codecov for GitHub Actions.
 - Dockerfile for local test run.
@@ -71,6 +103,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Test covering the response timeout.
 
 ### Changed
+
 - Dependencies updated.
 - Readme updated: tests run described, codecov badge added, DEMO service info added.
 - Breadcrumbs bug fixed.
@@ -78,71 +111,92 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Minor fixes.
 
 ## [0.3.2] - 2022-04-10
+
 ### Added
+
 - Request proxy functionality implemented.
 
 ### Changed
+
 - Fixed a bug connected with Request Log delete permission.
 
 ## [0.3.1] - 2022-03-25
+
 ### Changed
+
 - Admin site URL fixed.
 
 ## [0.3.0] - 2022-01-22
+
 ### Changed
+
 - Request Log displaying fixed: displaying some log records containing the request body could raise 500 errors.
 - Routing issue fixed: some POST requests could be redirected in the wrong way.
 
 ## [0.2.1] - 2022-01-21
+
 ### Added
-- Environment variable `DOMAIN_DISPLAY` added: now the full resource URL can be displayed correct on the admin site 
-in any environment. 
+
+- Environment variable `DOMAIN_DISPLAY` added: now the full resource URL can be displayed correct on the admin site
+in any environment.
 
 ## [0.2.0] - 2022-01-21
+
 ### Added
+
 - XML response format support.
 - Plain Text response format support.
 - Dockerfile for production build.
-- `create_admin` manage command for creation a superuser with login, email and password according to provided 
+- `create_admin` manage command for creation a superuser with login, email and password according to provided
 environment variables.
 - Settings module for production.
 - Quick start description in README file.
 
 ### Changed
+
 - Request Log entity updated: now, it stores full requested and response data.
 - Project dependencies updated.
 - Lots of minor UI fixes.
 - Updated `docker-compose`-file for staging environment.
 
 ## [0.1.3] - 2022-01-06
+
 ### Changed
+
 - README updated: added project description and plan for the MVP milestone.
 
 ## [0.1.2] - 2022-01-06
+
 ### Added
+
 - GitHub actions with the Flake8 and Mypy checks.
 
 ### Changed
+
 - RequestLog entity modified: relationship with the ResponseStub entity provided.
 - Project dependencies updated.
 
 ## [0.1.1] - 2021-11-06
+
 ### Added
+
 - Config for the staging environment.
 - Uwsgi config.
 - Dockerfile for application.
 - Docker-compose files for local and staging environments.
 - Makefile with basic commands.
-- Django manage command `createadmin` (easy to make admin user for local and staging environments). 
+- Django manage command `createadmin` (easy to make admin user for local and staging environments).
 
 ### Changed
+
 - Django updated to 3.2.9.
 - Flake8 and flake8-isort updated to the latest versions.
 - Flake8 errors fixed.
 
-
 ## [0.1.0] - 2021-11-05
+
 ### Added
+
 - CRUD functionality for Application, Resource, and Response entities from the admin site.
 - RO functionality for RequestLog entity from the admin site.
 - API-stub functionality based on Application settings.
@@ -152,9 +206,10 @@ environment variables.
 - Application logos for the admin site and Readme file.
 - Flake8 and Mypy setups.
 - This changelog file.
-- Initial Readme file. 
+- Initial Readme file.
 
-[Unreleased]: https://github.com/s-nagaev/stubborn/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/s-nagaev/stubborn/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/s-nagaev/stubborn/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/s-nagaev/stubborn/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/s-nagaev/stubborn/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/s-nagaev/stubborn/compare/v1.0.1...v1.0.2

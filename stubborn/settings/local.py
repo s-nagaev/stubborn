@@ -25,12 +25,12 @@ LOGGING = {
     },
     'handlers': {
         'console': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
         }
     },
-    'root': {'level': 'INFO', 'handlers': ['console']},
+    'root': {'level': 'DEBUG', 'handlers': ['console']},
     'loggers': {
         'apps': {
             'level': 'DEBUG',

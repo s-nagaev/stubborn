@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  postgres:
+    image: postgres:14-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: stubborn
+      POSTGRES_USER: stubborn
+      POSTGRES_PASSWORD: notsecret
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  stubborn:
+    image: pysergio/stubborn:latest
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://stubborn:notsecret@postgres:5432/stubborn
+      DOMAIN_DISPLAY: stubborn.local  # same as you set up on the line no.33
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_PASSWORD: admin
+      ADMIN_USERNAME: admin
+      SECRET_KEY: 'stubborn-not-secure!k%6kqx6a)-a6d7j8*n(!154#t+^5f)#^z5mjvlrf#u!'
+      VIRTUAL_HOST: stubborn.local  # your custom local DNS-name here
+      VIRTUAL_PORT: 8000
+    depends_on:
+      - postgres
+
+volumes:
+  pg_data:

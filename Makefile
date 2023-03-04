@@ -2,6 +2,9 @@
 admin:
 	python manage.py create_admin
 
+dummy_admin:  # will create an superuser with login `admin` and passwd `admin`. Doesn't work in production env.
+	python manage.py create_dummy_admin
+
 migrate:
 	python manage.py migrate
 
@@ -9,7 +12,7 @@ static:
 	python manage.py collectstatic --no-input
 
 uwsgi:
-	uwsgi --ini=deploy/uwsgi.ini
+	uwsgi --ini=stubborn/settings/uwsgi/uwsgi.ini
 
 run:
 	make migrate admin uwsgi
@@ -32,15 +35,7 @@ reset:
 	python manage.py reset_db --noinput && make prepare
 
 uwsgi_dev:
-	uwsgi --ini=deploy/uwsgi.ini --py-autoreload=2
-
-#### Development (Docker) ##############################################################################################
-docker_dev:
-	docker-compose -f docker-compose.dev.yml up --build
-
-docker_tests:
-	docker-compose -f docker-compose.test.yml up --build --no-start \
-		&& docker-compose -f docker-compose.test.yml run django 'pytest' '-vv'
+	DJANGO_SETTINGS_MODULE=stubborn.settings.local uwsgi --ini=stubborn/settings/uwsgi/uwsgi_dev.ini --py-autoreload=2
 
 #### Staging ###########################################################################################################
 staging_run:

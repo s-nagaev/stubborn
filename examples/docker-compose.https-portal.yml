@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  https-portal:
+    image: steveltn/https-portal:latest
+    restart: unless-stopped
+    environment:
+      DOMAINS: 'your-stubborn-domain.com -> http://stubborn:8000'
+      STAGE: 'production'  # Don't use production until staging works
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - https-portal-data:/var/lib/https-portal
+
+  postgres:
+    image: postgres:14-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: stubborn
+      POSTGRES_USER: stubborn
+      POSTGRES_PASSWORD: notsecret
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  stubborn:
+    image: pysergio/stubborn:latest
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://stubborn:notsecret@postgres:5432/stubborn
+      DOMAIN_DISPLAY: your-stubborn-domain.com  # same as you set up on the line no.8
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_PASSWORD: admin
+      ADMIN_USERNAME: admin
+      SECRET_KEY: 'stubborn-not-secure!k%6kqx6a)-a6d7j8*n(!154#t+^5f)#^z5mjvlrf#u!'
+    depends_on:
+      - postgres
+
+volumes:
+  https-portal-data:
+  pg_data:
