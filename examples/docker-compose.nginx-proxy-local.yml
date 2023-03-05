@@ -24,7 +24,7 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgres://stubborn:notsecret@postgres:5432/stubborn
-      DOMAIN_DISPLAY: stubborn.local  # same as you set up on the line no.33
+      DOMAIN_DISPLAY: stubborn.local  # same as you set for the VIRTUAL_HOST env.
       ADMIN_EMAIL: admin@example.com
       ADMIN_PASSWORD: admin
       ADMIN_USERNAME: admin

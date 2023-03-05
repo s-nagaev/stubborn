@@ -1,19 +1,14 @@
+<h1 align="center"><img width=150 src="https://github.com/s-nagaev/stubborn/raw/main/docs/logo.png" alt="logo"></h1>
+
 [![Quality Gate](https://github.com/s-nagaev/stubborn/actions/workflows/main.yml/badge.svg)](https://github.com/s-nagaev/stubborn/actions/workflows/main.yml)
 [![codecov](https://codecov.io/gh/s-nagaev/stubborn/branch/main/graph/badge.svg?token=CVVP1BEH9P)](https://codecov.io/gh/s-nagaev/stubborn)
 [![Sonar](https://img.shields.io/sonar/quality_gate/s-nagaev_stubborn/main?label=Sonar%20QG&server=https%3A%2F%2Fsonarcloud.io)](https://sonarcloud.io/project/overview?id=s-nagaev_stubborn)
 [![Issues](https://img.shields.io/github/issues/s-nagaev/stubborn)](https://github.com/s-nagaev/stubborn/issues/new)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/s-nagaev/stubborn/pulls)
-<p align="center">
-  <img width=150 src="https://github.com/s-nagaev/stubborn/raw/main/docs/logo.png" alt="logo">
-  <br>
-Because sometimes, the real API just won't cut it.
-</p>
 
-* * *
+## Overview
 
-## About
-
-**Stubborn** is the ultimate tool for testing and debugging your APIs. With Stubborn, you can easily create mock responses to simulate different scenarios, proxy requests to other servers, and call webhooks to test your integration. Plus, Stubborn comes with full request and response logging, so you can see exactly what's happening behind the scenes. Best of all, Stubborn is open-source and self-hosted, so you can use it on your own infrastructure and customize it to meet your specific needs.
+**Stubborn** is the ultimate tool for the frontend development and testing and debugging of your APIs. With Stubborn, you can easily create mock responses to simulate different scenarios, proxy requests to other servers, and call webhooks to test your integration. Plus, Stubborn comes with full request and response logging, so you can see exactly what's happening behind the scenes. Best of all, Stubborn is open-source and self-hosted, so you can use it on your infrastructure and customize it to meet your specific needs.
 
 ## Features
 
