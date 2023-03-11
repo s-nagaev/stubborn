@@ -195,12 +195,12 @@ def get_resource_from_request(request: Request, kwargs: Dict[Any, Any]) -> Resou
     raise Http404('No stub resource found.')
 
 
-def get_same_enabled_response_stub(response_stub_reference: ResourceStub) -> Optional[ResourceStub]:
+def get_same_enabled_resource_stub(resource_stub_reference: ResourceStub) -> Optional[ResourceStub]:
     same_stubs = ResourceStub.objects.filter(
-        application=response_stub_reference.application,
-        slug=response_stub_reference.slug,
-        tail=response_stub_reference.tail,
-        method=response_stub_reference.method,
+        application=resource_stub_reference.application,
+        slug=resource_stub_reference.slug,
+        tail=resource_stub_reference.tail,
+        method=resource_stub_reference.method,
         is_enabled=True,
     )
     if same_stubs.exists():
@@ -218,7 +218,7 @@ def turn_off_same_resource_stub(resource_stub: ResourceStub) -> Optional[Resourc
     Returns:
         Disabled ResourceStub instance if it exists, None otherwise.
     """
-    if same_resource := get_same_enabled_response_stub(response_stub_reference=resource_stub):
+    if same_resource := get_same_enabled_resource_stub(resource_stub_reference=resource_stub):
         same_resource.is_enabled = False
         same_resource.save()
         same_resource.refresh_from_db()
