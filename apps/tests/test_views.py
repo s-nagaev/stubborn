@@ -5,6 +5,7 @@ import pytest
 from django.urls import reverse
 from django.utils import timezone
 
+from apps import models
 from apps.enums import Action, Lifecycle, ResponseChoices
 from apps.tests.data import (
     create_application,
@@ -25,6 +26,13 @@ class TestResponseStub:
         resource = create_resource_stub(application=application, response=response_stub, method=method)
         response = api_client.generic(method=method, path=get_url(resource))
         assert response.status_code == 200
+
+    def test_response_disabled(self, api_client):
+        application = create_application()
+        response_stub = create_response_stub(application=application, status_code=200)
+        resource = create_resource_stub(application=application, response=response_stub, method='GET', is_enabled=False)
+        response = api_client.generic(method='GET', path=get_url(resource))
+        assert response.status_code == 404
 
     @pytest.mark.parametrize('request_method', ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'])
     def test_response_with_not_allowed_request(self, request_method, api_client):
@@ -268,8 +276,64 @@ class TestLogging:
             assert json.loads(request_log.request_body) == request_body
 
 
+@pytest.mark.django_db
 class TestServiceViews:
     def test_healthcheck(self, api_client):
         url = reverse('apps:alive')
         response = api_client.get(path=url)
         assert response.status_code == 200
+
+    def test_stubit_success(self, api_client, api_client_user):
+        application = create_application()
+        response_stub = create_response_stub(
+            application=application,
+            status_code=200,
+            body=json.dumps({'Status': 'OK'}),
+        )
+        resource = create_resource_stub(application=application, response=response_stub, method='POST')
+
+        request_body = {
+            'field': 'some data',
+        }
+        payload = json.dumps(request_body)
+
+        response = api_client.post(
+            path=get_url(resource),
+            data=payload,
+            content_type='application/json',
+        )
+        assert response.status_code == 200
+
+        request_log = resource.logs.last()
+        assert request_log
+
+        stubit_response = api_client_user.post(path=reverse('apps:stub_it', args=(str(request_log.id),)))
+        assert stubit_response.status_code == 302
+        assert '/admin/apps/resourcestub/' in stubit_response.url
+
+        new_resource_stub_id = stubit_response.url.split('/', 5)[4]
+
+        new_resource_stub = models.ResourceStub.objects.get(id=new_resource_stub_id)
+        assert new_resource_stub.application == resource.application
+        assert new_resource_stub.slug == resource.slug
+        assert new_resource_stub.method == resource.method
+        assert new_resource_stub.tail == resource.tail
+
+        assert new_resource_stub.response
+        assert new_resource_stub.response.application == response_stub.application
+        assert new_resource_stub.response.status_code == response_stub.status_code
+        assert new_resource_stub.response.body == response_stub.body
+        assert new_resource_stub.response.headers == response_stub.headers
+
+    def test_stubit_unauthorized_user(self, api_client):
+        application = create_application()
+        response_stub = create_response_stub(application=application)
+        resource = create_resource_stub(application=application, response=response_stub, method='GET')
+        response = api_client.get(path=get_url(resource))
+        assert response.status_code == 200
+
+        request_log = resource.logs.last()
+        assert request_log
+
+        stubit_response = api_client.post(path=reverse('apps:stub_it', args=(str(request_log.id),)))
+        assert stubit_response.status_code == 403

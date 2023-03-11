@@ -27,6 +27,7 @@ class ResourceStubForm(ModelForm):
     class Meta:
         model: ResourceStub
         fields = [
+            'is_enabled',
             'response_type',
             'method',
             'slug',

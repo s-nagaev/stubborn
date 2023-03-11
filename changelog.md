@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2023-03-11
+
+### Added
+
+- The ability to create identical resources and switch between them.
+- Tests covering "Stub It!" functionality.
+- Redirect to the application page after related objects deleted.
+
+### Fixed
+
+- A bug when creating a resource stub from the request log could cause an exception if the request didn't contain the Content-Type header.
+
 ## [1.2.0] - 2023-03-05
 
 ### Added
@@ -15,11 +27,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Fixed bug when the clicking "Stub it!" button on the request log page could cause an exception.
 - Default environment set to "production".
 - Project files structure slightly updated.
 - `README.md` file updated: outdated info (from the MVP milestopne) removed.
 - Typos in the `changelog.md` file fixed.
+
+### Fixed
+
+- Fixed bug when the clicking "Stub it!" button on the request log page could cause an exception.
 
 ## [1.1.1] - 2023-02-23
 
@@ -29,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.0] - 2023-02-01
 
-### Changed
+### Fixed
 
 - Fixed bug when the stub response with an empty body could cause an exception.
 
@@ -53,13 +68,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Now using UUID as and ID and PK for every entity.
-- Fixed a 500 error occurred while proxying data containing request body in latin-1 encoding.
 - Request Logs UI improved: added search functionality and data filters.
 - Hooks UI improved: removed the ability to configure hooks using mutually exclusive options.
 - Code refactored.
 - Improved logging of incoming API requests and service responses.
 - Dependencies updated.
 - Dockerfile updated: removed poetry from the docker image build steps.
+
+### Fixed
+
+- Fixed a 500 error occurred while proxying data containing request body in latin-1 encoding.
 
 ## [0.5.0] - 2022-08-17
 

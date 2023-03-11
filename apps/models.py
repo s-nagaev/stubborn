@@ -215,11 +215,16 @@ class ResourceStub(BaseStubModel):
     creator = models.ForeignKey(
         User, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL, related_name='resources'
     )
+    is_enabled = models.BooleanField(verbose_name='Enabled', default=True, null=False)
 
     class Meta:
         verbose_name = 'resource'
         verbose_name_plural = 'resources'
-        unique_together = ('slug', 'method', 'tail')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['slug', 'method', 'tail'], condition=models.Q(is_enabled=True), name='unique_enabled_slug'
+            )
+        ]
 
     def __str__(self) -> str:
         """Object's string representation.
@@ -338,7 +343,8 @@ class RequestLog(BaseStubModel):
 
     @property
     def response_format(self) -> str:
-        content_type = self.response_headers.get('Content-Type')
+        content_type = self.response_headers.get('Content-Type', '')
+
         if 'json' in content_type:
             return BodyFormat.JSON
         if 'xml' in content_type:

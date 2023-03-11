@@ -1,0 +1,13 @@
+ignore:
+  - "apps/migrations"
+  - "apps/admin.py"
+  - "apps/forms.py"
+  - "apps/inlines.py"
+  - "apps/mixins.py"
+  - "apps/models.py"
+  - "apps/renderers.py"
+  - "apps/styles.py"
+  - "apps/urls.py"
+  - "apps/widgets.py"
+  - "**/__init__.py"
+  

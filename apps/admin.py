@@ -2,7 +2,7 @@ import os
 from typing import Any, Optional, cast
 
 from django.conf import settings
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.admin.options import IS_POPUP_VAR
 from django.contrib.auth.models import User
 from django.db.models import QuerySet
@@ -12,6 +12,7 @@ from django.utils.safestring import mark_safe
 from rangefilter.filters import DateRangeFilter
 
 from apps import inlines, models
+from apps.actions import change_satus
 from apps.enums import ResponseChoices
 from apps.forms import ResourceStubForm, ResponseStubForm, WebHookRequestForm
 from apps.inlines import ResourceHookAdminInline
@@ -23,7 +24,7 @@ from apps.mixins import (
     RelatedCUDManagerMixin,
     SaveByCurrentUserMixin,
 )
-from apps.models import RequestLog
+from apps.services import turn_off_same_resource_stub
 from apps.utils import prettify_data_to_html, prettify_json_html
 
 
@@ -34,7 +35,7 @@ class ApplicationAdmin(admin.ModelAdmin):
     fields = ('name', 'description', 'slug', 'owner')
     inlines = [inlines.LogsInline]
     change_form_template = 'admin/apps/application/change_form.html'
-    ordering = ('name', )
+    ordering = ('name',)
 
     class Media:
         css = {'all': ('admin/css/application.css',)}
@@ -119,9 +120,9 @@ class RequestStubAdmin(
     form = WebHookRequestForm
     no_add_related = ('application',)
     no_edit_related = ('application',)
-    ordering = ('-created_at', )
+    ordering = ('-created_at',)
 
-    def response_add(self, request: HttpRequest, obj: models.ResponseStub, post_url_continue: Optional[str] = None):
+    def response_add(self, request: HttpRequest, obj: models.RequestStub, post_url_continue: Optional[str] = None):
         """Return to the application page after adding.
 
         Args:
@@ -136,6 +137,11 @@ class RequestStubAdmin(
             return super().response_add(request, obj, post_url_continue)
         return HttpResponseRedirect(reverse('admin:apps_application_change', args=(obj.application.pk,)))
 
+    def delete_model(self, request: HttpRequest, obj: models.RequestStub):
+        application = obj.application
+        obj.delete()
+        return HttpResponseRedirect(reverse('admin:apps_application_change', args=(application.pk,)))
+
 
 @admin.register(models.ResourceStub)
 class ResourceStubAdmin(
@@ -143,18 +149,34 @@ class ResourceStubAdmin(
 ):
     form = ResourceStubForm
     readonly_fields = ('creator',)
-    list_display = ('get_method', 'uri_with_slash', 'response', 'description', 'full_url', 'proxied')
+    list_display = ('is_enabled', 'get_method', 'uri_with_slash', 'response', 'description', 'full_url', 'proxied')
     no_add_related = ('application',)
     no_edit_related = ('application',)
     no_delete_related = ('application',)
     inlines = (ResourceHookAdminInline,)
-    ordering = ('-created_at', )
+    ordering = (
+        'slug',
+        '-is_enabled',
+        '-created_at',
+    )
+    actions = (change_satus,)
+    list_display_links = ('get_method',)
 
     class Media:
         js = (
             'admin/js/resource/responseSwitcher.js',
             'admin/js/resource/hooksSwitcher.js',
         )
+
+    def save_model(self, request: HttpRequest, obj: models.ResourceStub, *args: Any, **kwargs: Any) -> None:
+        if not obj.is_enabled:
+            super().save_model(request, obj, *args, **kwargs)
+
+        if turned_off_resource := turn_off_same_resource_stub(resource_stub=obj):
+            admin_url = reverse('admin:apps_resourcestub_change', args=(turned_off_resource.pk,))
+            msg = mark_safe(f'A same resource stub has been disabled. <a href={admin_url}>Click here to check it.</a>')
+            messages.info(request=request, message=msg)
+        super().save_model(request, obj, *args, **kwargs)
 
     @staticmethod
     @admin.display(description='method')
@@ -190,7 +212,9 @@ class ResourceStubAdmin(
         url = os.path.join(settings.DOMAIN_DISPLAY, obj.application.slug, obj.slug, obj.tail)
         return mark_safe(f'<a href={url}>{url}</a>')
 
-    def response_add(self, request: HttpRequest, obj: models.ResourceStub, post_url_continue: Optional[str] = None):
+    def response_add(
+        self, request: HttpRequest, obj: models.ResourceStub, post_url_continue: Optional[str] = None
+    ) -> HttpResponseRedirect:
         """Return to the application page after adding.
 
         Args:
@@ -202,6 +226,11 @@ class ResourceStubAdmin(
             HttpResponse instance.
         """
         return HttpResponseRedirect(reverse('admin:apps_application_change', args=(obj.application.pk,)))
+
+    def delete_model(self, request: HttpRequest, obj: models.ResourceStub):
+        application = obj.application
+        obj.delete()
+        return HttpResponseRedirect(reverse('admin:apps_application_change', args=(application.pk,)))
 
     @staticmethod
     @admin.display(boolean=True, description='Proxied')
@@ -221,11 +250,11 @@ class ResourceStubAdmin(
 class ResponseStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.ModelAdmin):
     form = ResponseStubForm
     readonly_fields = ('creator',)
-    list_display = ('id', 'status_code', 'format', 'has_headers', 'has_body', 'description')
+    list_display = ('id', 'status_code', 'format', 'has_headers', 'has_body', 'description', 'created_at')
     fields = ('headers', 'body', 'status_code', 'format', 'description', 'application', 'creator')
     no_add_related = ('application',)
     no_edit_related = ('application',)
-    ordering = ('-created_at', )
+    ordering = ('-created_at',)
 
     @staticmethod
     @admin.display(description='Has Body', boolean=True)
@@ -267,6 +296,11 @@ class ResponseStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
         if IS_POPUP_VAR in request.POST:
             return super().response_add(request, obj, post_url_continue)
         return HttpResponseRedirect(reverse('admin:apps_application_change', args=(obj.application.pk,)))
+
+    def delete_model(self, request: HttpRequest, obj: models.ResponseStub):
+        application = obj.application
+        obj.delete()
+        return HttpResponseRedirect(reverse('admin:apps_application_change', args=(application.pk,)))
 
 
 @admin.register(models.RequestLog)
@@ -323,7 +357,7 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
         'proxied',
         'method',
     )
-    ordering = ('-created_at', )
+    ordering = ('-created_at',)
 
     class Media:
         css = {'all': ('admin/css/application.css',)}
@@ -335,7 +369,7 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
         if not application_id:
             return super().get_queryset(request)
 
-        return RequestLog.objects.filter(application__pk=application_id)
+        return models.RequestLog.objects.filter(application__pk=application_id)
 
     @staticmethod
     @admin.display(description='Query params')
@@ -438,3 +472,8 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
             String containing the client's IP addresses.
         """
         return f'{obj.ipaddress} / {obj.x_real_ip}'
+
+    def delete_model(self, request: HttpRequest, obj: models.RequestLog):
+        application = obj.application
+        obj.delete()
+        return HttpResponseRedirect(reverse('admin:apps_application_change', args=(application.pk,)))
