@@ -1,6 +1,5 @@
 ignore:
   - "apps/migrations"
-  - "apps/tests"
   - "apps/admin.py"
   - "apps/forms.py"
   - "apps/inlines.py"
