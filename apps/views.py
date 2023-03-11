@@ -2,9 +2,12 @@ import logging
 from typing import Any, cast
 from urllib.parse import urlparse
 
+from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from rest_framework import status
+from django.utils.safestring import mark_safe
+from rest_framework import permissions, status
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.renderers import JSONRenderer
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -66,6 +69,8 @@ class StubRequestView(APIView):
     Composing the response stub according to the logged data.
     """
 
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = [permissions.IsAuthenticated]
     http_method_names = ['post']
     renderer_classes = (JSONRenderer,)
 
@@ -74,9 +79,16 @@ class StubRequestView(APIView):
         log = get_object_or_404(models.RequestLog, pk=log_id)
         parsed_url = urlparse(log.url)
         path = cast(str, parsed_url.path)
-        _, app_slug, resource_slug, tail = path.split('/', 3)
 
-        response = models.ResponseStub.objects.create(
+        path_parts = path.split('/', 3)
+
+        if len(path_parts) == 3:
+            _, _, resource_slug = path_parts
+            tail = ''
+        else:
+            _, _, resource_slug, tail = path.split('/', 3)
+
+        response, _ = models.ResponseStub.objects.get_or_create(
             status_code=cast(int, log.status_code),
             headers=log.response_headers,
             body=log.response_body,
@@ -85,6 +97,18 @@ class StubRequestView(APIView):
             creator=request.user,
             description=f'(for {resource_slug})',
         )
+
+        same_resource = models.ResourceStub.objects.filter(
+            application=log.application, slug=resource_slug, tail=tail, method=log.method, is_enabled=True
+        ).last()
+
+        if same_resource:
+            same_resource.is_enabled = False
+            same_resource.save()
+            admin_url = reverse('admin:apps_resourcestub_change', args=(same_resource.pk,))
+            msg = mark_safe(f'A same resource stub has been disabled. <a href={admin_url}>Click here to check it.</a>')
+            messages.info(request, msg)
+
         resource = models.ResourceStub.objects.create(
             response_type=ResponseChoices.CUSTOM,
             slug=resource_slug,
@@ -94,7 +118,9 @@ class StubRequestView(APIView):
             application=log.application,
             method=log.method,
             creator=request.user,
+            is_enabled=True,
         )
+
         return redirect(reverse('admin:apps_resourcestub_change', args=(resource.pk,)))
 
 

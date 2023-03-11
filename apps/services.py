@@ -176,8 +176,7 @@ def get_resource_from_request(request: Request, kwargs: Dict[Any, Any]) -> Resou
 
     application = get_object_or_404(models.Application, slug=kwargs.get('app_slug', ''))
     resources: QuerySet[ResourceStub] = models.ResourceStub.objects.filter(
-        application=application,
-        slug=slug,
+        application=application, slug=slug, is_enabled=True
     )
 
     if resource := resources.filter(
@@ -194,3 +193,34 @@ def get_resource_from_request(request: Request, kwargs: Dict[Any, Any]) -> Resou
         return resource
 
     raise Http404('No stub resource found.')
+
+
+def get_same_enabled_response_stub(response_stub_reference: ResourceStub) -> Optional[ResourceStub]:
+    same_stubs = ResourceStub.objects.filter(
+        application=response_stub_reference.application,
+        slug=response_stub_reference.slug,
+        tail=response_stub_reference.tail,
+        method=response_stub_reference.method,
+        is_enabled=True,
+    )
+    if same_stubs.exists():
+        return same_stubs.last()
+    return None
+
+
+def turn_off_same_resource_stub(resource_stub: ResourceStub) -> Optional[ResourceStub]:
+    """Fsind & disable the same resource stub as provided.
+
+
+    Args:
+        resource_stub (ResourceStub): ResourceStub instance.
+
+    Returns:
+        Disabled ResourceStub instance if it exists, None otherwise.
+    """
+    if same_resource := get_same_enabled_response_stub(response_stub_reference=resource_stub):
+        same_resource.is_enabled = False
+        same_resource.save()
+        same_resource.refresh_from_db()
+        return same_resource
+    return None
