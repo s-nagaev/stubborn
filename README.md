@@ -1,10 +1,11 @@
 <h1 align="center"><img width=150 src="https://github.com/s-nagaev/stubborn/raw/main/docs/logo.png" alt="logo"></h1>
 
-[![Quality Gate](https://github.com/s-nagaev/stubborn/actions/workflows/main.yml/badge.svg)](https://github.com/s-nagaev/stubborn/actions/workflows/main.yml)
+[![build](https://github.com/s-nagaev/stubborn/actions/workflows/build.yml/badge.svg)](https://github.com/s-nagaev/stubborn/actions/workflows/main.yml)
 [![codecov](https://codecov.io/gh/s-nagaev/stubborn/branch/main/graph/badge.svg?token=CVVP1BEH9P)](https://codecov.io/gh/s-nagaev/stubborn)
-[![Sonar](https://img.shields.io/sonar/quality_gate/s-nagaev_stubborn/main?label=Sonar%20QG&server=https%3A%2F%2Fsonarcloud.io)](https://sonarcloud.io/project/overview?id=s-nagaev_stubborn)
-[![Issues](https://img.shields.io/github/issues/s-nagaev/stubborn)](https://github.com/s-nagaev/stubborn/issues/new)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/s-nagaev/stubborn/pulls)
+[![docker hub](https://img.shields.io/docker/pulls/pysergio/stubborn)](https://hub.docker.com/r/pysergio/stubborn)
+[![docker image arch](https://img.shields.io/badge/docker%20image%20arch-amd64%20%7C%20arm64%20%7C%20armv7-informational)](https://hub.docker.com/r/pysergio/stubborn/tags)
+[![docker image size](https://img.shields.io/docker/image-size/pysergio/stubborn/latest)](https://hub.docker.com/r/pysergio/stubborn/tags)
+![license](https://img.shields.io/github/license/s-nagaev/stubborn)
 
 ## Overview
 
