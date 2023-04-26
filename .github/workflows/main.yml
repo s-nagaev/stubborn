@@ -18,14 +18,11 @@ jobs:
       - name: Set up Python 3.9
         uses: actions/setup-python@v1
         with:
-          python-version: 3.9
+          python-version: "3.9"
       - uses: actions/checkout@v2
-      - name: Install Poetry
-        run: |
-          pip install poetry
       - name: Install Deps
         run: |
-          python -m poetry config virtualenvs.create false && poetry install
+          pip install -r requirements-dev.txt
       - name: Providing environment
         run: |
           ln .env.test stubborn/settings/.env
@@ -36,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:12
+        image: postgres:14
         env:
           POSTGRES_DB: stubborn_test
           POSTGRES_USER: stubborn_test
@@ -49,14 +46,11 @@ jobs:
       - name: Set up Python 3.9
         uses: actions/setup-python@v1
         with:
-          python-version: 3.9
+          python-version: "3.9"
       - uses: actions/checkout@v2
-      - name: Install Poetry
-        run: |
-          pip install poetry
       - name: Install Deps
         run: |
-          python -m poetry config virtualenvs.create false && poetry install
+          pip install -r requirements-dev.txt
       - name: Providing environment
         run: |
           ln .env.test stubborn/settings/.env
