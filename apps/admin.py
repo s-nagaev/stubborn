@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 from rangefilter.filters import DateRangeFilter
 
 from apps import inlines, models
-from apps.actions import change_satus
+from apps.actions import change_satus, duplicate
 from apps.enums import ResponseChoices
 from apps.forms import ResourceStubForm, ResponseStubForm, WebHookRequestForm
 from apps.inlines import ResourceHookAdminInline
@@ -121,6 +121,7 @@ class RequestStubAdmin(
     no_add_related = ('application',)
     no_edit_related = ('application',)
     ordering = ('-created_at',)
+    actions = (duplicate,)
 
     def response_add(self, request: HttpRequest, obj: models.RequestStub, post_url_continue: Optional[str] = None):
         """Return to the application page after adding.
@@ -159,7 +160,7 @@ class ResourceStubAdmin(
         '-is_enabled',
         '-created_at',
     )
-    actions = (change_satus,)
+    actions = (change_satus, duplicate)
     list_display_links = ('get_method',)
 
     class Media:
@@ -255,6 +256,7 @@ class ResponseStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
     no_add_related = ('application',)
     no_edit_related = ('application',)
     ordering = ('-created_at',)
+    actions = (duplicate,)
 
     @staticmethod
     @admin.display(description='Has Body', boolean=True)

@@ -1,6 +1,6 @@
 import pytest
 
-from apps.actions import change_satus
+from apps.actions import change_satus, duplicate
 from apps.models import ResourceStub
 from apps.tests.data import create_application, create_resource_stub
 
@@ -47,3 +47,27 @@ class TestActions:
 
         assert resource_disabled.is_enabled is True
         assert resource_enabled.is_enabled is False
+
+    def test_duplicate_resource(self):
+        application = create_application()
+        slug = 'testslug'
+        tail = 'some/tail/here'
+
+        source_resource = create_resource_stub(
+            application=application,
+            method='GET',
+            slug=slug,
+            tail=tail,
+            is_enabled=True,
+        )
+
+        queryset = ResourceStub.objects.filter(id=source_resource.id)
+
+        duplicate(model_admin=None, request=None, queryset=queryset)
+        duplicated_resource = ResourceStub.objects.order_by('created_at').last()
+
+        assert duplicated_resource
+        assert source_resource.pk != duplicated_resource.pk
+        assert source_resource.slug == duplicated_resource.slug
+        assert source_resource.tail == duplicated_resource.tail
+        assert not duplicated_resource.is_enabled
