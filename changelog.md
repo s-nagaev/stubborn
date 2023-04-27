@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2023-04-27
+
+### Added
+
+- The "duplicate" functionality for resources, responses and webhooks.
+
+### Changed
+
+- Dependencies updated.
+
 ## [1.3.0] - 2023-03-11
 
 ### Added
@@ -226,7 +236,9 @@ environment variables.
 - This changelog file.
 - Initial Readme file.
 
-[Unreleased]: https://github.com/s-nagaev/stubborn/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/s-nagaev/stubborn/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/s-nagaev/stubborn/compare/v1.3.0...v1.4.0
+[1.3.0]: https://github.com/s-nagaev/stubborn/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/s-nagaev/stubborn/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/s-nagaev/stubborn/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/s-nagaev/stubborn/compare/v1.0.2...v1.1.0
