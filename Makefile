@@ -37,6 +37,12 @@ reset:
 uwsgi_dev:
 	DJANGO_SETTINGS_MODULE=stubborn.settings.local uwsgi --ini=stubborn/settings/uwsgi/uwsgi_dev.ini --py-autoreload=2
 
+upgrade:
+	rm -f poetry.lock \
+	&& poetry install \
+	&& poetry export -f requirements.txt --output requirements.txt \
+	&& poetry export --dev -f requirements.txt --output requirements-dev.txt
+
 #### Staging ###########################################################################################################
 staging_run:
 	docker-compose -f docker-compose.staging.yml up -d
@@ -52,11 +58,10 @@ VERSION ?= dev
 
 build:
 	docker buildx build --platform linux/amd64,linux/arm64/v8,linux/arm/v7 \
-		--cache-from=pysergio/stubborn:buildcache --cache-to=pysergio/stubborn:buildcache \
-		-t pysergio/stubborn:$(VERSION) -f docker/Dockerfile . --push
+		-t pysergio/stubborn:$(VERSION) -f Dockerfile . --push
 
 build_latest:
 	docker buildx build --platform linux/amd64,linux/arm64/v8,linux/arm/v7 \
-		-t pysergio/stubborn:$(VERSION) -f docker/Dockerfile \
+		-t pysergio/stubborn:$(VERSION) \
 		-t pysergio/stubborn:latest --cache-from=pysergio/stubborn:buildcache \
-		--cache-to=pysergio/stubborn:buildcache -f docker/Dockerfile . --push
+		--cache-to=pysergio/stubborn:buildcache -f Dockerfile . --push
