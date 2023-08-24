@@ -20,7 +20,7 @@ djangorestframework-xml = "2.0.0"
 ipdb = "0.13.13"
 psycopg2-binary = "2.9.6"
 requests = "2.31.0"
-uWSGI = "2.0.21"
+uWSGI = "2.0.22"
 
 [tool.poetry.dev-dependencies]
 black = "22.12.0"
