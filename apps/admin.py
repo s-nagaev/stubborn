@@ -5,7 +5,6 @@ from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin.options import IS_POPUP_VAR
 from django.contrib.auth.models import User
-from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import reverse
@@ -27,7 +26,7 @@ from apps.mixins import (
     SaveByCurrentUserMixin,
 )
 from apps.services import turn_off_same_resource_stub
-from apps.utils import prettify_data_to_html, prettify_json_html, start_of_the_day_today, end_of_the_day_today
+from apps.utils import end_of_the_day_today, prettify_data_to_html, prettify_json_html, start_of_the_day_today
 
 
 @admin.register(models.Application)

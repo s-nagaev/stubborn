@@ -53,7 +53,6 @@ class ExtendedRelatedFieldWidgetWrapper(RelatedFieldWidgetWrapper):
         self.additional_url_params = additional_url_params
 
     def get_context(self, name: str, value: Any, attrs: Optional[dict[str, Any]]) -> dict[str, Any]:
-
         rel_opts = self.rel.model._meta  # type: ignore
         info = (rel_opts.app_label, rel_opts.model_name)
         self.widget.choices = self.choices  # type: ignore

@@ -94,11 +94,7 @@ def get_regular_response(application: Application, request: Request, resource: R
     )
 
     if resource.inject_stubborn_headers:
-        headers = add_stubborn_headers(
-            initial_headers=response_stub.headers,
-            app_id=application.id,
-            log_id=request_log_record.id
-        )
+        headers = add_stubborn_headers(initial_headers=response_stub.headers, log_id=request_log_record.id)
         request_log_record.response_headers = headers
         request_log_record.save()
 
@@ -160,11 +156,7 @@ def get_third_party_service_response(
     )
 
     if resource.inject_stubborn_headers:
-        response_headers = add_stubborn_headers(
-            initial_headers=response_headers,
-            app_id=application.id,
-            log_id=request_log_record.id
-        )
+        response_headers = add_stubborn_headers(initial_headers=response_headers, log_id=request_log_record.id)
         request_log_record.response_headers = response_headers
         request_log_record.save()
 
