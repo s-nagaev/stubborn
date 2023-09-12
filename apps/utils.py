@@ -1,13 +1,18 @@
 import json
 import logging
+import os
 import threading
+from datetime import datetime
 from functools import wraps
 from json import JSONDecodeError
 from typing import Any, Dict, Optional, Union
 from uuid import UUID
+from urllib.parse import urljoin, urlencode, urlparse, urlunparse
 from xml.dom import minidom
 
+from django.conf import settings
 from django.utils.safestring import mark_safe
+from django.utils import timezone
 from pygments import highlight
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexers import XmlLexer
@@ -233,3 +238,32 @@ def log_response(
         response_logger.info(log_message)
     except Exception as e:
         response_logger.error(f'Could not log response data due to exception: {e}')
+
+
+def start_of_the_day_today() -> datetime:
+    today = timezone.datetime.today()
+    return timezone.datetime(year=today.year, month=today.month, day=today.day, tzinfo=today.tzinfo)
+
+
+def end_of_the_day_today() -> datetime:
+    today = timezone.datetime.today()
+    return timezone.datetime(
+        year=today.year, month=today.month, day=today.day, tzinfo=today.tzinfo, hour=23, minute=59, second=59
+    )
+
+
+def add_stubborn_headers(initial_headers: dict[str, str], log_id: Union[str, UUID], app_id: Union[str, UUID]) -> dict[str, str]:
+    query_params = {
+        "_changelist_filters": f"application={app_id}"
+    }
+    url_parts = list(urlparse(url=settings.DOMAIN_DISPLAY))
+    url_parts[2] = f'/admin/apps/requestlog/{log_id}/change/'
+    url_parts[4] = urlencode(query=query_params)
+    log_url = urlunparse(url_parts)
+
+    stubborn_headers = {
+        "Stubborn-Log-Id": str(log_id),
+        "Stubborn-Log-Url": os.path.join(settings.DOMAIN_DISPLAY, "admin/apps/requestlog", str(log_id))
+    }
+
+    return initial_headers | stubborn_headers

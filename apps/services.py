@@ -18,7 +18,7 @@ from apps import enums, hooks, models
 from apps.enums import ResponseChoices
 from apps.models import Application, RequestLog, ResourceStub, ResponseStub
 from apps.renderers import SimpleTextRenderer
-from apps.utils import clean_headers, log_response
+from apps.utils import add_stubborn_headers, clean_headers, log_response
 
 logger = logging.getLogger(__name__)
 
@@ -76,11 +76,12 @@ def proxy_request(incoming_request: Request, destination_url: str) -> Response:
     return destination_response
 
 
-def get_regular_response(application, request, resource) -> RestResponse:
+def get_regular_response(application: Application, request: Request, resource: ResourceStub) -> RestResponse:
     hooks.before_request(resource)
     response_stub = cast(ResponseStub, resource.response)
     request.accepted_renderer = response_stub.renderer
     response_body = response_stub.body_rendered
+    headers = response_stub.headers
 
     request_log_record = request_log_create(
         application=application,
@@ -89,8 +90,17 @@ def get_regular_response(application, request, resource) -> RestResponse:
         request=request,
         response_status_code=response_stub.status_code,
         response_body=response_body,
-        response_headers=response_stub.headers,
+        response_headers=headers,
     )
+
+    if resource.inject_stubborn_headers:
+        headers = add_stubborn_headers(
+            initial_headers=response_stub.headers,
+            app_id=application.id,
+            log_id=request_log_record.id
+        )
+        request_log_record.response_headers = headers
+        request_log_record.save()
 
     if response_stub.is_json_format:
         response_data = json.loads(response_body) if response_body else None
@@ -105,11 +115,11 @@ def get_regular_response(application, request, resource) -> RestResponse:
         status_code=response_stub.status_code,
         request_log_id=request_log_record.id,
         body=response_data,
-        headers=response_stub.headers,
+        headers=headers,
     )
 
     try:
-        return RestResponse(data=response_data, status=response_stub.status_code, headers=response_stub.headers)
+        return RestResponse(data=response_data, status=response_stub.status_code, headers=headers)
     finally:
         if resource.hooks.filter(lifecycle=enums.Lifecycle.AFTER_RESPONSE).exists():
             hooks.after_response(resource.pk)
@@ -148,6 +158,15 @@ def get_third_party_service_response(
         proxied=True,
         destination_url=remote_url,
     )
+
+    if resource.inject_stubborn_headers:
+        response_headers = add_stubborn_headers(
+            initial_headers=response_headers,
+            app_id=application.id,
+            log_id=request_log_record.id
+        )
+        request_log_record.response_headers = response_headers
+        request_log_record.save()
 
     try:
         response_body = destination_response.json()

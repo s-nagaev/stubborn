@@ -1,19 +1,16 @@
-from typing import Any, TypeVar
+from typing import Any
 
 from django import forms
 from django.conf import settings
 from django.contrib import admin
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import QuerySet
-from django.db.models.base import Model
 from django.http import HttpRequest
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from apps import mixins, models
 from apps.mixins import AddApplicationRelatedObjectMixin
-
-_ModelT = TypeVar("_ModelT", bound=Model)
 
 
 class ResourceHookAdminInline(AddApplicationRelatedObjectMixin, admin.TabularInline):
