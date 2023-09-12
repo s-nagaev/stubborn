@@ -2,6 +2,7 @@ ignore:
   - "apps/migrations"
   - "apps/admin.py"
   - "apps/forms.py"
+  - "apps/filters.py"
   - "apps/inlines.py"
   - "apps/mixins.py"
   - "apps/models.py"
