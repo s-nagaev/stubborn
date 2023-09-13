@@ -54,7 +54,7 @@ class ResourceFilter(MultiSelectFilter):
         if not app_id:
             return []
 
-        return [(res.id, res.slug) for res in ResourceStub.objects.filter(application__pk=app_id).order_by('slug')]
+        return [(res.id, str(res)) for res in ResourceStub.objects.filter(application__pk=app_id).order_by('slug')]
 
     def queryset(self, request: WSGIRequest, queryset: QuerySet) -> QuerySet:
         value = self.value()
