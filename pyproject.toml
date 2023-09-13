@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "stubborn"
-version = "1.4.2"
+version = "1.4.3"
 description = "Just a simple REST API stub service."
 authors = ["Sergei Nagaev <nagaev.sv@gmail.com>"]
 license = "MIT"
@@ -9,7 +9,7 @@ license = "MIT"
 python = "^3.10"
 Faker = "17.0.0"
 Jinja2 = "3.1.2"
-Pygments = "2.14.0"
+Pygments = "2.15.0"
 argon2-cffi = "23.1.0"
 django = "^3.2"
 django-admin-rangefilter = "0.11.1"
@@ -20,7 +20,7 @@ djangorestframework-xml = "2.0.0"
 ipdb = "0.13.13"
 psycopg2-binary = "2.9.7"
 requests = "2.31.0"
-setuptools = "68.2.2"
+setuptools = "68.2.2"  # temporary solution, just to replace the default version with CVE-2022-40897
 uWSGI = "2.0.22"
 
 [tool.poetry.dev-dependencies]
