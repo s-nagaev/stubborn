@@ -36,6 +36,7 @@ class ResourceStubForm(ModelForm):
             'proxy_destination_address',
             'description',
             'application',
+            'inject_stubborn_headers',
         ]
 
 

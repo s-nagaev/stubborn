@@ -38,10 +38,9 @@ uwsgi_dev:
 	DJANGO_SETTINGS_MODULE=stubborn.settings.local uwsgi --ini=stubborn/settings/uwsgi/uwsgi_dev.ini --py-autoreload=2
 
 upgrade:
-	rm -f poetry.lock \
-	&& poetry install \
+	poetry update \
 	&& poetry export -f requirements.txt --output requirements.txt \
-	&& poetry export --dev -f requirements.txt --output requirements-dev.txt
+	&& poetry export --with dev -f requirements.txt --output requirements-dev.txt
 
 #### Staging ###########################################################################################################
 staging_run:

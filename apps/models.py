@@ -216,6 +216,7 @@ class ResourceStub(BaseStubModel):
         User, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL, related_name='resources'
     )
     is_enabled = models.BooleanField(verbose_name='Enabled', default=True, null=False)
+    inject_stubborn_headers = models.BooleanField(verbose_name='Inject Stubborn Headers', default=False)
 
     class Meta:
         verbose_name = 'resource'
@@ -232,7 +233,11 @@ class ResourceStub(BaseStubModel):
         Returns:
             String representation.
         """
-        return f'{self.slug}'
+        if not self.description:
+            return f'{self.slug}'
+
+        desc = f'{self.description[:10]}...' if len(self.description) > 10 else self.description[:10]
+        return f'{self.slug} ({desc})'
 
     def clean(self) -> None:
         if not self.response and not self.proxy_destination_address:

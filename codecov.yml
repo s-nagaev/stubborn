@@ -2,6 +2,7 @@ ignore:
   - "apps/migrations"
   - "apps/admin.py"
   - "apps/forms.py"
+  - "apps/filters.py"
   - "apps/inlines.py"
   - "apps/mixins.py"
   - "apps/models.py"
@@ -10,4 +11,17 @@ ignore:
   - "apps/urls.py"
   - "apps/widgets.py"
   - "**/__init__.py"
-  
+
+coverage:
+  range: 70..95
+  round: down
+  precision: 2
+  status:
+    project:
+      default:
+        target: 80%
+        threshold: 5%
+        base: auto
+    patch:
+      default:
+        target: 0%

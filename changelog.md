@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.3] - 2023-09-13
+
+### Added
+
+- Optional Stubborn request ID header injection: now it's possible to automatically inject headers `Stubborn-Log-Id`
+and `Stubborn-Log-Url` to the Stubborn response. `Stubborn-Log-Id` containing the corresponding log ID in the Stubborn 
+database and `Stubborn-Log-Url` containing full URL to the corresponding log record.
+corresponding request log.
+- Advanced filters for Request Logs data including multiselect filter for the related Application Resource.
+
+### Changed
+
+- Dependencies updated.
+- Base docker image changed to the `python:3.10-alpine3.18`. 
+
 ## [1.4.2] - 2023-07-01
 
 ### Changed

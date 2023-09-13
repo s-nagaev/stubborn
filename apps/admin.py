@@ -9,11 +9,12 @@ from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from rangefilter.filters import DateRangeFilter
+from rangefilter.filters import DateTimeRangeFilterBuilder
 
 from apps import inlines, models
 from apps.actions import change_satus, duplicate
 from apps.enums import ResponseChoices
+from apps.filters import ResourceFilter
 from apps.forms import ResourceStubForm, ResponseStubForm, WebHookRequestForm
 from apps.inlines import ResourceHookAdminInline
 from apps.mixins import (
@@ -25,7 +26,7 @@ from apps.mixins import (
     SaveByCurrentUserMixin,
 )
 from apps.services import turn_off_same_resource_stub
-from apps.utils import prettify_data_to_html, prettify_json_html
+from apps.utils import end_of_the_day_today, prettify_data_to_html, prettify_json_html, start_of_the_day_today
 
 
 @admin.register(models.Application)
@@ -156,8 +157,8 @@ class ResourceStubAdmin(
     no_delete_related = ('application',)
     inlines = (ResourceHookAdminInline,)
     ordering = (
-        'slug',
         '-is_enabled',
+        'slug',
         '-created_at',
     )
     actions = (change_satus, duplicate)
@@ -332,7 +333,6 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
         'url',
         'get_remote_ip',
         'resource',
-        'get_resource_desc',
         'proxied',
     )
     readonly_fields = (
@@ -354,7 +354,15 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
         'x_real_ip',
     )
     list_filter = (
-        ('created_at', DateRangeFilter),
+        (
+            'created_at',
+            DateTimeRangeFilterBuilder(
+                title="Created at",
+                default_start=start_of_the_day_today(),
+                default_end=end_of_the_day_today(),
+            ),
+        ),
+        ResourceFilter,
         'status_code',
         'proxied',
         'method',
@@ -366,7 +374,6 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
 
     def get_queryset(self, request: HttpRequest) -> QuerySet:
         params = request.GET.dict()
-
         application_id = cast(Optional[str], params.get('application'))
         if not application_id:
             return super().get_queryset(request)
@@ -461,7 +468,7 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
         return obj.resource.description or ''
 
     @staticmethod
-    @admin.display(description='Remote IP/X-Real-IP')
+    @admin.display(description='Remote IP / X-Real-IP')
     def get_remote_ip(obj: models.RequestLog) -> str:
         """Getter fot the client's IP address.
 
