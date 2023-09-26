@@ -112,6 +112,31 @@ class Application(BaseStubModel):
         """
         return f'{self.name}'
 
+    def copy(self) -> 'Application':
+        """Creates a deep copy of Application object with resources, responses and webhooks.
+
+        Returns:
+            New Application object.
+        """
+        original_object_id = self.id
+        self.pk = None
+
+        original_object = Application.objects.get(pk=original_object_id)
+
+        while Application.objects.filter(slug=self.slug):
+            self.slug += '-copy'
+        self.save()
+
+        for resource in original_object.resources.all():
+            resource.copy(application=self)
+
+        related_objects = *original_object.requests.all(), *original_object.responses.all()
+        for relation_obj in related_objects:
+            relation_obj.pk = None
+            setattr(relation_obj, 'application', self)
+            relation_obj.save()
+        return self
+
     def clean(self) -> None:
         super().clean()
         if self.slug.lower() in settings.RESERVED_APP_NAMES:
@@ -223,7 +248,8 @@ class ResourceStub(BaseStubModel):
         verbose_name_plural = 'resources'
         constraints = [
             models.UniqueConstraint(
-                fields=['slug', 'method', 'tail'], condition=models.Q(is_enabled=True), name='unique_enabled_slug'
+                fields=['slug', 'method', 'tail', 'application'], condition=models.Q(is_enabled=True),
+                name='unique_enabled_slug'
             )
         ]
 
@@ -238,6 +264,27 @@ class ResourceStub(BaseStubModel):
 
         desc = f'{self.description[:10]}...' if len(self.description) > 10 else self.description[:10]
         return f'{self.slug} ({desc})'
+
+    def copy(self, application: Application) -> 'ResourceStub':
+        """Creates a copy of ResourceStub object with its hooks.
+
+        Args:
+            application: Application object for a new copy.
+
+        Returns:
+            New ResourceStub object.
+        """
+        hook_ids = self.hooks.all().values_list('id', flat=True)
+
+        self.pk = None
+        self.application = application
+        self.save()
+
+        for hook in ResourceHook.objects.filter(pk__in=hook_ids):
+            hook.pk = None
+            hook.resource = self
+            hook.save()
+        return self
 
     def clean(self) -> None:
         if not self.response and not self.proxy_destination_address:

@@ -68,5 +68,6 @@ def create_request_stub(**kwargs) -> RequestStub:
     kwargs.setdefault('method', HTTPMethods.GET.value)
     kwargs.setdefault('application', create_application())
     kwargs.setdefault('creator', None)
+    kwargs.setdefault('description', fake.sentence(nb_words=3)[:30])
 
     return factories.RequestStub.create(**kwargs)
