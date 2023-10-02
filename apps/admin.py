@@ -37,6 +37,7 @@ class ApplicationAdmin(admin.ModelAdmin):
     inlines = [inlines.LogsInline]
     change_form_template = 'admin/apps/application/change_form.html'
     ordering = ('name',)
+    actions = (duplicate,)
 
     class Media:
         css = {'all': ('admin/css/application.css',)}
