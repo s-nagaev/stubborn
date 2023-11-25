@@ -101,19 +101,15 @@ class TestActions:
         resources_queryset = application.resources.all()
         copied_resources_queryset = duplicated_application.resources.all()
         assert resources_queryset.count() == copied_resources_queryset.count()
-        application_resources_shortcuts = {
-            str(obj.description) + str(obj.method)
-            for obj in resources_queryset
-        }
+        application_resources_shortcuts = {str(obj.description) + str(obj.method) for obj in resources_queryset}
         copied_application_resources_shortcuts = {
-            str(obj.description) + str(obj.method)
-            for obj in copied_resources_queryset
+            str(obj.description) + str(obj.method) for obj in copied_resources_queryset
         }
         assert application_resources_shortcuts == copied_application_resources_shortcuts
 
-        copied_resources_queryset = ResourceStub.objects.filter(application=duplicated_application,
-                                                                method=resource.method,
-                                                                description=resource.description)
+        copied_resources_queryset = ResourceStub.objects.filter(
+            application=duplicated_application, method=resource.method, description=resource.description
+        )
         assert copied_resources_queryset
         assert copied_resources_queryset.count() == 1
         assert copied_resources_queryset[0].hooks.count() == 1
@@ -127,12 +123,8 @@ class TestActions:
         copied_responses_queryset = duplicated_application.responses.all()
         assert responses_queryset.count() == copied_responses_queryset.count()
 
-        responses_shortcuts = {
-            str(obj.status_code) + str(obj.description) for obj in responses_queryset
-        }
-        copied_responses_shortcuts = {
-            str(obj.status_code) + str(obj.description) for obj in copied_responses_queryset
-        }
+        responses_shortcuts = {str(obj.status_code) + str(obj.description) for obj in responses_queryset}
+        copied_responses_shortcuts = {str(obj.status_code) + str(obj.description) for obj in copied_responses_queryset}
         assert responses_shortcuts == copied_responses_shortcuts
 
     def test_duplicate_two_applications(self):

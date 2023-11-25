@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] - 2023-11-25
+
+### Added
+
+- Ability to turn applications on/off.
+
+### Changed
+
+- Code slightly refactored.
+- Dependencies updated.
+
 ## [1.5.0] - 2023-09-30
 
 ### Added
@@ -269,7 +280,10 @@ environment variables.
 - This changelog file.
 - Initial Readme file.
 
-[Unreleased]: https://github.com/s-nagaev/stubborn/compare/v1.4.2...HEAD
+[Unreleased]: https://github.com/s-nagaev/stubborn/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/s-nagaev/stubborn/compare/v1.5.0...v1.6.0
+[1.5.0]: https://github.com/s-nagaev/stubborn/compare/v1.4.3...v1.5.0
+[1.4.3]: https://github.com/s-nagaev/stubborn/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/s-nagaev/stubborn/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/s-nagaev/stubborn/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/s-nagaev/stubborn/compare/v1.3.0...v1.4.0

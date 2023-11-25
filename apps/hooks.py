@@ -1,7 +1,7 @@
 import logging
 from threading import Event
 from time import sleep
-from typing import Any, Callable, Dict
+from typing import Any, Callable
 
 import requests
 from django.conf import settings
@@ -42,14 +42,14 @@ HOOK_FIELDS = [
 ]
 REQUEST_STUB_FIELDS = ['headers', 'body', 'method', 'uri', 'format', 'query_params']
 
-process_action: Dict[str, Callable] = {
+process_action: dict[str, Callable] = {
     enums.Action.WAIT: process_wait,
     enums.Action.WEBHOOK: process_webhook,
 }
 
 
-def _get_hook_context(hook: models.ResourceHook, extra_context: Dict) -> Dict:
-    context: Dict[str, Any] = {}
+def _get_hook_context(hook: models.ResourceHook, extra_context: dict) -> dict:
+    context: dict[str, Any] = {}
     for context_field in [*HOOK_FIELDS, *REQUEST_STUB_FIELDS]:
         context.setdefault(context_field, None)
 

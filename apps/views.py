@@ -31,7 +31,7 @@ class ResponseStubView(APIView):
     def make_response(request: Request, **kwargs: Any) -> Response:
         log_request(request_logger=logger, request=request)
 
-        application = get_object_or_404(models.Application, slug=kwargs.get('app_slug', ''))
+        application = get_object_or_404(models.Application, slug=kwargs.get('app_slug', ''), is_enabled=True)
         resource = get_resource_from_request(request, kwargs)
         request.accepted_renderer = JSONRenderer()
 
