@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from apps.services import get_same_enabled_resource_stub, proxy_request, turn_off_same_resource_stub
+from apps.services import get_same_enabled_resource_stub, proxy_request, turn_off_same_resource
 from apps.tests.data import create_application, create_resource_stub
 
 
@@ -80,7 +80,7 @@ class TestProxy:
             application=application, method='GET', slug=slug, tail=tail, is_enabled=True
         )
 
-        turned_off_resource = turn_off_same_resource_stub(resource_stub=resource_disabled)
+        turned_off_resource = turn_off_same_resource(resource=resource_disabled)
         assert turned_off_resource
 
         resource_enabled.refresh_from_db()
@@ -90,5 +90,5 @@ class TestProxy:
     def test_turn_off_same_resource_stub_resource_doesnt_exist(self):
         application = create_application()
         resource_disabled = create_resource_stub(application=application, method='GET', is_enabled=False)
-        turned_off_resource = turn_off_same_resource_stub(resource_stub=resource_disabled)
+        turned_off_resource = turn_off_same_resource(resource=resource_disabled)
         assert not turned_off_resource

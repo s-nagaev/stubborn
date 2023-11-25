@@ -55,3 +55,7 @@ a.stubitlink:focus, a.stubitlink:hover {
 fieldset.module:nth-child(5) > h2:nth-child(1) {
     text-align: center;
 }
+
+.column-get_is_enabled {
+    width: 5px;
+}

@@ -1,4 +1,4 @@
-from typing import Any, Generator, Union
+from typing import Any, Generator
 from uuid import UUID
 
 from django.contrib.admin import SimpleListFilter
@@ -17,7 +17,7 @@ class MultiSelectFilter(SimpleListFilter):
             return set()
         return set(value.split(','))
 
-    def choices(self, changelist: Any) -> Generator[dict[str, Union[bool, str]], None, None]:
+    def choices(self, changelist: Any) -> Generator[dict[str, bool | str], None, None]:
         yield {
             'selected': len(self.multiselect_value) == 0,
             'query_string': changelist.get_query_string(remove=[self.parameter_name]),

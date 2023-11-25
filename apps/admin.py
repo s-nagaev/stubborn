@@ -1,5 +1,5 @@
 import os
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 from django.conf import settings
 from django.contrib import admin, messages
@@ -25,19 +25,23 @@ from apps.mixins import (
     RelatedCUDManagerMixin,
     SaveByCurrentUserMixin,
 )
-from apps.services import turn_off_same_resource_stub
+from apps.services import turn_off_same_resource
 from apps.utils import end_of_the_day_today, prettify_data_to_html, prettify_json_html, start_of_the_day_today
 
 
 @admin.register(models.Application)
 class ApplicationAdmin(admin.ModelAdmin):
     readonly_fields = ('owner',)
-    list_display = ('name', 'slug', 'resources_count', 'short_desc')
+    list_display = ('get_is_enabled', 'name', 'slug', 'resources_count', 'short_desc')
     fields = ('name', 'description', 'slug', 'owner')
     inlines = [inlines.LogsInline]
     change_form_template = 'admin/apps/application/change_form.html'
-    ordering = ('name',)
-    actions = (duplicate,)
+    ordering = (
+        '-is_enabled',
+        'name',
+    )
+    actions = (change_satus, duplicate)
+    list_display_links = ('name',)
 
     class Media:
         css = {'all': ('admin/css/application.css',)}
@@ -65,6 +69,11 @@ class ApplicationAdmin(admin.ModelAdmin):
         super().save_model(request, obj, *args, **kwargs)
 
     @staticmethod
+    @admin.display(boolean=True, description='on')
+    def get_is_enabled(obj: models.ResourceStub) -> bool:
+        return obj.is_enabled
+
+    @staticmethod
     @admin.display(description='Resources')
     def resources_count(obj: models.Application) -> int:
         """Return related resource stubs count.
@@ -79,7 +88,7 @@ class ApplicationAdmin(admin.ModelAdmin):
 
     @staticmethod
     @admin.display(description='Description')
-    def short_desc(obj: models.Application) -> Optional[str]:
+    def short_desc(obj: models.Application) -> str | None:
         """Return the first 50 symbols of the description.
 
         Args:
@@ -125,7 +134,7 @@ class RequestStubAdmin(
     ordering = ('-created_at',)
     actions = (duplicate,)
 
-    def response_add(self, request: HttpRequest, obj: models.RequestStub, post_url_continue: Optional[str] = None):
+    def response_add(self, request: HttpRequest, obj: models.RequestStub, post_url_continue: str = None):
         """Return to the application page after adding.
 
         Args:
@@ -152,7 +161,15 @@ class ResourceStubAdmin(
 ):
     form = ResourceStubForm
     readonly_fields = ('creator',)
-    list_display = ('is_enabled', 'get_method', 'uri_with_slash', 'response', 'description', 'full_url', 'proxied')
+    list_display = (
+        'get_is_enabled',
+        'get_method',
+        'uri_with_slash',
+        'get_response',
+        'description',
+        'full_url',
+        'proxied',
+    )
     no_add_related = ('application',)
     no_edit_related = ('application',)
     no_delete_related = ('application',)
@@ -163,7 +180,10 @@ class ResourceStubAdmin(
         '-created_at',
     )
     actions = (change_satus, duplicate)
-    list_display_links = ('get_method',)
+    list_display_links = (
+        'get_method',
+        'uri_with_slash',
+    )
 
     class Media:
         js = (
@@ -171,15 +191,29 @@ class ResourceStubAdmin(
             'admin/js/resource/hooksSwitcher.js',
         )
 
+        css = {'all': ('admin/css/resource_list_view.css',)}
+
     def save_model(self, request: HttpRequest, obj: models.ResourceStub, *args: Any, **kwargs: Any) -> None:
         if not obj.is_enabled:
             super().save_model(request, obj, *args, **kwargs)
 
-        if turned_off_resource := turn_off_same_resource_stub(resource_stub=obj):
+        if turned_off_resource := turn_off_same_resource(resource=obj):
             admin_url = reverse('admin:apps_resourcestub_change', args=(turned_off_resource.pk,))
             msg = mark_safe(f'A same resource stub has been disabled. <a href={admin_url}>Click here to check it.</a>')
             messages.info(request=request, message=msg)
         super().save_model(request, obj, *args, **kwargs)
+
+    @staticmethod
+    @admin.display(boolean=True, description='on')
+    def get_is_enabled(obj: models.ResourceStub) -> bool:
+        return obj.is_enabled
+
+    @staticmethod
+    @admin.display(description='response')
+    def get_response(obj: models.ResourceStub) -> str:
+        if obj.proxy_destination_address:
+            return "From the destination service"
+        return str(obj.response)
 
     @staticmethod
     @admin.display(description='method')
@@ -216,7 +250,7 @@ class ResourceStubAdmin(
         return mark_safe(f'<a href={url}>{url}</a>')
 
     def response_add(
-        self, request: HttpRequest, obj: models.ResourceStub, post_url_continue: Optional[str] = None
+        self, request: HttpRequest, obj: models.ResourceStub, post_url_continue: str = None
     ) -> HttpResponseRedirect:
         """Return to the application page after adding.
 
@@ -286,7 +320,7 @@ class ResponseStubAdmin(HideFromAdminIndexMixin, RelatedCUDManagerMixin, admin.M
         """
         return bool(obj.headers)
 
-    def response_add(self, request: HttpRequest, obj: models.ResponseStub, post_url_continue: Optional[str] = None):
+    def response_add(self, request: HttpRequest, obj: models.ResponseStub, post_url_continue: str = None):
         """Return to the application page after adding.
 
         Args:
@@ -375,7 +409,7 @@ class RequestLogAdmin(DenyCreateMixin, DenyUpdateMixin, HideFromAdminIndexMixin,
 
     def get_queryset(self, request: HttpRequest) -> QuerySet:
         params = request.GET.dict()
-        application_id = cast(Optional[str], params.get('application'))
+        application_id = cast(str | None, params.get('application'))
         if not application_id:
             return super().get_queryset(request)
 

@@ -1,19 +1,21 @@
 import json
-from typing import Any, Optional
+from typing import Any
 
 from django import forms
 from django.contrib.admin import AdminSite
 from django.contrib.admin.views.main import IS_POPUP_VAR, TO_FIELD_VAR
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
 from django.db.models import ForeignObjectRel
+from django.forms.renderers import BaseRenderer
+from django.utils.safestring import SafeText
 
 
 class Editor(forms.Textarea):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.attrs['class'] = 'html-editor'
 
-    def render(self, name, value, attrs=None, renderer=None):
+    def render(self, name: str, value: Any, attrs: dict[str, Any] = None, renderer: BaseRenderer = None) -> SafeText:
         if isinstance(value, dict):
             value = json.dumps(value, indent=4, ensure_ascii=False)
         else:
@@ -41,7 +43,7 @@ class ExtendedRelatedFieldWidgetWrapper(RelatedFieldWidgetWrapper):
         widget: forms.Widget,
         rel: ForeignObjectRel,
         admin_site: AdminSite,
-        can_add_related: Optional[bool],
+        can_add_related: bool | None,
         can_change_related: bool,
         can_delete_related: bool,
         can_view_related: bool,
@@ -52,7 +54,7 @@ class ExtendedRelatedFieldWidgetWrapper(RelatedFieldWidgetWrapper):
         )
         self.additional_url_params = additional_url_params
 
-    def get_context(self, name: str, value: Any, attrs: Optional[dict[str, Any]]) -> dict[str, Any]:
+    def get_context(self, name: str, value: Any, attrs: dict[str, Any] | None) -> dict[str, Any]:
         rel_opts = self.rel.model._meta  # type: ignore
         info = (rel_opts.app_label, rel_opts.model_name)
         self.widget.choices = self.choices  # type: ignore
