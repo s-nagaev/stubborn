@@ -6,7 +6,7 @@ authors = ["Sergei Nagaev <nagaev.sv@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 Faker = "17.0.0"
 Jinja2 = "3.1.2"
 Pygments = "2.16.1"
@@ -21,7 +21,7 @@ ipdb = "0.13.13"
 psycopg2-binary = "2.9.9"
 requests = "2.31.0"
 setuptools = "69.0.2"  # temporary solution, just to replace the default version with CVE-2022-40897
-uWSGI = "2.0.22"
+uWSGI = "2.0.23"
 
 [tool.poetry.dev-dependencies]
 black = "^23.9"

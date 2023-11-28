@@ -1,4 +1,4 @@
-FROM python:3.10-alpine3.18 AS builder
+FROM python:3.11-alpine AS builder
 
 RUN apk update \
     && apk upgrade \
@@ -16,7 +16,7 @@ COPY requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip --no-cache-dir
 RUN pip install -r requirements.txt
 
-FROM python:3.10-alpine3.18
+FROM python:3.11-alpine
 
 LABEL org.label-schema.schema-version="1.0"
 LABEL org.label-schema.name="Stubborn"
