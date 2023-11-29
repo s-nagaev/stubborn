@@ -7,7 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.6.0] - 2023-11-25
+## [1.7.0] - 2023-11-29
+
+### Changed
+
+- Python upgraded to 3.11
+- uWSGI upgraded to 2.0.23
+
+### Fixed
+
+- uWSGI's workers crash.
+
+
+## [1.6.0] - 2023-1-25
 
 ### Added
 
