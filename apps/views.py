@@ -2,7 +2,10 @@ import logging
 from typing import Any, cast
 from urllib.parse import urlparse
 
+from apps.models import Application
+from apps.serializers import ApplicationSerializer
 from django.contrib import messages
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -132,3 +135,23 @@ class HealthCheckView(APIView):
     @staticmethod
     def get(request: Request) -> Response:
         return Response(status=status.HTTP_200_OK)
+
+
+class ExportToFile(APIView):
+    """Export Application as a JSON file."""
+    renderer_classes = (JSONRenderer,)
+
+    @staticmethod
+    def get(request: Request, id: str):
+        """Export Application by id as a JSON file.
+        args:
+            request: Request object.
+            id: application's id
+
+        returns:
+            JSON file with the application schema.
+        """
+
+        application = get_object_or_404(Application, pk=id)
+        res = ApplicationSerializer(application)
+        return JsonResponse(res.data)
