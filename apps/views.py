@@ -146,7 +146,7 @@ class ExportToFile(APIView):
         """Export Application by id as a JSON file.
         args:
             request: Request object.
-            id: application's id
+            id: application's id.
 
         returns:
             JSON file with the application schema.
@@ -155,3 +155,25 @@ class ExportToFile(APIView):
         application = get_object_or_404(Application, pk=id)
         res = ApplicationSerializer(application)
         return JsonResponse(res.data)
+
+
+class ImportFromFile(APIView):
+    """Import Application from a JSON file."""
+    renderer_classes = (JSONRenderer,)
+
+    @staticmethod
+    def post(request: Request):
+        """Import Application from a JSON file.
+        args:
+            request: Request object.
+
+        returns:
+            201 status if imported.
+        """
+        application_data = request.data
+
+        application = ApplicationSerializer(data=application_data)
+        application.is_valid(raise_exception=True)
+        application.save()
+
+        return Response(status=status.HTTP_201_CREATED)
