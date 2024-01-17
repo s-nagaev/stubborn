@@ -1,13 +1,13 @@
 from typing import OrderedDict
 
-from apps.models import Application, ResponseStub
+from apps.models import Application, ResponseStub, ResourceStub, ResourceHook, RequestStub
 from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 
-class UserSerializer(serializers.Serializer):
+class UserSerializer(serializers.ModelSerializer):
     """User model serializer."""
     username = serializers.CharField(required=False, allow_blank=True)
     first_name = serializers.CharField(required=False, allow_blank=True)
@@ -17,8 +17,12 @@ class UserSerializer(serializers.Serializer):
     is_active = serializers.BooleanField(required=True)
     date_joined = serializers.DateTimeField(required=True)
 
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email', 'is_staff', 'is_active', 'date_joined']
 
-class RequestStubSerializer(serializers.Serializer):
+
+class RequestStubSerializer(serializers.ModelSerializer):
     """RequestStub model serializer."""
     name = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     query_params = serializers.JSONField(required=False, allow_null=False)
@@ -26,8 +30,12 @@ class RequestStubSerializer(serializers.Serializer):
     method = serializers.CharField(required=False, allow_null=False)
     creator = UserSerializer(required=False, allow_null=True)
 
+    class Meta:
+        model = RequestStub
+        fields = ['name', 'query_params', 'uri', 'method', 'creator']
 
-class ResourceHookSerializer(serializers.Serializer):
+
+class ResourceHookSerializer(serializers.ModelSerializer):
     """ResourceHook model serializer."""
     action = serializers.CharField(required=False, allow_null=False)
     lifecycle = serializers.CharField(required=False, allow_null=False)
@@ -35,8 +43,12 @@ class ResourceHookSerializer(serializers.Serializer):
     timeout = serializers.IntegerField(required=False, allow_null=False)
     request = RequestStubSerializer(required=False, allow_null=True)
 
+    class Meta:
+        model = ResourceHook
+        fields = ['action', 'lifestyle', 'order', 'timeout', 'request']
 
-class ResourceStubSerializer(serializers.Serializer):
+
+class ResourceStubSerializer(serializers.ModelSerializer):
     """ResourceStub model serializer."""
     description = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     method = serializers.CharField(required=False, allow_null=True, allow_blank=True)
@@ -49,6 +61,11 @@ class ResourceStubSerializer(serializers.Serializer):
     inject_stubborn_headers = serializers.BooleanField(required=False, allow_null=False)
     hooks = ResourceHookSerializer(many=True, required=False, allow_null=True)
 
+    class Meta:
+        model = ResourceStub
+        fields = ['description', 'method', 'proxy_destination_address', 'response_type', 'slug', 'tail', 'creator',
+                  'is_enabled', 'inject_stubborn_headers', 'hooks']
+
 
 class ResponseStubSerializer(serializers.ModelSerializer):
     """ResponseStub model serializer."""
@@ -60,17 +77,25 @@ class ResponseStubSerializer(serializers.ModelSerializer):
         model = ResponseStub
         fields = ['status_code', 'creator', 'resources']
 
-    # def create(self, validated_data: OrderedDict) -> ResponseStub:
-    #     """ResponseStub creation.
-    #     args:
-    #         validated_data: Ordered dict object with response stub validated data.
-    #     returns:
-    #         An ResponseStub object.
-    #     """
-    #     response = ResponseStub.objects.create(
-    #         **validated_data
-    #     )
-    #     return response
+    def create(self, validated_data: OrderedDict) -> ResponseStub:
+        """ResponseStub creation.
+        args:
+            validated_data: Ordered dict object with response stub validated data.
+        returns:
+            An ResponseStub object.
+        """
+        resources_data, resources_list = validated_data.pop('resources', []), []
+
+        response = ResponseStub.objects.create(
+            **validated_data
+        )
+
+        for resource_data in resources_data:
+            serialized_resource = ResourceStubSerializer(data=resource_data)
+            serialized_resource.is_valid()
+            resource = serialized_resource.save(response=response, application=response.application)
+            resources_list.append(resource)
+        return response
 
 
 class ApplicationSerializer(serializers.ModelSerializer):
@@ -106,12 +131,11 @@ class ApplicationSerializer(serializers.ModelSerializer):
                 **validated_data,
                 owner=owner
             )
-            if responses_data:
-                for response_data in responses_data:
-                    response = ResponseStubSerializer(data=response_data)
-                    response.is_valid()
-                    response_object = response.save(application=application)
-                    responses_list.append(response_object)
+            for response_data in responses_data:
+                serialized_response = ResponseStubSerializer(data=response_data)
+                serialized_response.is_valid()
+                response = serialized_response.save(application=application)
+                responses_list.append(response)
 
             application.responses.set(responses_list)
         except IntegrityError as error:
