@@ -1,11 +1,14 @@
+import io
+import json
 import logging
 from typing import Any, cast
 from urllib.parse import urlparse
 
 from apps.models import Application
 from apps.serializers import ApplicationSerializer
+from django.conf import settings
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -149,12 +152,17 @@ class ExportToFile(APIView):
             id: application's id.
 
         returns:
-            JSON file with the application schema.
+            JSON file with the application data.
         """
 
         application = get_object_or_404(Application, pk=id)
-        res = ApplicationSerializer(application)
-        return JsonResponse(res.data)
+        serialized_data = ApplicationSerializer(application)
+        jsonyfied_data = json.dumps(serialized_data.data, indent=settings.JSON_FILE_INDENT)
+        file_name = f'{application.pk}-application-data.json'
+
+        response = HttpResponse(jsonyfied_data, content_type='application/json')
+        response['Content-Disposition'] = f'attachment; filename={file_name}'
+        return response
 
 
 class ImportFromFile(APIView):
