@@ -34,6 +34,26 @@ class RequestStubSerializer(serializers.ModelSerializer):
         model = RequestStub
         fields = ['name', 'query_params', 'uri', 'method', 'creator']
 
+    def create(self, validated_data: OrderedDict) -> RequestStub:
+        """RequestStub creation.
+        args:
+            validated_data: Ordered dict object with request stub validated data.
+        returns:
+            A RequestStub object.
+        """
+        try:
+            creator_data, creator = validated_data.pop('creator', None), None
+            if creator_data:
+                creator, was_created = User.objects.get_or_create(**creator_data)
+
+            request_stub = RequestStub.objects.create(
+                **validated_data,
+                creator=creator
+            )
+        except IntegrityError as error:
+            raise ValidationError(error)
+        return request_stub
+
 
 class ResourceHookSerializer(serializers.ModelSerializer):
     """ResourceHook model serializer."""
@@ -45,7 +65,31 @@ class ResourceHookSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ResourceHook
-        fields = ['action', 'lifestyle', 'order', 'timeout', 'request']
+        fields = ['action', 'lifecycle', 'order', 'timeout', 'request']
+
+    def create(self, validated_data: OrderedDict) -> ResourceHook:
+        """ResourceHook creation.
+        args:
+            validated_data: Ordered dict object with resource hook validated data.
+        returns:
+            A ResourceHook object.
+        """
+        try:
+            request_data, request = validated_data.pop('request', None), None
+            application = validated_data.pop('application', None)
+
+            if request_data:
+                serialized_request = RequestStubSerializer(data=request_data)
+                serialized_request.is_valid()
+                request = serialized_request.save(application=application)
+
+            resource_hook = ResourceHook.objects.create(
+                **validated_data,
+                request=request
+            )
+        except IntegrityError as error:
+            raise ValidationError(error)
+        return resource_hook
 
 
 class ResourceStubSerializer(serializers.ModelSerializer):
@@ -66,6 +110,30 @@ class ResourceStubSerializer(serializers.ModelSerializer):
         fields = ['description', 'method', 'proxy_destination_address', 'response_type', 'slug', 'tail', 'creator',
                   'is_enabled', 'inject_stubborn_headers', 'hooks']
 
+    def create(self, validated_data: OrderedDict) -> ResourceStub:
+        """ResourceStub creation.
+        args:
+            validated_data: Ordered dict object with resource stub validated data.
+        returns:
+            A ResourceStub object.
+        """
+        hooks_data, hooks_list = validated_data.pop('hooks', []), []
+
+        try:
+            resource = ResourceStub.objects.create(**validated_data)
+
+            for hook_data in hooks_data:
+                serialized_hook = ResourceHookSerializer(data=hook_data)
+                serialized_hook.is_valid()
+                hook = serialized_hook.save(resource=resource,
+                                            application=resource.application)
+                hooks_list.append(hook)
+
+            resource.hooks.set(hooks_list)
+        except IntegrityError as error:
+            raise ValidationError(error)
+        return resource
+
 
 class ResponseStubSerializer(serializers.ModelSerializer):
     """ResponseStub model serializer."""
@@ -82,19 +150,21 @@ class ResponseStubSerializer(serializers.ModelSerializer):
         args:
             validated_data: Ordered dict object with response stub validated data.
         returns:
-            An ResponseStub object.
+            A ResponseStub object.
         """
         resources_data, resources_list = validated_data.pop('resources', []), []
 
-        response = ResponseStub.objects.create(
-            **validated_data
-        )
+        try:
+            response = ResponseStub.objects.create(**validated_data)
 
-        for resource_data in resources_data:
-            serialized_resource = ResourceStubSerializer(data=resource_data)
-            serialized_resource.is_valid()
-            resource = serialized_resource.save(response=response, application=response.application)
-            resources_list.append(resource)
+            for resource_data in resources_data:
+                serialized_resource = ResourceStubSerializer(data=resource_data)
+                serialized_resource.is_valid()
+                resource = serialized_resource.save(response=response, application=response.application)
+                resources_list.append(resource)
+            response.resources.set(resources_list)
+        except IntegrityError as error:
+            raise ValidationError(error)
         return response
 
 
