@@ -1,10 +1,11 @@
 from typing import OrderedDict
 
-from apps.models import Application, ResponseStub, ResourceStub, ResourceHook, RequestStub
 from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+
+from apps.models import Application, RequestStub, ResourceHook, ResourceStub, ResponseStub
 
 
 class UserSerializer(serializers.ModelSerializer):

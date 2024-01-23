@@ -1,14 +1,11 @@
-import io
 import json
 import logging
 from typing import Any, cast
 from urllib.parse import urlparse
 
-from apps.models import Application
-from apps.serializers import ApplicationSerializer
 from django.conf import settings
 from django.contrib import messages
-from django.http import JsonResponse, HttpResponse
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -23,6 +20,7 @@ from rest_framework_xml.renderers import XMLRenderer
 from apps import models
 from apps.enums import ResponseChoices
 from apps.renderers import SimpleTextRenderer, TextToXMLRenderer
+from apps.serializers import ApplicationSerializer
 from apps.services import get_regular_response, get_resource_from_request, get_third_party_service_response
 from apps.utils import log_request
 
@@ -145,7 +143,7 @@ class ExportToFile(APIView):
     renderer_classes = (JSONRenderer,)
 
     @staticmethod
-    def get(request: Request, id: str):
+    def get(request: Request, id: str) -> Response:
         """Export Application by id as a JSON file.
         args:
             request: Request object.
@@ -155,7 +153,7 @@ class ExportToFile(APIView):
             JSON file with the application data.
         """
 
-        application = get_object_or_404(Application, pk=id)
+        application = get_object_or_404(models.Application, pk=id)
         serialized_data = ApplicationSerializer(application)
         jsonyfied_data = json.dumps(serialized_data.data, indent=settings.JSON_FILE_INDENT)
         file_name = f'{application.pk}-application-data.json'
@@ -170,17 +168,20 @@ class ImportFromFile(APIView):
     renderer_classes = (JSONRenderer,)
 
     @staticmethod
-    def post(request: Request):
+    def post(request: Request) -> Response:
         """Import Application from a JSON file.
         args:
             request: Request object.
 
         returns:
-            201 status if imported.
+            201 status if successfully imported.
         """
-        application_data = request.data
+        file_object = request.FILES.get('file')
+        file_data = file_object.file.read()
+        decoded_file_data = file_data.decode("utf-8")
+        jsonyfied_file_data = json.loads(decoded_file_data)
 
-        application = ApplicationSerializer(data=application_data)
+        application = ApplicationSerializer(data=jsonyfied_file_data)
         application.is_valid(raise_exception=True)
         application.save()
 
