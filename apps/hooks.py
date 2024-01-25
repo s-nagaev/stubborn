@@ -30,7 +30,14 @@ def process_webhook(*, headers, body, uri, method, query_params, **kwargs):
         f'method={method}, query_params={query_params}'
     )
     try:
-        response = requests.request(method=method, url=uri, params=query_params, headers=headers, data=body)
+        response = requests.request(
+            method=method,
+            url=uri,
+            params=query_params,
+            headers=headers,
+            data=body,
+            timeout=settings.HOOK_REQUEST_TIMEOUT,
+        )
         logger.debug(response)
     except Exception as e:
         logger.debug(f'Hook failed. Error - {e}')

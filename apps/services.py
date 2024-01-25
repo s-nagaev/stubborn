@@ -1,24 +1,21 @@
 import json
 import logging
 import os
-from json import JSONDecodeError
 from typing import Any, TypeVar, cast
 
 import requests
 from django.conf import settings
 from django.db.models import QuerySet
-from django.http import Http404
+from django.http import Http404, HttpResponse as DjangoNativeResponse
 from django.shortcuts import get_object_or_404
 from requests import Response
 from rest_framework.request import Request
-from rest_framework.response import Response as RestResponse
-from rest_framework_xml.renderers import XMLRenderer
+from rest_framework.response import Response as RestFrameworkResponse
 
 from apps import enums, hooks, models
 from apps.enums import ResponseChoices
 from apps.models import Application, RequestLog, ResourceStub, ResponseStub
-from apps.renderers import SimpleTextRenderer
-from apps.utils import add_stubborn_headers, clean_headers, log_response
+from apps.utils import add_stubborn_headers, clean_headers, log_response, response_body_can_be_logged
 
 logger = logging.getLogger(__name__)
 
@@ -72,13 +69,17 @@ def proxy_request(incoming_request: Request, destination_url: str) -> Response:
     headers = clean_headers(incoming_request.headers)
 
     destination_response = requests.request(
-        method=method, url=destination_url, params=query_params, headers=headers, data=body.encode('utf8')
+        method=method,
+        url=destination_url,
+        params=query_params,
+        headers=headers,
+        data=body.encode('utf8'),
     )
 
     return destination_response
 
 
-def get_regular_response(application: Application, request: Request, resource: ResourceStub) -> RestResponse:
+def get_regular_response(application: Application, request: Request, resource: ResourceStub) -> RestFrameworkResponse:
     hooks.before_request(resource)
     response_stub = cast(ResponseStub, resource.response)
     request.accepted_renderer = response_stub.renderer
@@ -117,7 +118,7 @@ def get_regular_response(application: Application, request: Request, resource: R
     )
 
     try:
-        return RestResponse(data=response_data, status=response_stub.status_code, headers=headers)
+        return RestFrameworkResponse(data=response_data, status=response_stub.status_code, headers=headers)
     finally:
         if resource.hooks.filter(lifecycle=enums.Lifecycle.AFTER_RESPONSE).exists():
             hooks.after_response(resource.pk)
@@ -125,7 +126,7 @@ def get_regular_response(application: Application, request: Request, resource: R
 
 def get_third_party_service_response(
     application: Application, request: Request, resource: ResourceStub, tail: str = None
-) -> RestResponse:
+) -> DjangoNativeResponse:
     if tail and resource.response_type == ResponseChoices.PROXY_CURRENT:
         raise Http404()
 
@@ -135,23 +136,20 @@ def get_third_party_service_response(
     hooks.before_request(resource)
     destination_response = proxy_request(incoming_request=request, destination_url=remote_url)
     hooks.after_request(resource)
-    response_body = destination_response.content.decode()
     response_headers = clean_headers(dict(destination_response.headers))
-
     content_type = response_headers.get('Content-Type', 'application/json')  # assume that
 
-    if '/xml' in content_type:
-        request.accepted_renderer = XMLRenderer()
-
-    if 'text/html' in content_type:
-        request.accepted_renderer = SimpleTextRenderer()
+    if response_body_can_be_logged(content_type=content_type):
+        body_for_log = destination_response.content.decode()
+    else:
+        body_for_log = f"The {content_type} data is not logged."
 
     request_log_record = request_log_create(
         application=application,
         resource_stub=resource,
         request=request,
         response_status_code=destination_response.status_code,
-        response_body=response_body,
+        response_body=body_for_log,
         response_headers=response_headers,
         proxied=True,
         destination_url=remote_url,
@@ -162,22 +160,19 @@ def get_third_party_service_response(
         request_log_record.response_headers = response_headers
         request_log_record.save()
 
-    try:
-        response_body = destination_response.json()
-    except JSONDecodeError:
-        pass
-
     log_response(
         response_logger=logger,
         resource_type='PROXY',
         status_code=destination_response.status_code,
         request_log_id=request_log_record.id,
-        body=response_body,
+        body=body_for_log,
         headers=str(response_headers),
     )
 
     try:
-        return RestResponse(data=response_body, status=destination_response.status_code, headers=response_headers)
+        return DjangoNativeResponse(
+            content=destination_response.content, status=destination_response.status_code, headers=response_headers
+        )
     finally:
         if resource.hooks.filter(lifecycle=enums.Lifecycle.AFTER_RESPONSE).exists():
             hooks.after_response(resource.pk)
