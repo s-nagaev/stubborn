@@ -258,3 +258,11 @@ def add_stubborn_headers(initial_headers: dict[str, str], log_id: str | UUID) ->
     }
 
     return initial_headers | stubborn_headers
+
+
+def response_body_can_be_logged(content_type: str) -> bool:
+    logable_content_type_chunks = ('/xml', '/html', '/json', '+json', 'text/')
+    for chunk in logable_content_type_chunks:
+        if chunk in content_type:
+            return True
+    return False

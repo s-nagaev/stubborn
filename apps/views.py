@@ -3,6 +3,7 @@ from typing import Any, cast
 from urllib.parse import urlparse
 
 from django.contrib import messages
+from django.http import HttpResponse as DjangoNativeResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -10,7 +11,7 @@ from rest_framework import permissions, status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.renderers import JSONRenderer
 from rest_framework.request import Request
-from rest_framework.response import Response
+from rest_framework.response import Response as RestFrameworkResponse
 from rest_framework.views import APIView
 from rest_framework_xml.renderers import XMLRenderer
 
@@ -28,7 +29,7 @@ class ResponseStubView(APIView):
     renderer_classes = (JSONRenderer, TextToXMLRenderer, SimpleTextRenderer, XMLRenderer)
 
     @staticmethod
-    def make_response(request: Request, **kwargs: Any) -> Response:
+    def make_response(request: Request, **kwargs: Any) -> RestFrameworkResponse | DjangoNativeResponse:
         log_request(request_logger=logger, request=request)
 
         application = get_object_or_404(models.Application, slug=kwargs.get('app_slug', ''), is_enabled=True)
@@ -43,23 +44,23 @@ class ResponseStubView(APIView):
         return get_regular_response(application=application, request=request, resource=resource)
 
     @staticmethod
-    def get(request: Request, **kwargs: Any) -> Response:
+    def get(request: Request, **kwargs: Any) -> RestFrameworkResponse:
         return ResponseStubView.make_response(request=request, **kwargs)
 
     @staticmethod
-    def post(request: Request, **kwargs: Any) -> Response:
+    def post(request: Request, **kwargs: Any) -> RestFrameworkResponse:
         return ResponseStubView.make_response(request=request, **kwargs)
 
     @staticmethod
-    def put(request: Request, **kwargs: Any) -> Response:
+    def put(request: Request, **kwargs: Any) -> RestFrameworkResponse:
         return ResponseStubView.make_response(request=request, **kwargs)
 
     @staticmethod
-    def patch(request: Request, **kwargs: Any) -> Response:
+    def patch(request: Request, **kwargs: Any) -> RestFrameworkResponse:
         return ResponseStubView.make_response(request=request, **kwargs)
 
     @staticmethod
-    def delete(request: Request, **kwargs: Any) -> Response:
+    def delete(request: Request, **kwargs: Any) -> RestFrameworkResponse:
         return ResponseStubView.make_response(request=request, **kwargs)
 
 
@@ -130,5 +131,5 @@ class HealthCheckView(APIView):
     renderer_classes = (JSONRenderer,)
 
     @staticmethod
-    def get(request: Request) -> Response:
-        return Response(status=status.HTTP_200_OK)
+    def get(request: Request) -> RestFrameworkResponse:
+        return RestFrameworkResponse(status=status.HTTP_200_OK)

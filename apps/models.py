@@ -229,7 +229,7 @@ class ResourceStub(BaseStubModel):
         verbose_name='Response Type',
     )
     slug = models.SlugField(verbose_name='Slug', allow_unicode=True, null=False)
-    tail = models.CharField(verbose_name='URL Tail', max_length=120, default='', blank=True)
+    tail = models.CharField(verbose_name='URL Tail', max_length=2048, default='', blank=True)
     application = models.ForeignKey(
         Application,
         on_delete=models.CASCADE,
