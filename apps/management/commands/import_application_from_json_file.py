@@ -1,12 +1,13 @@
 import io
 import json
 from json import decoder
-from typing import Any, Optional
+from typing import Any
+
+from django.core.management import BaseCommand, CommandParser
+from rest_framework.exceptions import ValidationError
 
 from apps.models import Application
 from apps.serializers import ApplicationSerializer
-from django.core.management import BaseCommand, CommandParser
-from rest_framework.exceptions import ValidationError
 
 
 class Command(BaseCommand):

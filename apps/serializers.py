@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import OrderedDict
+from typing import List, OrderedDict
 
 from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
@@ -183,6 +183,38 @@ class ApplicationSerializer(serializers.ModelSerializer):
         model = Application
         fields = ['description', 'name', 'slug', 'owner', 'responses']
 
+    @staticmethod
+    def save_owner(owner_data: OrderedDict) -> (User, bool):
+        """Save owner or get the existing one.
+        args:
+            owner_data: OrderedDict with owner data.
+        returns:
+            User object.
+            Flag describing if user was created. True if was created.
+        """
+        try:
+            owner, was_created = User.objects.get_or_create(**owner_data)
+        except IntegrityError as error:
+            raise ValidationError(error)
+        return owner, was_created
+
+    @staticmethod
+    def save_responses(responses_data: List[OrderedDict], application: Application) -> List[ResponseStub]:
+        """Save or update application's responses.
+        args:
+            responses_data:  OrderedDicts with responses data.
+            application: Application instance.
+        returns:
+            List of ResponseStubs.
+        """
+        responses_list = []
+        for response_data in responses_data:
+            serialized_response = ResponseStubSerializer(data=response_data)
+            serialized_response.is_valid()
+            response = serialized_response.save(application=application)
+            responses_list.append(response)
+        return responses_list
+
     def create(self, validated_data: OrderedDict) -> Application:
         """Application creation with all but logs nested fields.
         args:
@@ -191,27 +223,36 @@ class ApplicationSerializer(serializers.ModelSerializer):
             An Application object.
         """
         owner_data, owner = validated_data.pop('owner', None), None
-        responses_data, responses_list = validated_data.pop('responses', []), []
+        responses_data = validated_data.pop('responses', [])
 
-        try:
-            if owner_data:
-                owner, was_created = User.objects.get_or_create(**owner_data)
-        except IntegrityError as error:
-            raise ValidationError(error)
+        if owner_data:
+            owner, was_created = self.save_owner(owner_data)
 
         try:
             application = Application.objects.create(
                 **validated_data,
                 owner=owner
             )
-            for response_data in responses_data:
-                serialized_response = ResponseStubSerializer(data=response_data)
-                serialized_response.is_valid()
-                response = serialized_response.save(application=application)
-                responses_list.append(response)
+            responses_list = self.save_responses(responses_data, application)
 
             application.responses.set(responses_list)
         except IntegrityError as error:
             raise ValidationError(error)
 
         return application
+
+    def update(self, old_application: Application, validated_data: OrderedDict) -> Application:
+        """Update Application with all but logs nested fields.
+        args:
+            validated_data: Ordered dict object with application validated data.
+        returns:
+            An Application object.
+        """
+        owner_data, owner = validated_data.pop('owner', None), None
+        try:
+            if owner_data:
+                owner, was_created = User.objects.get_or_create(**owner_data)
+        except IntegrityError as error:
+            raise ValidationError(error)
+        old_application.save(**validated_data, owner=owner)
+        return old_application

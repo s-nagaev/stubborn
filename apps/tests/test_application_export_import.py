@@ -1,8 +1,9 @@
 import json
 
 import pytest
-from apps.models import Application
 from django.core.files.uploadedfile import SimpleUploadedFile
+
+from apps.models import Application
 
 
 @pytest.mark.django_db

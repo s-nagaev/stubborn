@@ -1,8 +1,8 @@
 import pytest
-from apps.tests.application_json_mock import JSON_data
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APIClient
 
+from apps.tests.application_json_mock import JSON_data
 from apps.tests.data import create_user
 
 
