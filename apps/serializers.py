@@ -1,7 +1,9 @@
+from datetime import datetime
 from typing import OrderedDict
 
 from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
+from pytz import utc
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -16,7 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=False, allow_blank=True)
     is_staff = serializers.BooleanField(required=True)
     is_active = serializers.BooleanField(required=True)
-    date_joined = serializers.DateTimeField(required=True)
+    date_joined = serializers.DateTimeField(required=False, default=datetime.utcnow().replace(tzinfo=utc))
 
     class Meta:
         model = User
