@@ -43,11 +43,11 @@ class Command(BaseCommand):
                             self.style.ERROR('Application with the given slug was not found. If you want to create a'
                                              'new application please remove the rewrite flag.')
                         )
-                    application = ApplicationSerializer(old_application, data=jsonyfied_file_data)
+                    serialized_application = ApplicationSerializer(old_application, data=jsonyfied_file_data)
                 else:
-                    application = ApplicationSerializer(data=jsonyfied_file_data)
-                application.is_valid(raise_exception=True)
-                application.save()
+                    serialized_application = ApplicationSerializer(data=jsonyfied_file_data)
+                serialized_application.is_valid(raise_exception=True)
+                application = serialized_application.save()
             except ValidationError as error:
                 self.stdout.write(
                     self.style.ERROR(f"Validation Errors: [{error}]")
