@@ -3,7 +3,8 @@ import json
 from json import decoder
 from typing import Any
 
-from django.core.management import BaseCommand, CommandParser
+from django.core.management import BaseCommand
+from django.core.management.base import CommandParser
 from rest_framework.exceptions import ValidationError
 
 from apps.models import Application
@@ -19,12 +20,12 @@ class Command(BaseCommand):
         args:
             parser: CommandParser
         """
-        parser.add_argument('file_path', type=str)
+        parser.add_argument('file_path', type=str, required=True)
         parser.add_argument('--rewrite', action='store_true', default=False)
 
     def handle(self, *args: Any, **options: Any) -> None:
         """Import an Application from the file."""
-        file_path = options.get('file_path')
+        file_path = options.get('file_path', '')
         rewrite_app = options.get('rewrite')
 
         with io.open(file_path) as file_object:

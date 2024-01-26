@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, OrderedDict
+from typing import List, OrderedDict, Tuple
 
 from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
@@ -184,7 +184,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
         fields = ['description', 'name', 'slug', 'owner', 'responses']
 
     @staticmethod
-    def save_owner(owner_data: OrderedDict) -> (User, bool):
+    def save_owner(owner_data: OrderedDict) -> Tuple[User, bool]:
         """Save owner or get the existing one.
         args:
             owner_data: OrderedDict with owner data.
@@ -254,5 +254,5 @@ class ApplicationSerializer(serializers.ModelSerializer):
                 owner, was_created = User.objects.get_or_create(**owner_data)
         except IntegrityError as error:
             raise ValidationError(error)
-        old_application.save(**validated_data, owner=owner)
+        # old_application.save(**validated_data, owner=owner)
         return old_application
