@@ -5,7 +5,6 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 from django.contrib import messages
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -158,8 +157,13 @@ class ExportToFile(APIView):
         jsonyfied_data = json.dumps(serialized_data.data, indent=settings.JSON_FILE_INDENT)
         file_name = f'{application.pk}-application-data.json'
 
-        response = HttpResponse(jsonyfied_data, content_type='application/json')
-        response['Content-Disposition'] = f'attachment; filename={file_name}'
+        response = Response(
+            jsonyfied_data,
+            content_type='application/json',
+            headers={
+                'Content-Disposition': f'attachment; filename={file_name}'
+            }
+        )
         return response
 
 
