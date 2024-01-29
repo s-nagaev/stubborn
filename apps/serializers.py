@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, OrderedDict, Tuple
+from typing import Any, List, Tuple
 
 from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
@@ -37,10 +37,10 @@ class RequestStubSerializer(serializers.ModelSerializer):
         model = RequestStub
         fields = ['name', 'query_params', 'uri', 'method', 'creator']
 
-    def create(self, validated_data: OrderedDict) -> RequestStub:
+    def create(self, validated_data: dict[str, Any]) -> RequestStub:
         """RequestStub creation.
         args:
-            validated_data: Ordered dict object with request stub validated data.
+            validated_data: Object with request stub validated data.
         returns:
             A RequestStub object.
         """
@@ -70,10 +70,10 @@ class ResourceHookSerializer(serializers.ModelSerializer):
         model = ResourceHook
         fields = ['action', 'lifecycle', 'order', 'timeout', 'request']
 
-    def create(self, validated_data: OrderedDict) -> ResourceHook:
+    def create(self, validated_data: dict[str, Any]) -> ResourceHook:
         """ResourceHook creation.
         args:
-            validated_data: Ordered dict object with resource hook validated data.
+            validated_data: Object with resource hook validated data.
         returns:
             A ResourceHook object.
         """
@@ -113,10 +113,10 @@ class ResourceStubSerializer(serializers.ModelSerializer):
         fields = ['description', 'method', 'proxy_destination_address', 'response_type', 'slug', 'tail', 'creator',
                   'is_enabled', 'inject_stubborn_headers', 'hooks']
 
-    def create(self, validated_data: OrderedDict) -> ResourceStub:
+    def create(self, validated_data: dict[str, Any]) -> ResourceStub:
         """ResourceStub creation.
         args:
-            validated_data: Ordered dict object with resource stub validated data.
+            validated_data: Object with resource stub validated data.
         returns:
             A ResourceStub object.
         """
@@ -148,10 +148,10 @@ class ResponseStubSerializer(serializers.ModelSerializer):
         model = ResponseStub
         fields = ['status_code', 'creator', 'resources']
 
-    def create(self, validated_data: OrderedDict) -> ResponseStub:
+    def create(self, validated_data: dict[str, Any]) -> ResponseStub:
         """ResponseStub creation.
         args:
-            validated_data: Ordered dict object with response stub validated data.
+            validated_data: Object with response stub validated data.
         returns:
             A ResponseStub object.
         """
@@ -184,10 +184,10 @@ class ApplicationSerializer(serializers.ModelSerializer):
         fields = ['description', 'name', 'slug', 'owner', 'responses']
 
     @staticmethod
-    def save_owner(owner_data: OrderedDict) -> Tuple[User, bool]:
+    def save_owner(owner_data: dict[str, Any]) -> Tuple[User, bool]:
         """Save owner or get the existing one.
         args:
-            owner_data: OrderedDict with owner data.
+            owner_data: Object with owner data.
         returns:
             User object.
             Flag describing if user was created. True if was created.
@@ -199,10 +199,10 @@ class ApplicationSerializer(serializers.ModelSerializer):
         return owner, was_created
 
     @staticmethod
-    def save_responses(responses_data: List[OrderedDict], application: Application) -> List[ResponseStub]:
+    def save_responses(responses_data: List[dict[str, Any]], application: Application) -> List[ResponseStub]:
         """Save or update application's responses.
         args:
-            responses_data:  OrderedDicts with responses data.
+            responses_data:  Object with responses data.
             application: Application instance.
         returns:
             List of ResponseStubs.
@@ -215,10 +215,10 @@ class ApplicationSerializer(serializers.ModelSerializer):
             responses_list.append(response)
         return responses_list
 
-    def create(self, validated_data: OrderedDict) -> Application:
+    def create(self, validated_data: dict[str, Any]) -> Application:
         """Application creation with all but logs nested fields.
         args:
-            validated_data: Ordered dict object with application validated data.
+            validated_data: Object with application validated data.
         returns:
             An Application object.
         """
@@ -241,10 +241,10 @@ class ApplicationSerializer(serializers.ModelSerializer):
 
         return application
 
-    def update(self, old_application: Application, validated_data: OrderedDict) -> Application:
+    def update(self, old_application: Application, validated_data: dict[str, Any]) -> Application:
         """Update Application with all but logs nested fields.
         args:
-            validated_data: Ordered dict object with application validated data.
+            validated_data: Object with application validated data.
         returns:
             An Application object.
         """
