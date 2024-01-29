@@ -119,6 +119,3 @@ CORS_ALLOW_ALL_ORIGINS = True
 DEMO_MODE = env.bool('DEMO_MODE', default=False)
 DEMO_USER_NAME = env.str('DEMO_USER_NAME', default='demo')
 DEMO_RECORDS_TTL = env.int('DEMO_RECORDS_TTL', default=3600)  # Demo DB records lifetime in seconds
-
-# EXPORT IN JSON
-JSON_FILE_INDENT = env.int('JSON_FILE_INDENT', default=4)

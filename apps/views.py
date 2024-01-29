@@ -154,11 +154,10 @@ class ExportToFile(APIView):
 
         application = get_object_or_404(models.Application, pk=id)
         serialized_data = ApplicationSerializer(application)
-        jsonyfied_data = json.dumps(serialized_data.data, indent=settings.JSON_FILE_INDENT)
         file_name = f'{application.pk}-application-data.json'
 
         response = Response(
-            jsonyfied_data,
+            data=serialized_data.data,
             content_type='application/json',
             headers={
                 'Content-Disposition': f'attachment; filename={file_name}'

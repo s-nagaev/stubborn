@@ -34,6 +34,9 @@
   </ul>
 {% endif %}{% endif %}
 {% endblock %}
+<div class="button-box box1">
+    <a href="{% url 'apps:export' id=original.pk %}" class="button">{% translate 'Export to file' %}</a>
+</div>
 {% if change %}
 <div class="menu">
 <div class="application-menu">
