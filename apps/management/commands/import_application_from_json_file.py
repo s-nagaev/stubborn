@@ -20,7 +20,7 @@ class Command(BaseCommand):
         args:
             parser: CommandParser
         """
-        parser.add_argument('file_path', type=str, required=True)
+        parser.add_argument('file_path', type=str)
         parser.add_argument('--rewrite', action='store_true', default=False)
 
     def handle(self, *args: Any, **options: Any) -> None:

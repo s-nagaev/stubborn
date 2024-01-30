@@ -1,5 +1,6 @@
-from typing import Any, List
+from typing import Any, List, Optional
 
+from django.db.models import QuerySet
 from django.db.utils import IntegrityError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -159,7 +160,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
         return responses_list
 
     def create(self, validated_data: dict[str, Any]) -> Application:
-        """Application creation with all but logs nested fields.
+        """Application creation with all but logs and users info nested fields.
         args:
             validated_data: Object with application validated data.
         returns:
@@ -179,12 +180,20 @@ class ApplicationSerializer(serializers.ModelSerializer):
 
         return application
 
-    def update(self, old_application: Application, validated_data: dict[str, Any]) -> Application:
-        """Update Application with all but logs nested fields.
+    def update(self, queryset: QuerySet[Application], validated_data: dict[str, Any]) -> Optional[Application]:
+        """Update Application with all but logs and users info nested fields.
         args:
+            queryset: QuerySet with an Application object.
             validated_data: Object with application validated data.
         returns:
             An Application object.
         """
-        # old_application.save(**validated_data, owner=owner)
-        return old_application
+        application = queryset.first()
+        responses_data = validated_data.pop('responses', [])
+
+        if application and responses_data:
+            application.responses.all().delete()
+            responses_list = self.save_responses(responses_data, application)
+            application.responses.set(responses_list)
+
+        return application
