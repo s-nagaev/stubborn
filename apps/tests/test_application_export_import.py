@@ -12,7 +12,7 @@ class TestApplicationImport:
         """Test Application import from a file with request."""
         assert Application.objects.count() == 0
 
-        response = api_client.post('/import/', {'file': mocked_application_file})
+        response = api_client.post('/srv/import/', {'file': mocked_application_file})
 
         assert response.status_code == 201
         application = Application.objects.first()
@@ -22,14 +22,11 @@ class TestApplicationImport:
         """Test Application import structure from a file with request."""
         assert Application.objects.count() == 0
 
-        response = api_client.post('/import/', {'file': mocked_application_file})
+        response = api_client.post('/srv/import/', {'file': mocked_application_file})
         assert response.status_code == 201
         application = Application.objects.first()
         assert application is not None
         assert application.slug == 'application_slug'
-
-        assert application.owner is not None
-        assert application.owner.username == 'owner_user_name'
 
         assert application.responses.count() == 1
         application_response = application.responses.first()
@@ -50,9 +47,6 @@ class TestApplicationImport:
         assert hook_request.name == 'hook_request_name'
         assert len(hook_request.query_params) == 2
 
-        assert hook_request.creator is not None
-        assert hook_request.creator.username == 'creator_name'
-
     @pytest.mark.parametrize('empty_field', ['name', 'slug'])
     def test_incorrect_import_with_request(self, api_client, empty_field):
         """Test Application import from a file with request."""
@@ -71,7 +65,7 @@ class TestApplicationImport:
             str.encode(json_data)
         )
 
-        response = api_client.post('/import/', {'file': mocked_application_file})
+        response = api_client.post('/srv/import/', {'file': mocked_application_file})
 
         assert response.status_code == 400
         application = Application.objects.first()

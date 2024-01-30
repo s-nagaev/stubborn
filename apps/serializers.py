@@ -1,28 +1,10 @@
-from datetime import datetime
-from typing import Any, List, Tuple
+from typing import Any, List
 
-from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
-from pytz import utc
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from apps.models import Application, RequestStub, ResourceHook, ResourceStub, ResponseStub
-
-
-class UserSerializer(serializers.ModelSerializer):
-    """User model serializer."""
-    username = serializers.CharField(required=False, allow_blank=True)
-    first_name = serializers.CharField(required=False, allow_blank=True)
-    last_name = serializers.CharField(required=False, allow_blank=True)
-    email = serializers.EmailField(required=False, allow_blank=True)
-    is_staff = serializers.BooleanField(required=True)
-    is_active = serializers.BooleanField(required=True)
-    date_joined = serializers.DateTimeField(required=False, default=datetime.utcnow().replace(tzinfo=utc))
-
-    class Meta:
-        model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'is_staff', 'is_active', 'date_joined']
 
 
 class RequestStubSerializer(serializers.ModelSerializer):
@@ -31,31 +13,10 @@ class RequestStubSerializer(serializers.ModelSerializer):
     query_params = serializers.JSONField(required=False, allow_null=False)
     uri = serializers.URLField(required=False, allow_null=False)
     method = serializers.CharField(required=False, allow_null=False)
-    creator = UserSerializer(required=False, allow_null=True)
 
     class Meta:
         model = RequestStub
-        fields = ['name', 'query_params', 'uri', 'method', 'creator']
-
-    def create(self, validated_data: dict[str, Any]) -> RequestStub:
-        """RequestStub creation.
-        args:
-            validated_data: Object with request stub validated data.
-        returns:
-            A RequestStub object.
-        """
-        try:
-            creator_data, creator = validated_data.pop('creator', None), None
-            if creator_data:
-                creator, was_created = User.objects.get_or_create(**creator_data)
-
-            request_stub = RequestStub.objects.create(
-                **validated_data,
-                creator=creator
-            )
-        except IntegrityError as error:
-            raise ValidationError(error)
-        return request_stub
+        fields = ['name', 'query_params', 'uri', 'method']
 
 
 class ResourceHookSerializer(serializers.ModelSerializer):
@@ -103,14 +64,13 @@ class ResourceStubSerializer(serializers.ModelSerializer):
     response_type = serializers.CharField(required=False, allow_null=False)
     slug = serializers.SlugField(required=False, allow_null=False)
     tail = serializers.CharField(required=False, allow_blank=True)
-    creator = UserSerializer(required=False, allow_null=True)
     is_enabled = serializers.BooleanField(required=False, allow_null=False)
     inject_stubborn_headers = serializers.BooleanField(required=False, allow_null=False)
     hooks = ResourceHookSerializer(many=True, required=False, allow_null=True)
 
     class Meta:
         model = ResourceStub
-        fields = ['description', 'method', 'proxy_destination_address', 'response_type', 'slug', 'tail', 'creator',
+        fields = ['description', 'method', 'proxy_destination_address', 'response_type', 'slug', 'tail',
                   'is_enabled', 'inject_stubborn_headers', 'hooks']
 
     def create(self, validated_data: dict[str, Any]) -> ResourceStub:
@@ -141,12 +101,11 @@ class ResourceStubSerializer(serializers.ModelSerializer):
 class ResponseStubSerializer(serializers.ModelSerializer):
     """ResponseStub model serializer."""
     status_code = serializers.IntegerField(required=True, allow_null=False)
-    creator = UserSerializer(required=False, allow_null=True)
     resources = ResourceStubSerializer(many=True, required=False, allow_null=True)
 
     class Meta:
         model = ResponseStub
-        fields = ['status_code', 'creator', 'resources']
+        fields = ['status_code', 'resources']
 
     def create(self, validated_data: dict[str, Any]) -> ResponseStub:
         """ResponseStub creation.
@@ -176,27 +135,11 @@ class ApplicationSerializer(serializers.ModelSerializer):
     description = serializers.CharField(required=False, allow_null=True)
     name = serializers.CharField(required=True, allow_null=False)
     slug = serializers.CharField(required=True, allow_null=False)
-    owner = UserSerializer(required=False, allow_null=True)
     responses = ResponseStubSerializer(many=True, required=False, allow_null=True)
 
     class Meta:
         model = Application
-        fields = ['description', 'name', 'slug', 'owner', 'responses']
-
-    @staticmethod
-    def save_owner(owner_data: dict[str, Any]) -> Tuple[User, bool]:
-        """Save owner or get the existing one.
-        args:
-            owner_data: Object with owner data.
-        returns:
-            User object.
-            Flag describing if user was created. True if was created.
-        """
-        try:
-            owner, was_created = User.objects.get_or_create(**owner_data)
-        except IntegrityError as error:
-            raise ValidationError(error)
-        return owner, was_created
+        fields = ['description', 'name', 'slug', 'responses']
 
     @staticmethod
     def save_responses(responses_data: List[dict[str, Any]], application: Application) -> List[ResponseStub]:
@@ -222,16 +165,11 @@ class ApplicationSerializer(serializers.ModelSerializer):
         returns:
             An Application object.
         """
-        owner_data, owner = validated_data.pop('owner', None), None
         responses_data = validated_data.pop('responses', [])
-
-        if owner_data:
-            owner, was_created = self.save_owner(owner_data)
 
         try:
             application = Application.objects.create(
                 **validated_data,
-                owner=owner
             )
             responses_list = self.save_responses(responses_data, application)
 
@@ -248,11 +186,5 @@ class ApplicationSerializer(serializers.ModelSerializer):
         returns:
             An Application object.
         """
-        owner_data, owner = validated_data.pop('owner', None), None
-        try:
-            if owner_data:
-                owner, was_created = User.objects.get_or_create(**owner_data)
-        except IntegrityError as error:
-            raise ValidationError(error)
         # old_application.save(**validated_data, owner=owner)
         return old_application
