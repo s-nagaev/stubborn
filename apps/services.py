@@ -18,6 +18,7 @@ from apps import enums, hooks, models
 from apps.enums import ResponseChoices
 from apps.models import Application, RequestLog, ResourceStub, ResponseStub
 from apps.renderers import SimpleTextRenderer
+from apps.serializers import ApplicationSerializer
 from apps.utils import add_stubborn_headers, clean_headers, log_response
 
 logger = logging.getLogger(__name__)
@@ -235,3 +236,34 @@ def turn_off_same_resource_stub(resource_stub: ResourceStub) -> Optional[Resourc
         same_resource.refresh_from_db()
         return same_resource
     return None
+
+
+def get_application_from_json_object(
+        jsonyfied_file_data: Dict,
+        update: Optional[bool] = False
+) -> Application:
+    """Create or update an existing Application from the given file object.
+
+    args:
+        file: File object.
+        update: If True first will try to find and update Application. If Application was not
+        found will create a new one.
+
+    returns:
+        Application object.
+    """
+    serialized_application = None
+
+    if update:
+        try:
+            old_application = Application.objects.get(slug=jsonyfied_file_data.get('slug'))
+            serialized_application = ApplicationSerializer(instance=old_application, data=jsonyfied_file_data)
+        except Application.DoesNotExist:
+            pass
+
+    if not serialized_application:
+        serialized_application = ApplicationSerializer(data=jsonyfied_file_data)
+
+    serialized_application.is_valid(raise_exception=True)
+    application = serialized_application.save()
+    return application

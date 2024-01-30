@@ -19,7 +19,12 @@ from apps import models
 from apps.enums import ResponseChoices
 from apps.renderers import SimpleTextRenderer, TextToXMLRenderer
 from apps.serializers import ApplicationSerializer
-from apps.services import get_regular_response, get_resource_from_request, get_third_party_service_response
+from apps.services import (
+    get_application_from_json_object,
+    get_regular_response,
+    get_resource_from_request,
+    get_third_party_service_response,
+)
 from apps.utils import log_request
 
 logger = logging.getLogger()
@@ -179,12 +184,18 @@ class ImportFromFile(APIView):
             201 status if successfully imported.
         """
         file_object = request.FILES.get('file')
+
+        if not file_object:
+            return Response(
+                data={'error': 'File object was not attached.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        update = bool(request.data.get('update'))
+
         file_data = file_object.file.read()
         decoded_file_data = file_data.decode("utf-8")
         jsonyfied_file_data = json.loads(decoded_file_data)
 
-        application = ApplicationSerializer(data=jsonyfied_file_data)
-        application.is_valid(raise_exception=True)
-        application.save()
+        get_application_from_json_object(jsonyfied_file_data, update)
 
         return Response(status=status.HTTP_201_CREATED)

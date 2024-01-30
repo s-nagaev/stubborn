@@ -1,6 +1,5 @@
 from typing import Any, List, Optional
 
-from django.db.models import QuerySet
 from django.db.utils import IntegrityError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -180,15 +179,14 @@ class ApplicationSerializer(serializers.ModelSerializer):
 
         return application
 
-    def update(self, queryset: QuerySet[Application], validated_data: dict[str, Any]) -> Optional[Application]:
+    def update(self, application: Application, validated_data: dict[str, Any]) -> Optional[Application]:
         """Update Application with all but logs and users info nested fields.
         args:
-            queryset: QuerySet with an Application object.
+            application: Application object.
             validated_data: Object with application validated data.
         returns:
             An Application object.
         """
-        application = queryset.first()
         responses_data = validated_data.pop('responses', [])
 
         if application and responses_data:
