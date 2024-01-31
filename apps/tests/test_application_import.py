@@ -126,11 +126,9 @@ class TestApplicationImport:
             'slug': application.slug
         }
         json_data = json.dumps(application_data)
+        encoded_data = str.encode(json_data)
 
-        mocked_application_file = SimpleUploadedFile(
-            'application_dump.json',
-            str.encode(json_data)
-        )
+        mocked_application_file = SimpleUploadedFile('application_dump.json', encoded_data)
 
         response = api_client.post('/srv/import/', {'file': mocked_application_file, 'update': 'true'})
 
@@ -151,11 +149,9 @@ class TestApplicationImport:
             'slug': application.slug
         }
         json_data = json.dumps(application_data)
+        encoded_data = str.encode(json_data)
 
-        mocked_application_file = SimpleUploadedFile(
-            'application_dump.json',
-            str.encode(json_data)
-        )
+        mocked_application_file = SimpleUploadedFile('application_dump.json', encoded_data)
 
         response = api_client.post('/srv/import/', {'file': mocked_application_file})
 
