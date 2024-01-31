@@ -194,4 +194,8 @@ class ApplicationSerializer(serializers.ModelSerializer):
             responses_list = self.save_responses(responses_data, application)
             application.responses.set(responses_list)
 
+        for field in validated_data.keys():
+            setattr(application, field, validated_data[field])
+        application.save()
+
         return application
