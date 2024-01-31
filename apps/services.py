@@ -238,14 +238,14 @@ def turn_off_same_resource_stub(resource_stub: ResourceStub) -> Optional[Resourc
     return None
 
 
-def get_application_from_json_object(
+def save_application_from_json_object(
         jsonyfied_file_data: Dict,
         update: Optional[bool] = False
 ) -> Application:
     """Create or update an existing Application from the given file object.
 
     args:
-        file: File object.
+        jsonyfied_file_data: File data.
         update: If True first will try to find and update Application. If Application was not
         found will create a new one.
 

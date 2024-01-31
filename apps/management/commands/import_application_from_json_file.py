@@ -6,7 +6,7 @@ from django.core.management import BaseCommand
 from django.core.management.base import CommandParser
 from rest_framework.exceptions import ValidationError
 
-from apps.services import get_application_from_json_object
+from apps.services import save_application_from_json_object
 
 
 class Command(BaseCommand):
@@ -30,7 +30,7 @@ class Command(BaseCommand):
             try:
                 file_data = file_object.read()
                 jsonyfied_file_data = json.loads(file_data)
-                application = get_application_from_json_object(jsonyfied_file_data, update)
+                application = save_application_from_json_object(jsonyfied_file_data, update)
             except ValidationError as error:
                 self.stdout.write(
                     self.style.ERROR(f"Validation Errors: [{error}]")

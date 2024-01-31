@@ -124,7 +124,3 @@ class TestApplicationImport:
         response = api_client.post('/srv/import/', {'file': mocked_application_file})
 
         assert response.status_code == 400
-
-
-class TestApplicationExport:
-    pass

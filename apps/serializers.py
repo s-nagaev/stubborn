@@ -143,7 +143,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def save_responses(responses_data: List[dict[str, Any]], application: Application) -> List[ResponseStub]:
-        """Save or update application's responses.
+        """Save application's responses.
         args:
             responses_data:  Object with responses data.
             application: Application instance.

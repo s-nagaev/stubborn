@@ -20,10 +20,10 @@ from apps.enums import ResponseChoices
 from apps.renderers import SimpleTextRenderer, TextToXMLRenderer
 from apps.serializers import ApplicationSerializer
 from apps.services import (
-    get_application_from_json_object,
     get_regular_response,
     get_resource_from_request,
     get_third_party_service_response,
+    save_application_from_json_object,
 )
 from apps.utils import log_request
 
@@ -196,6 +196,6 @@ class ImportFromFile(APIView):
         decoded_file_data = file_data.decode("utf-8")
         jsonyfied_file_data = json.loads(decoded_file_data)
 
-        get_application_from_json_object(jsonyfied_file_data, update)
+        save_application_from_json_object(jsonyfied_file_data, update)
 
         return Response(status=status.HTTP_201_CREATED)
