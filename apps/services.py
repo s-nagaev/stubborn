@@ -258,7 +258,6 @@ def save_application_from_json_object(
         try:
             old_application = Application.objects.get(slug=jsonyfied_file_data.get('slug'))
             serialized_application = ApplicationSerializer(instance=old_application, data=jsonyfied_file_data)
-            print('!'*20, jsonyfied_file_data)
         except Application.DoesNotExist:
             pass
 
@@ -267,5 +266,4 @@ def save_application_from_json_object(
 
     serialized_application.is_valid(raise_exception=True)
     application = serialized_application.save()
-    print(application.description)
     return application
