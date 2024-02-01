@@ -3,6 +3,7 @@ import json
 from uuid import uuid4
 
 import pytest
+
 from apps.tests.data import create_application
 
 

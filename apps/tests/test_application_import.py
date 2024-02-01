@@ -1,13 +1,13 @@
 import json
 
 import pytest
-from apps.services import save_application_from_json_object
-from apps.tests.application_json_mock import JSON_data
 from django.core.files.uploadedfile import SimpleUploadedFile
+from rest_framework.exceptions import ValidationError
 
 from apps.models import Application
+from apps.services import save_application_from_json_object
+from apps.tests.application_json_mock import JSON_data
 from apps.tests.data import create_application
-from rest_framework.exceptions import ValidationError
 
 
 @pytest.mark.django_db
