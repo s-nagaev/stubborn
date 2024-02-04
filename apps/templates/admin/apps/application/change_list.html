@@ -4,25 +4,28 @@
 
 {% block object-tools-items %}
   {% if has_add_permission %}
-  <li class="actions">
-    {% url cl.opts|admin_urlname:'add' as add_url %}
-    <a href="#" class="link button" onclick="document.getElementById('file-btn').click()">
-        {% translate 'Import from file' %}
-    </a>
-    <a href="{% add_with_filter add_url %}" class="addlink button">
-      {% blocktranslate with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktranslate %}
-    </a>
-    <form class="hidden" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input id="file-btn" type="file" name="file"/>
-<!--        <input id="upload-btn" type="submit" value="Upload" />-->
-    </form>
-  </li>
+  <ul>
+      <li class="actions">
+        {% url cl.opts|admin_urlname:'add' as add_url %}
+        <a href="#" class="link button" onclick="document.getElementById('file-btn').click()">
+            {% translate 'Import from file' %}
+        </a>
+        <a href="{% add_with_filter add_url %}" class="addlink button">
+          {% blocktranslate with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktranslate %}
+        </a>
+        <form class="hidden" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input id="file-btn" type="file" name="file"/>
+        </form>
+      </li>
+  </ul>
   {% endif %}
 {% if request.get_full_path|application_id_by_url %}
-<li>
-    <a class="viewsitelink" href="{% url 'admin:apps_application_change' request.get_full_path|application_id_by_url %}"> {% translate 'Back to Application' %}</a>
-</li>
+<ul>
+    <li>
+        <a class="viewsitelink" href="{% url 'admin:apps_application_change' request.get_full_path|application_id_by_url %}"> {% translate 'Back to Application' %}</a>
+    </li>
+</ul>
 {% endif %}
 <script src="{% static 'admin/js/application/change_list.js' %}"></script>
 {% endblock %}

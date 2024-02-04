@@ -9,6 +9,8 @@ from apps.services import save_application_from_json_object
 from apps.tests.application_json_mock import JSON_data
 from apps.tests.data import create_application
 
+IMPORT_URL = '/srv/import/'
+
 
 @pytest.mark.django_db
 class TestApplicationImport:
@@ -91,7 +93,7 @@ class TestApplicationImport:
         """Test Application import from a file with request."""
         assert Application.objects.count() == 0
 
-        response = api_client.post('/srv/import/', {'file': mocked_application_file})
+        response = api_client.post(IMPORT_URL, {'file': mocked_application_file})
 
         assert response.status_code == 201
         application = Application.objects.first()
@@ -101,7 +103,7 @@ class TestApplicationImport:
         """Test Application import without file with request."""
         assert Application.objects.count() == 0
 
-        response = api_client.post('/srv/import/')
+        response = api_client.post(IMPORT_URL)
 
         assert response.status_code == 400
         response_json = response.json()
@@ -112,7 +114,7 @@ class TestApplicationImport:
         """Test already existing Application import from a file with request for updating."""
         assert Application.objects.count() == 0
 
-        response = api_client.post('/srv/import/', {'file': mocked_application_file})
+        response = api_client.post(IMPORT_URL, {'file': mocked_application_file})
         assert response.status_code == 201
         application = Application.objects.first()
 
@@ -130,7 +132,7 @@ class TestApplicationImport:
 
         mocked_application_file = SimpleUploadedFile('application_dump.json', encoded_data)
 
-        response = api_client.post('/srv/import/', {'file': mocked_application_file, 'update': 'true'})
+        response = api_client.post(IMPORT_URL, {'file': mocked_application_file, 'update': 'true'})
 
         assert response.status_code == 201
         assert Application.objects.count() == 1
@@ -153,7 +155,7 @@ class TestApplicationImport:
 
         mocked_application_file = SimpleUploadedFile('application_dump.json', encoded_data)
 
-        response = api_client.post('/srv/import/', {'file': mocked_application_file})
+        response = api_client.post(IMPORT_URL, {'file': mocked_application_file})
 
         assert response.status_code == 400
         response_json = response.json()

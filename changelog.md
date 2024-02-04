@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0] - 2024-02-04
+
+### Added
+
+- Ability to import/export applications from/into a JSON file.
+
 ## [1.7.0] - 2023-11-29
 
 ### Changed

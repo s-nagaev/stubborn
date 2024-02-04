@@ -27,7 +27,7 @@ window.addEventListener("load", () => {
                    },
                    processData: false,
                    contentType: false,
-                   success : (data) => {
+                   success : () => {
                        location.reload();
                    },
                    error : (data) => {
