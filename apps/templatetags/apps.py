@@ -1,4 +1,3 @@
-from typing import Optional, Union
 from urllib.parse import parse_qs, parse_qsl, urlencode, urlparse, urlunparse
 
 from django import template
@@ -10,7 +9,7 @@ register = template.Library()
 
 
 @register.filter
-def application_id_by_url(full_url: str) -> Optional[str]:
+def application_id_by_url(full_url: str) -> str | None:
     application_filter_query = 'application'
     parsed = urlparse(full_url)
     query_params = parse_qs(parsed.query)
@@ -20,7 +19,7 @@ def application_id_by_url(full_url: str) -> Optional[str]:
 
 
 @register.filter
-def application_name_by_id(application_id: Optional[Union[int, str]]) -> Optional[str]:
+def application_name_by_id(application_id: int | str | None) -> str | None:
     if not application_id:
         return None
     app = Application.objects.get(pk=application_id)

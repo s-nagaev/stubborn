@@ -4,7 +4,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import QuerySet
 
 from apps.models import Application, ResourceStub
-from apps.services import turn_off_same_resource_stub
+from apps.services import turn_off_same_resource
 
 
 @admin.action(description='Enable / Disable')
@@ -14,7 +14,7 @@ def change_satus(model_admin: ModelAdmin, request: WSGIRequest, queryset: QueryS
         obj.is_enabled = not obj.is_enabled
 
         if obj.is_enabled:
-            turn_off_same_resource_stub(resource_stub=obj)
+            turn_off_same_resource(resource=obj)
         obj.save()
 
 

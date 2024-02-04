@@ -1,5 +1,5 @@
 import copy
-from typing import TYPE_CHECKING, Any, Dict, Generic, Optional, Sequence, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Generic, Sequence, TypeVar, cast
 
 from django import forms
 from django.contrib.admin import ModelAdmin
@@ -29,7 +29,7 @@ _ModelT = TypeVar('_ModelT', bound=Model)
 class HideFromAdminIndexMixin(Generic[_ModelT]):
     """Mixin for hiding registered ModelAdmin instance from the admin index."""
 
-    def get_model_perms(self, request: HttpRequest) -> Dict[str, bool]:
+    def get_model_perms(self, request: HttpRequest) -> dict[str, bool]:
         """Return a dict of all perms for this model.
 
         Return empty dict thus hiding the model from admin index.
@@ -43,7 +43,7 @@ class HideFromAdminIndexMixin(Generic[_ModelT]):
 class DenyCreateMixin:
     """Mixin for blocking the creation of a new record through the admin site."""
 
-    def has_add_permission(self, request: HttpRequest, obj: Optional[Model] = None) -> bool:
+    def has_add_permission(self, request: HttpRequest, obj: Model = None) -> bool:
         """Check user "add" permission.
 
         Args:
@@ -59,7 +59,7 @@ class DenyCreateMixin:
 class DenyUpdateMixin:
     """Mixin for blocking the update of an existent record through the admin site."""
 
-    def has_change_permission(self, request: HttpRequest, obj: Optional[Model] = None) -> bool:
+    def has_change_permission(self, request: HttpRequest, obj: Model = None) -> bool:
         """Check user "change" permission.
 
         Args:
@@ -75,7 +75,7 @@ class DenyUpdateMixin:
 class DenyDeleteMixin:
     """Mixin for blocking the deletion of an existent record through the admin site."""
 
-    def has_delete_permission(self, request: HttpRequest, obj: Optional[Model] = None) -> bool:
+    def has_delete_permission(self, request: HttpRequest, obj: Model = None) -> bool:
         """Check user "delete" permission.
 
         Args:
@@ -146,7 +146,7 @@ class RelatedCUDManagerMixin(ModelAdminTypeClass):
         return form
 
     def get_form(
-        self, request: WSGIRequest, obj: Optional[_ModelT] = None, change: bool = False, **kwargs: Any
+        self, request: WSGIRequest, obj: _ModelT = None, change: bool = False, **kwargs: Any
     ) -> forms.ModelForm:
         """Remove CUD icons for related object fields in ModelAdmin.
 
@@ -162,7 +162,7 @@ class RelatedCUDManagerMixin(ModelAdminTypeClass):
         self._remove_cud_links(form)
         return form
 
-    def get_formset(self, request: WSGIRequest, obj: Optional[_ModelT] = None, **kwargs: Any) -> BaseModelFormSet:
+    def get_formset(self, request: WSGIRequest, obj: _ModelT = None, **kwargs: Any) -> BaseModelFormSet:
         """Remove CUD icons for related object fields in InlineModelAdmin.
 
         Args:
@@ -191,7 +191,7 @@ class SaveByCurrentUserMixin(ModelAdmin):
 
 
 class AddApplicationRelatedObjectMixin(ModelAdminTypeClass):
-    def formfield_for_dbfield(self, db_field: Field, request: Optional[HttpRequest], **kwargs: Any) -> Optional[Field]:
+    def formfield_for_dbfield(self, db_field: Field, request: HttpRequest | None, **kwargs: Any) -> Field | None:
         """Hook for specifying the form Field instance for a given database Field instance.
 
         If kwargs are given, they're passed to the form Field's constructor.

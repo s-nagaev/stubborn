@@ -90,7 +90,7 @@ class AbstractHTTPObject(models.Model):
 class Application(BaseStubModel):
     description = models.TextField(verbose_name='Description', null=True, blank=True)
     name = models.CharField(max_length=50, verbose_name='Name', null=False)
-    slug = models.SlugField(verbose_name='Slug', allow_unicode=True, null=False, unique=True)
+    slug = models.SlugField(verbose_name='Slug', allow_unicode=True, null=False, unique=False)
     owner = models.ForeignKey(
         User,
         verbose_name='Application Owner',
@@ -99,10 +99,16 @@ class Application(BaseStubModel):
         on_delete=models.CASCADE,
         related_name='applications',
     )
+    is_enabled = models.BooleanField(verbose_name='Enabled', default=True, null=False)
 
     class Meta:
         verbose_name = 'application'
         verbose_name_plural = 'applications'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['slug', 'name'], condition=models.Q(is_enabled=True), name='app_unique_enabled_slug'
+            )
+        ]
 
     def __str__(self) -> str:
         """Object's string representation.
@@ -248,8 +254,9 @@ class ResourceStub(BaseStubModel):
         verbose_name_plural = 'resources'
         constraints = [
             models.UniqueConstraint(
-                fields=['slug', 'method', 'tail', 'application'], condition=models.Q(is_enabled=True),
-                name='unique_enabled_slug'
+                fields=['slug', 'method', 'tail', 'application'],
+                condition=models.Q(is_enabled=True),
+                name='unique_enabled_slug',
             )
         ]
 

@@ -2,7 +2,7 @@ import json
 import logging
 import os
 from json import JSONDecodeError
-from typing import Any, Dict, Optional, cast
+from typing import Any, Optional, TypeVar, cast
 
 import requests
 from django.conf import settings
@@ -23,6 +23,8 @@ from apps.utils import add_stubborn_headers, clean_headers, log_response
 
 logger = logging.getLogger(__name__)
 
+StubbornSwitchableResource = TypeVar('StubbornSwitchableResource')
+
 
 def request_log_create(
     application: Application,
@@ -31,7 +33,7 @@ def request_log_create(
     response_stub: ResponseStub = None,
     response_status_code: int = None,
     response_body: str = None,
-    response_headers: Dict = None,
+    response_headers: dict = None,
     proxied: bool = False,
     destination_url: str = None,
 ) -> RequestLog:
@@ -123,7 +125,7 @@ def get_regular_response(application: Application, request: Request, resource: R
 
 
 def get_third_party_service_response(
-    application: Application, request: Request, resource: ResourceStub, tail: Optional[str] = None
+    application: Application, request: Request, resource: ResourceStub, tail: str = None
 ) -> RestResponse:
     if tail and resource.response_type == ResponseChoices.PROXY_CURRENT:
         raise Http404()
@@ -182,7 +184,7 @@ def get_third_party_service_response(
             hooks.after_response(resource.pk)
 
 
-def get_resource_from_request(request: Request, kwargs: Dict[Any, Any]) -> ResourceStub:
+def get_resource_from_request(request: Request, kwargs: dict[Any, Any]) -> ResourceStub:
     slug = kwargs.get('resource_slug', '')
     tail = kwargs.get('tail', '')
 
@@ -207,12 +209,12 @@ def get_resource_from_request(request: Request, kwargs: Dict[Any, Any]) -> Resou
     raise Http404('No stub resource found.')
 
 
-def get_same_enabled_resource_stub(resource_stub_reference: ResourceStub) -> Optional[ResourceStub]:
+def get_same_enabled_resource_stub(reference_obj: ResourceStub) -> ResourceStub | None:
     same_stubs = ResourceStub.objects.filter(
-        application=resource_stub_reference.application,
-        slug=resource_stub_reference.slug,
-        tail=resource_stub_reference.tail,
-        method=resource_stub_reference.method,
+        application=reference_obj.application,
+        slug=reference_obj.slug,
+        tail=reference_obj.tail,
+        method=reference_obj.method,
         is_enabled=True,
     )
     if same_stubs.exists():
@@ -220,26 +222,47 @@ def get_same_enabled_resource_stub(resource_stub_reference: ResourceStub) -> Opt
     return None
 
 
-def turn_off_same_resource_stub(resource_stub: ResourceStub) -> Optional[ResourceStub]:
-    """Fsind & disable the same resource stub as provided.
-
-
-    Args:
-        resource_stub (ResourceStub): ResourceStub instance.
-
-    Returns:
-        Disabled ResourceStub instance if it exists, None otherwise.
-    """
-    if same_resource := get_same_enabled_resource_stub(resource_stub_reference=resource_stub):
-        same_resource.is_enabled = False
-        same_resource.save()
-        same_resource.refresh_from_db()
-        return same_resource
+def get_same_enabled_application(reference_obj: Application) -> Application | None:
+    same_stubs = Application.objects.filter(
+        slug=reference_obj.slug,
+        name=reference_obj.name,
+        is_enabled=True,
+    )
+    if same_stubs.exists():
+        return same_stubs.last()
     return None
 
 
+def turn_off_same_resource(resource: Application | ResourceStub) -> Application | ResourceStub | None:
+    """Find & disable the same resource stub or application as provided.
+
+    Args:
+        resource: Application or ResourceStub instance.
+
+    Returns:
+        Disabled Application or ResourceStub instance if it exists, None otherwise.
+    """
+    same_resource: Application | ResourceStub | None
+    if isinstance(resource, Application):
+        same_resource = get_same_enabled_application(reference_obj=resource)
+    elif isinstance(resource, ResourceStub):
+        same_resource = get_same_enabled_resource_stub(reference_obj=resource)
+    else:
+        raise ValueError(
+            f"Wrong resource provided: {type(resource)}. Only Application or ResourceStub instance allowed."
+        )
+
+    if not same_resource:
+        return None
+
+    same_resource.is_enabled = False
+    same_resource.save()
+    same_resource.refresh_from_db()
+    return same_resource
+
+
 def save_application_from_json_object(
-        jsonyfied_file_data: Dict,
+        jsonyfied_file_data: dict,
         update: Optional[bool] = False
 ) -> Application:
     """Create or update an existing Application from the given file object.

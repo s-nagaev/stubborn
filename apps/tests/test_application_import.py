@@ -54,7 +54,7 @@ class TestApplicationImport:
         jsonyfied_application['description'] = 'new description'
         with pytest.raises(ValidationError) as error:
             save_application_from_json_object(jsonyfied_application)
-        assert '(application_slug) already exists' in str(error.value)
+        assert '(application_slug, asdasd) already exists' in str(error.value)
 
     def test_update_application_from_json_object(self, api_client):
         """Test application updating from a JSON object."""
@@ -140,7 +140,7 @@ class TestApplicationImport:
 
     def test_already_existing_application_import_with_request(self, api_client):
         """Test already existing Application import from a file with request."""
-        application = create_application(slug='test-slug')
+        application = create_application(slug='test-slug', name='test_name')
         assert Application.objects.count() == 1
 
         application_data = {
@@ -158,4 +158,4 @@ class TestApplicationImport:
         assert response.status_code == 400
         response_json = response.json()
         assert response_json is not None
-        assert '(slug)=(test-slug) already exists.' in response_json[0]
+        assert '(slug, name)=(test-slug, test_name) already exists.' in response_json[0]

@@ -5,7 +5,7 @@ import threading
 from datetime import datetime
 from functools import wraps
 from json import JSONDecodeError
-from typing import Any, Dict, Optional, Union
+from typing import Any
 from uuid import UUID
 from xml.dom import minidom
 
@@ -40,7 +40,7 @@ def is_json(string: str) -> bool:
     return True
 
 
-def str_to_dom_document(string: str) -> Optional[minidom.Document]:
+def str_to_dom_document(string: str) -> minidom.Document | None:
     """Convert xml-friendly string to xml minidom Document.
 
     Args:
@@ -55,7 +55,7 @@ def str_to_dom_document(string: str) -> Optional[minidom.Document]:
         return None
 
 
-def prettify_json_html(data: Union[str, Dict[str, Any]]) -> str:
+def prettify_json_html(data: str | dict[str, Any]) -> str:
     """Pretty JSON data for admin fields.
 
     Args:
@@ -108,7 +108,7 @@ def prettify_html_html(html_document: str) -> str:
     return xml_prettified + style
 
 
-def prettify_data_to_html(data: Union[str, Dict[str, Any]]) -> str:
+def prettify_data_to_html(data: str | dict[str, Any]) -> str:
     """Pretty data for admin fields.
 
     Generates HTML data with styles for a pretty display of the XML or JSON data.
@@ -129,7 +129,7 @@ def prettify_data_to_html(data: Union[str, Dict[str, Any]]) -> str:
     return mark_safe(data)
 
 
-def clean_headers(headers: Dict[str, str]) -> Dict[str, str]:
+def clean_headers(headers: dict[str, str]) -> dict[str, str]:
     """Remove unwilling headers: hop-by-hop headers and some client- and server-side specific headers.
 
     Hop-by-hop headers are meaningful only for a single transport-level connection,
@@ -215,8 +215,8 @@ def log_response(
     resource_type: str,
     status_code: int,
     request_log_id: UUID,
-    body: Union[dict, str] = 'empty',
-    headers: Union[dict, str] = 'empty',
+    body: dict[str, Any] | str = 'empty',
+    headers: dict[str, str] | str = 'empty',
 ) -> None:
     """Log the returning response data.
 
@@ -251,7 +251,7 @@ def end_of_the_day_today() -> datetime:
     )
 
 
-def add_stubborn_headers(initial_headers: dict[str, str], log_id: Union[str, UUID]) -> dict[str, str]:
+def add_stubborn_headers(initial_headers: dict[str, str], log_id: str | UUID) -> dict[str, str]:
     stubborn_headers = {
         "Stubborn-Log-Id": str(log_id),
         "Stubborn-Log-Url": os.path.join(settings.DOMAIN_DISPLAY, "admin/apps/requestlog", str(log_id)),
