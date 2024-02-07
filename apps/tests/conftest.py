@@ -24,7 +24,4 @@ def api_client_user() -> APIClient:
 
 @pytest.fixture
 def mocked_application_file() -> SimpleUploadedFile:
-    return SimpleUploadedFile(
-        'application_dump.json',
-        str.encode(JSON_data)
-    )
+    return SimpleUploadedFile('application_dump.json', str.encode(JSON_data))

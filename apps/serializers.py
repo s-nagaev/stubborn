@@ -9,6 +9,7 @@ from apps.models import Application, RequestStub, ResourceHook, ResourceStub, Re
 
 class RequestStubSerializer(serializers.ModelSerializer):
     """RequestStub model serializer."""
+
     name = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     query_params = serializers.JSONField(required=False, allow_null=False)
     uri = serializers.URLField(required=False, allow_null=False)
@@ -21,6 +22,7 @@ class RequestStubSerializer(serializers.ModelSerializer):
 
 class ResourceHookSerializer(serializers.ModelSerializer):
     """ResourceHook model serializer."""
+
     action = serializers.CharField(required=False, allow_null=False)
     lifecycle = serializers.CharField(required=False, allow_null=False)
     order = serializers.IntegerField(required=False, allow_null=False)
@@ -48,10 +50,7 @@ class ResourceHookSerializer(serializers.ModelSerializer):
                 serialized_request.is_valid()
                 request_object = serialized_request.save(application=application)
 
-            resource_hook = ResourceHook.objects.create(
-                **validated_data,
-                request=request_object
-            )
+            resource_hook = ResourceHook.objects.create(**validated_data, request=request_object)
         except IntegrityError as error:
             raise ValidationError(error)
         return resource_hook
@@ -59,6 +58,7 @@ class ResourceHookSerializer(serializers.ModelSerializer):
 
 class ResourceStubSerializer(serializers.ModelSerializer):
     """ResourceStub model serializer."""
+
     description = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     method = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     proxy_destination_address = serializers.URLField(required=False, allow_blank=True, allow_null=True)
@@ -71,8 +71,17 @@ class ResourceStubSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ResourceStub
-        fields = ['description', 'method', 'proxy_destination_address', 'response_type', 'slug', 'tail',
-                  'is_enabled', 'inject_stubborn_headers', 'hooks']
+        fields = [
+            'description',
+            'method',
+            'proxy_destination_address',
+            'response_type',
+            'slug',
+            'tail',
+            'is_enabled',
+            'inject_stubborn_headers',
+            'hooks',
+        ]
 
     def create(self, validated_data: dict[str, Any]) -> ResourceStub:
         """ResourceStub creation.
@@ -90,8 +99,7 @@ class ResourceStubSerializer(serializers.ModelSerializer):
             for hook_data in hooks_data:
                 serialized_hook = ResourceHookSerializer(data=hook_data)
                 serialized_hook.is_valid()
-                hook = serialized_hook.save(resource=resource,
-                                            application=resource.application)
+                hook = serialized_hook.save(resource=resource, application=resource.application)
                 hooks_list.append(hook)
 
             resource.hooks.set(hooks_list)
@@ -102,6 +110,7 @@ class ResourceStubSerializer(serializers.ModelSerializer):
 
 class ResponseStubSerializer(serializers.ModelSerializer):
     """ResponseStub model serializer."""
+
     status_code = serializers.IntegerField(required=True, allow_null=False)
     resources = ResourceStubSerializer(many=True, required=False, allow_null=True)
 
@@ -135,6 +144,7 @@ class ResponseStubSerializer(serializers.ModelSerializer):
 
 class ApplicationSerializer(serializers.ModelSerializer):
     """Application model serializer."""
+
     description = serializers.CharField(required=False, allow_null=True)
     name = serializers.CharField(required=True, allow_null=False)
     slug = serializers.CharField(required=True, allow_null=False)

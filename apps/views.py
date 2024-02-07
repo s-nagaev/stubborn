@@ -143,6 +143,7 @@ class HealthCheckView(APIView):
 
 class ExportToFile(APIView):
     """Export Application as a JSON file."""
+
     renderer_classes = (JSONRenderer,)
 
     @staticmethod
@@ -163,15 +164,14 @@ class ExportToFile(APIView):
         response = Response(
             data=serialized_data.data,
             content_type='application/json',
-            headers={
-                'Content-Disposition': f'attachment; filename={file_name}'
-            }
+            headers={'Content-Disposition': f'attachment; filename={file_name}'},
         )
         return response
 
 
 class ImportFromFile(APIView):
     """Import Application from a JSON file."""
+
     renderer_classes = (JSONRenderer,)
 
     @staticmethod
@@ -186,10 +186,7 @@ class ImportFromFile(APIView):
         file_object = request.FILES.get('file')
 
         if not file_object:
-            return Response(
-                data={'error': 'File object was not attached.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response(data={'error': 'File object was not attached.'}, status=status.HTTP_400_BAD_REQUEST)
         update = bool(request.data.get('update'))
 
         file_data = file_object.file.read()

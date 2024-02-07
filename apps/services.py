@@ -261,10 +261,7 @@ def turn_off_same_resource(resource: Application | ResourceStub) -> Application 
     return same_resource
 
 
-def save_application_from_json_object(
-        jsonyfied_file_data: dict[str, Any],
-        update: bool | None = False
-) -> Application:
+def save_application_from_json_object(jsonyfied_file_data: dict[str, Any], update: bool | None = False) -> Application:
     """Create or update an existing Application from the given file object.
 
     args:

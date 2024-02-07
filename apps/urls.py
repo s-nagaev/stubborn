@@ -13,5 +13,4 @@ urlpatterns = [
         ResponseStubView.as_view(),
         name='full-proxy-url',
     ),
-
 ]

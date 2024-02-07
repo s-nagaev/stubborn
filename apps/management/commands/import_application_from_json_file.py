@@ -32,11 +32,7 @@ class Command(BaseCommand):
                 jsonyfied_file_data = json.loads(file_data)
                 application = save_application_from_json_object(jsonyfied_file_data, update)
             except ValidationError as error:
-                self.stdout.write(
-                    self.style.ERROR(f"Validation Errors: [{error}]")
-                )
+                self.stdout.write(self.style.ERROR(f"Validation Errors: [{error}]"))
                 return
 
-        self.stdout.write(
-            self.style.SUCCESS(f"Successfully imported Application. id - {application.id}")
-        )
+        self.stdout.write(self.style.SUCCESS(f"Successfully imported Application. id - {application.id}"))

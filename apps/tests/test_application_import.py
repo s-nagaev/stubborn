@@ -78,11 +78,7 @@ class TestApplicationImport:
         """Test incorrect fields Application saving from a JSON object."""
         assert Application.objects.count() == 0
 
-        jsonyfied_application = {
-            'description': 'asdasdasd',
-            'name': 'asdasd',
-            'slug': 'slug'
-        }
+        jsonyfied_application = {'description': 'asdasdasd', 'name': 'asdasd', 'slug': 'slug'}
         jsonyfied_application.pop(empty_field)
 
         with pytest.raises(ValidationError) as error:
@@ -125,7 +121,7 @@ class TestApplicationImport:
         application_data = {
             'description': f"{application.description}123123",
             'name': f"{application.name}asdasd",
-            'slug': application.slug
+            'slug': application.slug,
         }
         json_data = json.dumps(application_data)
         encoded_data = str.encode(json_data)
@@ -145,11 +141,7 @@ class TestApplicationImport:
         application = create_application(slug='test-slug', name='test_name')
         assert Application.objects.count() == 1
 
-        application_data = {
-            'description': application.description,
-            'name': application.name,
-            'slug': application.slug
-        }
+        application_data = {'description': application.description, 'name': application.name, 'slug': application.slug}
         json_data = json.dumps(application_data)
         encoded_data = str.encode(json_data)
 
