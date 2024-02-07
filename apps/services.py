@@ -2,7 +2,7 @@ import json
 import logging
 import os
 from json import JSONDecodeError
-from typing import Any, Optional, TypeVar, cast
+from typing import Any, TypeVar, cast
 
 import requests
 from django.conf import settings

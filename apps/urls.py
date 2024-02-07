@@ -4,7 +4,7 @@ from apps.views import ExportToFile, HealthCheckView, ImportFromFile, ResponseSt
 
 urlpatterns = [
     path('log/<uuid:log_id>/stub/', StubRequestView.as_view(), name='stub_it'),
-    path('srv/export/<id>/', ExportToFile.as_view(), name='export'),
+    path('srv/export/<application_id>/', ExportToFile.as_view(), name='export'),
     path('srv/import/', ImportFromFile.as_view(), name='import'),
     re_path(r'^srv/alive/?$', HealthCheckView.as_view(), name='alive'),
     re_path(r'^(?P<app_slug>[\w-]+)/?(?P<resource_slug>[\w-]+)?/?$', ResponseStubView.as_view(), name='stub-url'),

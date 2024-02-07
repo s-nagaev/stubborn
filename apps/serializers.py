@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from django.db.utils import IntegrityError
 from rest_framework import serializers
@@ -39,17 +39,18 @@ class ResourceHookSerializer(serializers.ModelSerializer):
             A ResourceHook object.
         """
         try:
-            request_data, request = validated_data.pop('request', None), None
+            request_data = validated_data.pop('request', None)
+            request_object = None
             application = validated_data.pop('application', None)
 
             if request_data:
                 serialized_request = RequestStubSerializer(data=request_data)
                 serialized_request.is_valid()
-                request = serialized_request.save(application=application)
+                request_object = serialized_request.save(application=application)
 
             resource_hook = ResourceHook.objects.create(
                 **validated_data,
-                request=request
+                request=request_object
             )
         except IntegrityError as error:
             raise ValidationError(error)
@@ -80,7 +81,8 @@ class ResourceStubSerializer(serializers.ModelSerializer):
         returns:
             A ResourceStub object.
         """
-        hooks_data, hooks_list = validated_data.pop('hooks', []), []
+        hooks_data = validated_data.pop('hooks', [])
+        hooks_list = []
 
         try:
             resource = ResourceStub.objects.create(**validated_data)
@@ -114,7 +116,8 @@ class ResponseStubSerializer(serializers.ModelSerializer):
         returns:
             A ResponseStub object.
         """
-        resources_data, resources_list = validated_data.pop('resources', []), []
+        resources_data = validated_data.pop('resources', [])
+        resources_list = []
 
         try:
             response = ResponseStub.objects.create(**validated_data)
@@ -142,7 +145,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
         fields = ['description', 'name', 'slug', 'responses']
 
     @staticmethod
-    def save_responses(responses_data: List[dict[str, Any]], application: Application) -> List[ResponseStub]:
+    def save_responses(responses_data: list[dict[str, Any]], application: Application) -> list[ResponseStub]:
         """Save application's responses.
         args:
             responses_data:  Object with responses data.
@@ -168,9 +171,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
         responses_data = validated_data.pop('responses', [])
 
         try:
-            application = Application.objects.create(
-                **validated_data,
-            )
+            application = Application.objects.create(**validated_data)
             responses_list = self.save_responses(responses_data, application)
 
             application.responses.set(responses_list)

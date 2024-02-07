@@ -3,15 +3,6 @@ JSON_data = """{
     "description": "asdasdasd",
     "name": "asdasd",
     "slug": "application_slug",
-    "owner": {
-        "username": "owner_user_name",
-        "first_name": "",
-        "last_name": "",
-        "email": "admin1@mail.ru",
-        "is_staff": true,
-        "is_active": true,
-        "date_joined": "2023-10-09T09:10:20.261413Z"
-    },
     "responses": [
         {
             "status_code": 201,
@@ -40,16 +31,7 @@ JSON_data = """{
                                     "ddd": "fff"
                                 },
                                 "uri": "http://127.0.0.1/ffff/adadad",
-                                "method": "GET",
-                                "creator": {
-                                    "username": "creator_name",
-                                    "first_name": "",
-                                    "last_name": "",
-                                    "email": "admin@mail.ru",
-                                    "is_staff": true,
-                                    "is_active": true,
-                                    "date_joined": "2023-10-09T09:10:20.261413Z"
-                                }
+                                "method": "GET"
                             }
                         }
                     ]

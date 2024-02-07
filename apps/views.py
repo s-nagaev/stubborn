@@ -146,17 +146,17 @@ class ExportToFile(APIView):
     renderer_classes = (JSONRenderer,)
 
     @staticmethod
-    def get(request: Request, id: str) -> Response:
+    def get(request: Request, application_id: str) -> Response:
         """Export Application by id as a JSON file.
         args:
             request: Request object.
-            id: application's id.
+            application_id: application's id.
 
         returns:
             JSON file with the application data.
         """
 
-        application = get_object_or_404(models.Application, pk=id)
+        application = get_object_or_404(models.Application, pk=application_id)
         serialized_data = ApplicationSerializer(application)
         file_name = f'{application.pk}-application-data.json'
 
