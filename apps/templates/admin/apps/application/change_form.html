@@ -31,7 +31,7 @@
       {% block object-tools-items %}
         <li class="actions">
             {% url opts|admin_urlname:'history' original.pk|admin_urlquote as history_url %}
-            <a href="{% url 'apps:export' id=original.pk %}" class="link button">{% translate 'Export to file' %}</a>
+            <a href="{% url 'apps:export' application_id=original.pk %}" class="link button">{% translate 'Export to file' %}</a>
             <a href="{% add_preserved_filters history_url %}" class="historylink button">{% translate 'History' %}</a>
         </li>
         {% if has_absolute_url %}<li><a href="{{ absolute_url }}" class="viewsitelink">{% translate "View on site" %}</a></li>{% endif %}
