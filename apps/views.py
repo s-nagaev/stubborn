@@ -172,6 +172,8 @@ class ExportToFile(APIView):
 class ImportFromFile(APIView):
     """Import Application from a JSON file."""
 
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = [permissions.IsAuthenticated]
     renderer_classes = (JSONRenderer,)
 
     @staticmethod
@@ -193,6 +195,6 @@ class ImportFromFile(APIView):
         decoded_file_data = file_data.decode("utf-8")
         jsonyfied_file_data = json.loads(decoded_file_data)
 
-        save_application_from_json_object(jsonyfied_file_data, update)
+        save_application_from_json_object(jsonyfied_file_data, update, user=request.user)
 
         return Response(status=status.HTTP_201_CREATED)

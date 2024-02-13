@@ -48,7 +48,7 @@ class ResourceHookSerializer(serializers.ModelSerializer):
             if request_data:
                 serialized_request = RequestStubSerializer(data=request_data)
                 serialized_request.is_valid()
-                request_object = serialized_request.save(application=application)
+                request_object = serialized_request.save(application=application, creator=application.owner)
 
             resource_hook = ResourceHook.objects.create(**validated_data, request=request_object)
         except IntegrityError as error:
@@ -108,6 +108,8 @@ class ResourceStubSerializer(serializers.ModelSerializer):
 
         try:
             resource = ResourceStub.objects.create(**validated_data)
+            resource.creator = resource.application.owner
+            resource.save()
 
             for hook_data in hooks_data:
                 serialized_hook = ResourceHookSerializer(data=hook_data)
@@ -120,7 +122,7 @@ class ResourceStubSerializer(serializers.ModelSerializer):
             if response_data:
                 serialized_response = ResponseStubSerializer(data=response_data)
                 serialized_response.is_valid()
-                resource.response = serialized_response.save(application=resource.application)
+                resource.response = serialized_response.save(application=resource.application, creator=resource.creator)
                 resource.save()
         except IntegrityError as error:
             raise ValidationError(error)
@@ -157,7 +159,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
         for data in validated_data:
             serialized_response = serializer(data=data)
             serialized_response.is_valid()
-            dependency_object = serialized_response.save(application=application)
+            dependency_object = serialized_response.save(application=application, creator=application.owner)
             dependency_object_list.append(dependency_object)
         return dependency_object_list
 

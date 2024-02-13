@@ -307,7 +307,8 @@ class TestServiceViews:
         request_log = resource.logs.last()
         assert request_log
 
-        stubit_response = api_client_user.post(path=reverse('apps:stub_it', args=(str(request_log.id),)))
+        api_client, user = api_client_user
+        stubit_response = api_client.post(path=reverse('apps:stub_it', args=(str(request_log.id),)))
         assert stubit_response.status_code == 302
         assert '/admin/apps/resourcestub/' in stubit_response.url
 

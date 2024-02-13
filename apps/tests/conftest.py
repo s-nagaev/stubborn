@@ -17,7 +17,7 @@ def api_client_user() -> APIClient:
     client = APIClient()
     client.force_login(user=user)
 
-    yield client
+    yield client, user
 
     client.logout()
 
