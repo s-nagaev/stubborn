@@ -26,24 +26,18 @@ class TestApplicationImport:
         assert application is not None
         assert application.slug == 'application_slug'
 
-        assert application.responses.count() == 1
-        application_response = application.responses.first()
-        assert application_response is not None
-        assert application_response.resources.count() == 1
-
-        application_resource = application_response.resources.first()
+        assert application.resources.count() == 1
+        application_resource = application.resources.first()
         assert application_resource is not None
-        assert application_resource.description == 'application_resource_description'
-        assert application_resource.slug == 'application_resource_slug'
-
+        assert application_resource.description == 'resources_description'
+        assert application_resource.response is not None
+        assert application_resource.response.status_code == 200
         assert application_resource.hooks.count() == 1
+        resource_hook = application_resource.hooks.first()
+        assert resource_hook is not None
 
-        hook = application_resource.hooks.first()
-        assert hook is not None
-        hook_request = hook.request
-        assert hook_request is not None
-        assert hook_request.name == 'hook_request_name'
-        assert len(hook_request.query_params) == 2
+        assert application.responses.count() == 3
+        assert application.requests.count() == 3
 
     def test_save_application_with_duplicated_application_slug_from_json_object(self, api_client):
         """Test application saving with a duplicated application_slug from a JSON object."""

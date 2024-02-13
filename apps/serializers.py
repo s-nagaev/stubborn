@@ -120,7 +120,8 @@ class ResourceStubSerializer(serializers.ModelSerializer):
             if response_data:
                 serialized_response = ResponseStubSerializer(data=response_data)
                 serialized_response.is_valid()
-                serialized_response.save(application=resource.application)
+                resource.response = serialized_response.save(application=resource.application)
+                resource.save()
         except IntegrityError as error:
             raise ValidationError(error)
         return resource
