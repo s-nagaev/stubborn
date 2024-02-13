@@ -56,6 +56,16 @@ class ResourceHookSerializer(serializers.ModelSerializer):
         return resource_hook
 
 
+class ResponseStubSerializer(serializers.ModelSerializer):
+    """ResponseStub model serializer."""
+
+    status_code = serializers.IntegerField(required=True, allow_null=False)
+
+    class Meta:
+        model = ResponseStub
+        fields = ['status_code']
+
+
 class ResourceStubSerializer(serializers.ModelSerializer):
     """ResourceStub model serializer."""
 
@@ -68,6 +78,7 @@ class ResourceStubSerializer(serializers.ModelSerializer):
     is_enabled = serializers.BooleanField(required=False, allow_null=False)
     inject_stubborn_headers = serializers.BooleanField(required=False, allow_null=False)
     hooks = ResourceHookSerializer(many=True, required=False, allow_null=True)
+    response = ResponseStubSerializer(required=False, allow_null=True)
 
     class Meta:
         model = ResourceStub
@@ -81,6 +92,7 @@ class ResourceStubSerializer(serializers.ModelSerializer):
             'is_enabled',
             'inject_stubborn_headers',
             'hooks',
+            'response',
         ]
 
     def create(self, validated_data: dict[str, Any]) -> ResourceStub:
@@ -92,6 +104,7 @@ class ResourceStubSerializer(serializers.ModelSerializer):
         """
         hooks_data = validated_data.pop('hooks', [])
         hooks_list = []
+        response_data = validated_data.pop('response', None)
 
         try:
             resource = ResourceStub.objects.create(**validated_data)
@@ -103,43 +116,14 @@ class ResourceStubSerializer(serializers.ModelSerializer):
                 hooks_list.append(hook)
 
             resource.hooks.set(hooks_list)
+
+            if response_data:
+                serialized_response = ResponseStubSerializer(data=response_data)
+                serialized_response.is_valid()
+                serialized_response.save(application=resource.application)
         except IntegrityError as error:
             raise ValidationError(error)
         return resource
-
-
-class ResponseStubSerializer(serializers.ModelSerializer):
-    """ResponseStub model serializer."""
-
-    status_code = serializers.IntegerField(required=True, allow_null=False)
-    resources = ResourceStubSerializer(many=True, required=False, allow_null=True)
-
-    class Meta:
-        model = ResponseStub
-        fields = ['status_code', 'resources']
-
-    def create(self, validated_data: dict[str, Any]) -> ResponseStub:
-        """ResponseStub creation.
-        args:
-            validated_data: Object with response stub validated data.
-        returns:
-            A ResponseStub object.
-        """
-        resources_data = validated_data.pop('resources', [])
-        resources_list = []
-
-        try:
-            response = ResponseStub.objects.create(**validated_data)
-
-            for resource_data in resources_data:
-                serialized_resource = ResourceStubSerializer(data=resource_data)
-                serialized_resource.is_valid()
-                resource = serialized_resource.save(response=response, application=response.application)
-                resources_list.append(resource)
-            response.resources.set(resources_list)
-        except IntegrityError as error:
-            raise ValidationError(error)
-        return response
 
 
 class ApplicationSerializer(serializers.ModelSerializer):
@@ -148,28 +132,33 @@ class ApplicationSerializer(serializers.ModelSerializer):
     description = serializers.CharField(required=False, allow_null=True)
     name = serializers.CharField(required=True, allow_null=False)
     slug = serializers.CharField(required=True, allow_null=False)
+    resources = ResourceStubSerializer(many=True, required=False, allow_null=True)
     responses = ResponseStubSerializer(many=True, required=False, allow_null=True)
+    requests = RequestStubSerializer(many=True, required=False, allow_null=True)
 
     class Meta:
         model = Application
-        fields = ['description', 'name', 'slug', 'responses']
+        fields = ['description', 'name', 'slug', 'resources', 'responses', 'requests']
 
     @staticmethod
-    def save_responses(responses_data: list[dict[str, Any]], application: Application) -> list[ResponseStub]:
-        """Save application's responses.
+    def make_dependency_object_list(
+            validated_data: list[dict[str, Any]],
+            application: Application,
+            serializer: serializers.ModelSerializer) -> list[Any]:
+        """Make a dependencies list to be associated with a given Application.
         args:
-            responses_data:  Object with responses data.
+            validated_data:  Object with validated dependency data.
             application: Application instance.
         returns:
-            List of ResponseStubs.
+            List of dependency objects.
         """
-        responses_list = []
-        for response_data in responses_data:
-            serialized_response = ResponseStubSerializer(data=response_data)
+        dependency_object_list = []
+        for data in validated_data:
+            serialized_response = serializer(data=data)
             serialized_response.is_valid()
-            response = serialized_response.save(application=application)
-            responses_list.append(response)
-        return responses_list
+            dependency_object = serialized_response.save(application=application)
+            dependency_object_list.append(dependency_object)
+        return dependency_object_list
 
     def create(self, validated_data: dict[str, Any]) -> Application:
         """Application creation with all but logs and users info nested fields.
@@ -178,13 +167,22 @@ class ApplicationSerializer(serializers.ModelSerializer):
         returns:
             An Application object.
         """
+        resources_data = validated_data.pop('resources', [])
         responses_data = validated_data.pop('responses', [])
+        requests_data = validated_data.pop('requests', [])
 
         try:
             application = Application.objects.create(**validated_data)
-            responses_list = self.save_responses(responses_data, application)
 
+            resources_list = self.make_dependency_object_list(resources_data, application, ResourceStubSerializer)
+            application.resources.set(resources_list)
+
+            responses_list = self.make_dependency_object_list(responses_data, application, ResponseStubSerializer)
             application.responses.set(responses_list)
+
+            requests_list = self.make_dependency_object_list(requests_data, application, RequestStubSerializer)
+            application.requests.set(requests_list)
+
         except IntegrityError as error:
             raise ValidationError(error)
 
@@ -198,12 +196,23 @@ class ApplicationSerializer(serializers.ModelSerializer):
         returns:
             An Application object.
         """
+        resources_data = validated_data.pop('resources', [])
         responses_data = validated_data.pop('responses', [])
+        requests_data = validated_data.pop('requests', [])
 
-        if application and responses_data:
-            application.responses.all().delete()
-            responses_list = self.save_responses(responses_data, application)
+        application.resources.all().delete()
+        application.responses.all().delete()
+        application.requests.all().delete()
+
+        if application:
+            resources_list = self.make_dependency_object_list(resources_data, application, ResourceStubSerializer)
+            application.resources.set(resources_list)
+
+            responses_list = self.make_dependency_object_list(responses_data, application, ResponseStubSerializer)
             application.responses.set(responses_list)
+
+            requests_list = self.make_dependency_object_list(requests_data, application, RequestStubSerializer)
+            application.requests.set(requests_list)
 
         for field in validated_data.keys():
             setattr(application, field, validated_data[field])
