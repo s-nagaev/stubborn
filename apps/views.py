@@ -4,6 +4,7 @@ from typing import Any, cast
 from urllib.parse import urlparse
 
 from django.contrib import messages
+from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -177,6 +178,7 @@ class ImportFromFile(APIView):
     renderer_classes = (JSONRenderer,)
 
     @staticmethod
+    @transaction.atomic
     def post(request: Request) -> Response:
         """Import Application from a JSON file.
         args:

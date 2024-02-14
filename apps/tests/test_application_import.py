@@ -163,9 +163,8 @@ class TestApplicationImport:
 
         mocked_application_file = SimpleUploadedFile('application_dump.json', encoded_data)
 
-        with transaction.atomic():
-            api_client, user = api_client_user
-            response = api_client.post(IMPORT_URL, {'file': mocked_application_file})
+        api_client, user = api_client_user
+        response = api_client.post(IMPORT_URL, {'file': mocked_application_file})
 
         assert response.status_code == 400
         response_json = response.json()
