@@ -187,7 +187,6 @@ class ImportFromFile(APIView):
         returns:
             201 status if successfully imported.
         """
-        return Response(data={'error': 'File object was not attached.'}, status=status.HTTP_400_BAD_REQUEST)
         file_object = request.FILES.get('file')
 
         if not file_object:

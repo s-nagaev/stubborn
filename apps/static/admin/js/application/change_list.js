@@ -36,8 +36,6 @@ window.addEventListener("load", () => {
                            if (update) {
                                sendFile(true);
                            }
-                       } else {
-                            alert(data.responseJSON['error']);
                        }
                    }
             });
