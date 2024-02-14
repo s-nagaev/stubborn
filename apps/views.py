@@ -187,6 +187,7 @@ class ImportFromFile(APIView):
         returns:
             201 status if successfully imported.
         """
+        return Response(data={'error': 'File object was not attached.'}, status=status.HTTP_400_BAD_REQUEST)
         file_object = request.FILES.get('file')
 
         if not file_object:
@@ -198,5 +199,8 @@ class ImportFromFile(APIView):
         jsonyfied_file_data = json.loads(decoded_file_data)
 
         save_application_from_json_object(jsonyfied_file_data, update, user=request.user)
+
+        message_text = 'Application was updated.' if update else 'Application was added.'
+        messages.add_message(request, messages.INFO, message_text)
 
         return Response(status=status.HTTP_201_CREATED)
