@@ -2,7 +2,6 @@ import json
 
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.db import transaction
 from rest_framework.exceptions import ValidationError
 
 from apps.models import Application
