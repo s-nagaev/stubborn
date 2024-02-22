@@ -35,9 +35,11 @@ class ResourceHookSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data: dict[str, Any]) -> ResourceHook:
         """ResourceHook creation.
-        args:
+
+        Args:
             validated_data: Object with resource hook validated data.
-        returns:
+
+        Returns:
             A ResourceHook object.
         """
         try:
@@ -97,9 +99,11 @@ class ResourceStubSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data: dict[str, Any]) -> ResourceStub:
         """ResourceStub creation.
-        args:
+
+        Args:
             validated_data: Object with resource stub validated data.
-        returns:
+
+        Returns:
             A ResourceStub object.
         """
         hooks_data = validated_data.pop('hooks', [])
@@ -145,14 +149,16 @@ class ApplicationSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def make_dependency_object_list(
-            validated_data: list[dict[str, Any]],
-            application: Application,
-            serializer: serializers.ModelSerializer) -> list[Any]:
+        validated_data: list[dict[str, Any]], application: Application, serializer: serializers.ModelSerializer
+    ) -> list[Any]:
         """Make a dependencies list to be associated with a given Application.
-        args:
+
+        Args:
             validated_data:  Object with validated dependency data.
             application: Application instance.
-        returns:
+            serializer: Dependency object serializer.
+
+        Returns:
             List of dependency objects.
         """
         dependency_object_list = []
@@ -165,9 +171,11 @@ class ApplicationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data: dict[str, Any]) -> Application:
         """Application creation with all but logs and users info nested fields.
-        args:
+
+        Args:
             validated_data: Object with application validated data.
-        returns:
+
+        Returns:
             An Application object.
         """
         resources_data = validated_data.pop('resources', [])
@@ -193,10 +201,12 @@ class ApplicationSerializer(serializers.ModelSerializer):
 
     def update(self, application: Application, validated_data: dict[str, Any]) -> Optional[Application]:
         """Update Application with all but logs and users info nested fields.
-        args:
+
+        Args:
             application: Application object.
             validated_data: Object with application validated data.
-        returns:
+
+        Returns:
             An Application object.
         """
         resources_data = validated_data.pop('resources', [])

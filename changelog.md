@@ -27,9 +27,6 @@ python manage.py import_application_from_json_file <file_name> --update
 - Django Admin buttons for import/export applications from/into a JSON file.
 - Tests for new functionality.
 
-### Fixed
-- api_client_user fixture.
-
 ## [1.7.0] - 2023-11-29
 
 ### Changed

@@ -152,11 +152,12 @@ class ExportToFile(APIView):
     @staticmethod
     def get(request: Request, application_id: str) -> Response:
         """Export Application by id as a JSON file.
-        args:
+
+        Args:
             request: Request object.
             application_id: application's id.
 
-        returns:
+        Returns:
             JSON file with the application data.
         """
 
@@ -183,10 +184,11 @@ class ImportFromFile(APIView):
     @transaction.atomic
     def post(request: Request) -> Response:
         """Import Application from a JSON file.
-        args:
+
+        Args:
             request: Request object.
 
-        returns:
+        Returns:
             201 status if successfully imported.
         """
         file_object = request.FILES.get('file')

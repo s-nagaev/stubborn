@@ -15,7 +15,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser: CommandParser) -> None:
         """Add arguments to the parser.
 
-        args:
+        Args:
             parser: CommandParser
         """
         parser.add_argument('file_path', type=str)
