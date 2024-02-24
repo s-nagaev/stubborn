@@ -1,13 +1,17 @@
+import json
 import logging
+from json.decoder import JSONDecodeError
 from typing import Any, cast
 from urllib.parse import urlparse
 
 from django.contrib import messages
+from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from rest_framework import permissions, status
 from rest_framework.authentication import SessionAuthentication
+from rest_framework.exceptions import ValidationError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -17,7 +21,13 @@ from rest_framework_xml.renderers import XMLRenderer
 from apps import models
 from apps.enums import ResponseChoices
 from apps.renderers import SimpleTextRenderer, TextToXMLRenderer
-from apps.services import get_regular_response, get_resource_from_request, get_third_party_service_response
+from apps.serializers import ApplicationSerializer
+from apps.services import (
+    get_regular_response,
+    get_resource_from_request,
+    get_third_party_service_response,
+    save_application_from_json_object,
+)
 from apps.utils import log_request
 
 logger = logging.getLogger()
@@ -132,3 +142,78 @@ class HealthCheckView(APIView):
     @staticmethod
     def get(request: Request) -> Response:
         return Response(status=status.HTTP_200_OK)
+
+
+class ExportToFile(APIView):
+    """Export Application as a JSON file."""
+
+    renderer_classes = (JSONRenderer,)
+
+    @staticmethod
+    def get(request: Request, application_id: str) -> Response:
+        """Export Application by id as a JSON file.
+
+        Args:
+            request: Request object.
+            application_id: application's id.
+
+        Returns:
+            JSON file with the application data.
+        """
+
+        application = get_object_or_404(models.Application, pk=application_id)
+        serialized_data = ApplicationSerializer(application)
+        file_name = f'{application.pk}-application-data.json'
+
+        response = Response(
+            data=serialized_data.data,
+            content_type='application/json',
+            headers={'Content-Disposition': f'attachment; filename={file_name}'},
+        )
+        return response
+
+
+class ImportFromFile(APIView):
+    """Import Application from a JSON file."""
+
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = [permissions.IsAuthenticated]
+    renderer_classes = (JSONRenderer,)
+
+    @staticmethod
+    @transaction.atomic
+    def post(request: Request) -> Response:
+        """Import Application from a JSON file.
+
+        Args:
+            request: Request object.
+
+        Returns:
+            201 status if successfully imported.
+        """
+        file_object = request.FILES.get('file')
+
+        if not file_object:
+            return Response(data={'error': 'File object was not attached.'}, status=status.HTTP_400_BAD_REQUEST)
+        update = bool(request.data.get('update'))
+
+        try:
+            file_data = file_object.file.read()
+            decoded_file_data = file_data.decode("utf-8")
+            jsonyfied_file_data = json.loads(decoded_file_data)
+        except (JSONDecodeError, UnicodeDecodeError) as error:
+            message = f'Data parsing error: {error}'
+            messages.add_message(request, messages.ERROR, message)
+            return Response(data={'error': message}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            save_application_from_json_object(jsonyfied_file_data, update, user=request.user)
+        except ValidationError as error:
+            message = f'Validation error: {error}'
+            messages.add_message(request, messages.ERROR, message)
+            return Response(data={'error': message}, status=status.HTTP_400_BAD_REQUEST)
+
+        message_text = 'Application was updated.' if update else 'Application was added.'
+        messages.add_message(request, messages.INFO, message_text)
+
+        return Response(status=status.HTTP_201_CREATED)

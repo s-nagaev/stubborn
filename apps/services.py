@@ -6,6 +6,7 @@ from typing import Any, TypeVar, cast
 
 import requests
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.db.models import QuerySet
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -18,6 +19,7 @@ from apps import enums, hooks, models
 from apps.enums import ResponseChoices
 from apps.models import Application, RequestLog, ResourceStub, ResponseStub
 from apps.renderers import SimpleTextRenderer
+from apps.serializers import ApplicationSerializer
 from apps.utils import add_stubborn_headers, clean_headers, log_response
 
 logger = logging.getLogger(__name__)
@@ -258,3 +260,39 @@ def turn_off_same_resource(resource: Application | ResourceStub) -> Application 
     same_resource.save()
     same_resource.refresh_from_db()
     return same_resource
+
+
+def save_application_from_json_object(
+    jsonyfied_file_data: dict[str, Any], update: bool | None = False, user: User | None = None
+) -> Application:
+    """Create or update an existing Application from the given file object.
+
+    Args:
+        jsonyfied_file_data: File data.
+        update: If True first will try to find and update Application. If Application was not
+        found will create a new one.
+        user: user object to be saved as an owner/creator.
+
+    Returns:
+        Application object.
+    """
+    serialized_application = None
+
+    if update:
+        try:
+            old_application = Application.objects.get(slug=jsonyfied_file_data.get('slug'))
+            serialized_application = ApplicationSerializer(instance=old_application, data=jsonyfied_file_data)
+        except Application.DoesNotExist:
+            pass
+
+    if not serialized_application:
+        serialized_application = ApplicationSerializer(data=jsonyfied_file_data)
+
+    if not user:
+        users_list = User.objects.filter(is_staff=True, is_active=True).order_by('date_joined')
+        if users_list:
+            user = users_list.first()
+
+    serialized_application.is_valid(raise_exception=True)
+    application = serialized_application.save(owner=user)
+    return application

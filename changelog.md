@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0] - 2024-02-04
+
+### Added
+
+- Ability to import/export applications from/into a JSON file. The are two options for importing:
+1. Import a new Application. Throw an error if an Application with the same slug already exists.
+Manage command:
+```shell script
+python manage.py import_application_from_json_file <file_name>
+```
+2. Update an existing Application. If Application with the given slug does not exist create 
+a new one.
+Manage command:
+```shell script
+python manage.py import_application_from_json_file <file_name> --update
+```
+- Manage command for importing applications from a JSON file.
+- Django Admin buttons for import/export applications from/into a JSON file.
+- Tests for new functionality.
+
 ## [1.7.0] - 2023-11-29
 
 ### Changed
