@@ -197,6 +197,11 @@ class ImportFromFile(APIView):
             return Response(data={'error': 'File object was not attached.'}, status=status.HTTP_400_BAD_REQUEST)
         update = bool(request.data.get('update'))
 
+        # remove all messages
+        storage = messages.get_messages(request)
+        for message in storage:
+            del message
+
         try:
             file_data = file_object.file.read()
             decoded_file_data = file_data.decode("utf-8")

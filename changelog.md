@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.1] - 2024-04-09
+
+### Fixed
+
+- Remove error message on import application with update flag action.
+- Refactor import application js script.
+
 ## [1.8.0] - 2024-02-04
 
 ### Added
