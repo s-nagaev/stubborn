@@ -31,17 +31,15 @@ window.addEventListener("load", () => {
                        // Show success message.
                        location.reload();
                    },
-                   error : (data) => {
+                   complete : (data) => {
                        if (data.responseText.includes('already exists')) {
                            const update = confirm('Do you want to update an existing Application?');
                            if (update) {
-                               // Remove error message.
-                               location.reload();
                                sendFile(true);
                                return;
                            }
                        }
-                       // Show error message.
+                       // Show messages.
                        location.reload();
                    }
             });

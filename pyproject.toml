@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "stubborn"
-version = "1.6.0"
+version = "1.8.1"
 description = "Just a simple REST API stub service."
 authors = ["Sergei Nagaev <nagaev.sv@gmail.com>"]
 license = "MIT"
