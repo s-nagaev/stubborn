@@ -59,3 +59,18 @@ fieldset.module:nth-child(5) > h2:nth-child(1) {
 .column-get_is_enabled {
     width: 5px;
 }
+
+.admin-btn {
+    display: block;
+    float: left;
+    background: var(--object-tools-bg);
+    color: var(--object-tools-fg);
+    font-weight: 400;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 6px;
+    margin-top: 5px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
