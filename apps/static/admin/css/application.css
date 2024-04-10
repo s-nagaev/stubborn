@@ -69,7 +69,7 @@ fieldset.module:nth-child(5) > h2:nth-child(1) {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     padding: 3px 12px;
-    margin: 6px 5px 5px 5px;
+    margin: 6px 5px 5px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
 }
