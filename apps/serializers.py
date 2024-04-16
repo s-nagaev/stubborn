@@ -136,7 +136,7 @@ class ResourceStubSerializer(serializers.ModelSerializer):
 class ApplicationSerializer(serializers.ModelSerializer):
     """Application model serializer."""
 
-    description = serializers.CharField(required=False, allow_null=True)
+    description = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     name = serializers.CharField(required=True, allow_null=False)
     slug = serializers.CharField(required=True, allow_null=False)
     resources = ResourceStubSerializer(many=True, required=False, allow_null=True)
