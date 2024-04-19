@@ -87,6 +87,12 @@ class AbstractHTTPObject(models.Model):
         return jinja_template.render(fake=Faker(), random=random)
 
 
+class StubUser(User):
+    User._meta.get_field('email')._unique = True
+    displayed_name = models.CharField(max_length=100, verbose_name='Displayed name', null=True, blank=True)
+    teams = models.ManyToManyField('Team', verbose_name='teams', related_name='users')
+
+
 class Application(BaseStubModel):
     description = models.TextField(verbose_name='Description', null=True, blank=True)
     name = models.CharField(max_length=50, verbose_name='Name', null=False)
