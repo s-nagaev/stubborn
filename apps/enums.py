@@ -33,3 +33,13 @@ class Lifecycle(TextChoices):
 class Action(TextChoices):
     WAIT = 'wait', 'Wait'
     WEBHOOK = 'webhook', 'Webhook'
+
+
+class TeamChoices(TextChoices):
+    PUBLIC = 'public', 'Public'
+    PRIVATE = 'private', 'Private'
+
+
+class InviterChoices(TextChoices):
+    OWNER = 'owner', 'Owner'
+    EVERYBODY = 'everybody', 'Everybody'

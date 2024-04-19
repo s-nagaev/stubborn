@@ -13,7 +13,7 @@ from faker import Faker
 from jinja2 import Template
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 
-from apps.enums import Action, BodyFormat, HTTPMethods, Lifecycle, ResponseChoices
+from apps.enums import Action, BodyFormat, InviterChoices, HTTPMethods, Lifecycle, ResponseChoices, TeamChoices
 from apps.renderers import SimpleTextRenderer, TextToXMLRenderer
 from apps.utils import is_json, str_to_dom_document
 
@@ -409,3 +409,42 @@ class RequestLog(BaseStubModel):
         if 'xml' in content_type:
             return BodyFormat.XML
         return BodyFormat.PLAIN_TEXT
+
+
+class Team(BaseStubModel):
+    name = models.CharField(verbose_name='Name', max_length=50, blank=False, null=False)
+    slug = models.SlugField(verbose_name='Slug', allow_unicode=True, blank=False, null=False)
+    owner = models.ForeignKey(
+        User,
+        verbose_name='Team Owner',
+        null=False,
+        blank=False,
+        on_delete=models.CASCADE,
+        related_name='teams',
+    )
+    team_type = models.CharField(
+        verbose_name='Team Type',
+        choices=TeamChoices.choices,
+        default=TeamChoices.PUBLIC.value,
+        max_length=10
+    )
+    inviter = models.CharField(
+        verbose_name='Inviter',
+        choices=InviterChoices.choices,
+        default=InviterChoices.OWNER.value,
+        max_length=10
+    )
+
+    class Meta:
+        unique_together = ["owner", "slug"]
+        verbose_name = 'team'
+        verbose_name_plural = 'teams'
+        constraints = [
+            UniqueConstraint(
+                fields=[
+                    "owner",
+                    "slug",
+                ],
+                name="unique_team_slug_per_owner",
+            ),
+        ]
