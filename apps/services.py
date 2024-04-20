@@ -6,7 +6,6 @@ from typing import Any, TypeVar, cast
 
 import requests
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.db.models import QuerySet
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -17,7 +16,7 @@ from rest_framework_xml.renderers import XMLRenderer
 
 from apps import enums, hooks, models
 from apps.enums import ResponseChoices
-from apps.models import Application, RequestLog, ResourceStub, ResponseStub
+from apps.models import Application, RequestLog, ResourceStub, ResponseStub, Member
 from apps.renderers import SimpleTextRenderer
 from apps.serializers import ApplicationSerializer
 from apps.utils import add_stubborn_headers, clean_headers, log_response
@@ -263,7 +262,7 @@ def turn_off_same_resource(resource: Application | ResourceStub) -> Application 
 
 
 def save_application_from_json_object(
-    jsonyfied_file_data: dict[str, Any], update: bool | None = False, user: User | None = None
+    jsonyfied_file_data: dict[str, Any], update: bool | None = False, user: Member | None = None
 ) -> Application:
     """Create or update an existing Application from the given file object.
 
@@ -289,7 +288,7 @@ def save_application_from_json_object(
         serialized_application = ApplicationSerializer(data=jsonyfied_file_data)
 
     if not user:
-        users_list = User.objects.filter(is_staff=True, is_active=True).order_by('date_joined')
+        users_list = Member.objects.filter(is_staff=True, is_active=True).order_by('date_joined')
         if users_list:
             user = users_list.first()
 

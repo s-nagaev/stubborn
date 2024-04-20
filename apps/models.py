@@ -87,10 +87,10 @@ class AbstractHTTPObject(models.Model):
         return jinja_template.render(fake=Faker(), random=random)
 
 
-class StubUser(User):
+class Member(User):
     User._meta.get_field('email')._unique = True
     displayed_name = models.CharField(max_length=100, verbose_name='Displayed name', null=True, blank=True)
-    teams = models.ManyToManyField('Team', verbose_name='teams', related_name='users')
+    teams = models.ManyToManyField('Team', verbose_name='Teams', related_name='members')
 
 
 class Application(BaseStubModel):
@@ -98,7 +98,7 @@ class Application(BaseStubModel):
     name = models.CharField(max_length=50, verbose_name='Name', null=False)
     slug = models.SlugField(verbose_name='Slug', allow_unicode=True, null=False, unique=False)
     owner = models.ForeignKey(
-        User,
+        Member,
         verbose_name='Application Owner',
         null=True,
         blank=True,
@@ -166,7 +166,7 @@ class ResponseStub(AbstractHTTPObject, BaseStubModel):
         related_name='responses',
     )
     creator = models.ForeignKey(
-        User, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL, related_name='responses'
+        Member, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL, related_name='responses'
     )
 
     class Meta:
@@ -201,7 +201,7 @@ class RequestStub(AbstractHTTPObject, BaseStubModel):
         related_name='requests',
     )
     creator = models.ForeignKey(
-        User, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL, related_name='request'
+        Member, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL, related_name='request'
     )
 
     class Meta:
@@ -250,7 +250,7 @@ class ResourceStub(BaseStubModel):
         blank=True,
     )
     creator = models.ForeignKey(
-        User, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL, related_name='resources'
+        Member, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL, related_name='resources'
     )
     is_enabled = models.BooleanField(verbose_name='Enabled', default=True, null=False)
     inject_stubborn_headers = models.BooleanField(verbose_name='Inject Stubborn Headers', default=False)
@@ -421,12 +421,12 @@ class Team(BaseStubModel):
     name = models.CharField(verbose_name='Name', max_length=50, blank=False, null=False)
     slug = models.SlugField(verbose_name='Slug', allow_unicode=True, blank=False, null=False)
     owner = models.ForeignKey(
-        User,
+        Member,
         verbose_name='Team Owner',
         null=False,
         blank=False,
         on_delete=models.CASCADE,
-        related_name='teams',
+        related_name='team',
     )
     team_type = models.CharField(
         verbose_name='Team Type',
@@ -442,7 +442,6 @@ class Team(BaseStubModel):
     )
 
     class Meta:
-        unique_together = ["owner", "slug"]
         verbose_name = 'team'
         verbose_name_plural = 'teams'
         constraints = [

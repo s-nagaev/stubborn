@@ -3,8 +3,9 @@ import os
 from argparse import RawTextHelpFormatter
 from typing import Any
 
-from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandParser
+
+from apps.models import Member
 
 logger = logging.getLogger(__name__)
 
@@ -38,11 +39,9 @@ class Command(BaseCommand):
             logger.info('No environment variables for the superuser account creation provided.')
             return
 
-        user = get_user_model()
-
-        if user.objects.filter(username=username).exists():
+        if Member.objects.filter(username=username).exists():
             logger.info('A superuser with the username "%s" is already exists.', username)
             return
 
-        user.objects.create_superuser(username, email, password)
+        Member.objects.create_superuser(username, email, password)
         logger.info('A superuser account with the username "%s" was created successfully', username)
