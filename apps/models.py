@@ -86,19 +86,10 @@ class AbstractHTTPObject(models.Model):
         jinja_template = Template(self.body)
         return jinja_template.render(fake=Faker(), random=random)
 
-
-# class Member(AbstractUser):
-#     User._meta.get_field('email')._unique = True
-#     displayed_name = models.CharField(max_length=100, verbose_name='Displayed name', null=True, blank=True)
-#     teams = models.ManyToManyField('Team', verbose_name='Teams', related_name='members')
-#       email = models.EmailField(verbose_name='Email', unique=True)
-
 class User(AbstractUser):
-    # displayed_name = models.CharField(max_length=100, verbose_name='Displayed name', null=True, blank=True)
-    # teams = models.ManyToManyField('Team', verbose_name='Teams', related_name='members')
-    # email = models.EmailField(verbose_name='Email', unique=True)
-    class Meta:
-        db_table = 'auth_user'
+    displayed_name = models.CharField(max_length=100, verbose_name='Displayed name', null=True, blank=True)
+    teams = models.ManyToManyField('Team', verbose_name='Teams', related_name='members')
+    email = models.EmailField(verbose_name='Email', unique=True, null=False, blank=False)
 
 class Application(BaseStubModel):
     description = models.TextField(verbose_name='Description', null=True, blank=True)
