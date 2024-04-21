@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from faker import Faker
 
 from apps.enums import Action, HTTPMethods, Lifecycle, ResponseChoices
@@ -8,7 +7,7 @@ from apps.tests import factories
 fake = Faker()
 
 
-def create_user(**kwargs) -> User:
+def create_user(**kwargs):
     kwargs.setdefault('username', fake.word())
     kwargs.setdefault('email', fake.safe_email())
     kwargs.setdefault('is_superuser', False)
@@ -16,7 +15,7 @@ def create_user(**kwargs) -> User:
     return factories.UserFactory.create(**kwargs)
 
 
-def create_admin() -> User:
+def create_admin():
     return create_user(username='admin', is_superuser=True)
 
 
