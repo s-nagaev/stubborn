@@ -81,6 +81,7 @@ TEMPLATES = [
 
 # DATABASES
 DATABASES = {'default': env.db('DATABASE_URL')}
+AUTH_USER_MODEL = 'auth.User'
 
 # PASSWORDS
 PASSWORD_HASHERS = [
