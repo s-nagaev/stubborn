@@ -1,20 +1,21 @@
 import random
 
 import factory
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from faker import Faker
 
 from apps import models
 
 fake = Faker()
 Faker.seed(random.randint(1, 1024))
+user_model = get_user_model()
 
 
 class UserFactory(factory.django.DjangoModelFactory):
     username = fake.word()
 
     class Meta:
-        model = User
+        model = user_model
         django_get_or_create = ('username',)
 
 
