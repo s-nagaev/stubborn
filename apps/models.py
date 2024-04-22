@@ -13,7 +13,7 @@ from faker import Faker
 from jinja2 import Template
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 
-from apps.enums import Action, BodyFormat, InviterChoices, HTTPMethods, Lifecycle, ResponseChoices, TeamChoices
+from apps.enums import Action, BodyFormat, HTTPMethods, InviterChoices, Lifecycle, ResponseChoices, TeamChoices
 from apps.renderers import SimpleTextRenderer, TextToXMLRenderer
 from apps.utils import is_json, str_to_dom_document
 
@@ -86,10 +86,12 @@ class AbstractHTTPObject(models.Model):
         jinja_template = Template(self.body)
         return jinja_template.render(fake=Faker(), random=random)
 
+
 class User(AbstractUser):
     displayed_name = models.CharField(max_length=100, verbose_name='Displayed name', null=True, blank=True)
     teams = models.ManyToManyField('Team', verbose_name='Teams', related_name='users')
     email = models.EmailField(verbose_name='Email', unique=True, null=False, blank=False)
+
 
 class Application(BaseStubModel):
     description = models.TextField(verbose_name='Description', null=True, blank=True)
@@ -164,7 +166,11 @@ class ResponseStub(AbstractHTTPObject, BaseStubModel):
         related_name='responses',
     )
     creator = models.ForeignKey(
-        settings.AUTH_USER_MODEL, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL, related_name='responses'
+        settings.AUTH_USER_MODEL,
+        verbose_name='Created by',
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name='responses'
     )
 
     class Meta:
@@ -199,7 +205,12 @@ class RequestStub(AbstractHTTPObject, BaseStubModel):
         related_name='requests',
     )
     creator = models.ForeignKey(
-        settings.AUTH_USER_MODEL, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL, related_name='request'
+        settings.AUTH_USER_MODEL,
+        verbose_name='Created by',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='request'
     )
 
     class Meta:
@@ -248,7 +259,12 @@ class ResourceStub(BaseStubModel):
         blank=True,
     )
     creator = models.ForeignKey(
-        settings.AUTH_USER_MODEL, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL, related_name='resources'
+        settings.AUTH_USER_MODEL,
+        verbose_name='Created by',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='resources'
     )
     is_enabled = models.BooleanField(verbose_name='Enabled', default=True, null=False)
     inject_stubborn_headers = models.BooleanField(verbose_name='Inject Stubborn Headers', default=False)

@@ -28,6 +28,7 @@ StubbornSwitchableResource = TypeVar('StubbornSwitchableResource')
 
 user_model = get_user_model()
 
+
 def request_log_create(
     application: Application,
     resource_stub: ResourceStub,

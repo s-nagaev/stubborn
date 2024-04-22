@@ -8,6 +8,7 @@ from apps.tests import factories
 fake = Faker()
 user_model = get_user_model()
 
+
 def create_user(**kwargs) -> user_model:
     kwargs.setdefault('username', fake.word())
     kwargs.setdefault('email', fake.safe_email())
