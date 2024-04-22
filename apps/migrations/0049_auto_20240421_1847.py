@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='user',
             name='teams',
-            field=models.ManyToManyField(related_name='members', to='apps.Team', verbose_name='Teams'),
+            field=models.ManyToManyField(related_name='users', to='apps.Team', verbose_name='Teams'),
         ),
         migrations.AlterField(
             model_name='user',

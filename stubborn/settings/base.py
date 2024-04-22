@@ -22,6 +22,8 @@ USE_L10N = False
 USE_TZ = True
 DATETIME_FORMAT = 'd/m/Y H:i:s e'
 
+AUTH_USER_MODEL = 'apps.User'
+
 # APPS
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -81,7 +83,6 @@ TEMPLATES = [
 
 # DATABASES
 DATABASES = {'default': env.db('DATABASE_URL')}
-AUTH_USER_MODEL = 'apps.User'
 
 # PASSWORDS
 PASSWORD_HASHERS = [
