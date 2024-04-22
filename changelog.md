@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.2] - 2024-04-22
+
+### Added
+
+- Team model.
+
+### Changed
+
+- Default Auth User model. Email set as a unique required field. Added optional displayed_name.
+
 ## [1.8.1] - 2024-04-09
 
 ### Fixed
