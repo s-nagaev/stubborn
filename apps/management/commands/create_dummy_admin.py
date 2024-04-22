@@ -1,9 +1,8 @@
 import os
 
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 from django.db.utils import IntegrityError
-
-from apps.models import Member
 
 
 class Command(BaseCommand):
@@ -32,8 +31,9 @@ class Command(BaseCommand):
         password = 'admin'
 
         self.stdout.write(f'Add a technical superuser with name {username} and password {password}.')
+        user = get_user_model()
 
         try:
-            Member.objects.create_superuser(username, email, password)
+            user.objects.create_superuser(username, email, password)
         except IntegrityError:
             self.stdout.write(f'A user named "{username}" already exists.')

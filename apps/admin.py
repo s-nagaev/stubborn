@@ -4,6 +4,7 @@ from typing import Any, cast
 from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin.options import IS_POPUP_VAR
+from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import reverse
@@ -64,7 +65,6 @@ class ApplicationAdmin(admin.ModelAdmin):
             request: HttpRequest instance.
             obj: model instance.
         """
-        from django.contrib.auth import get_user_model
         obj.owner = cast(get_user_model(), request.user)
         super().save_model(request, obj, *args, **kwargs)
 
