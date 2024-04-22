@@ -32,7 +32,6 @@ class Command(BaseCommand):
 
         self.stdout.write(f'Add a technical superuser with name {username} and password {password}.')
         user = get_user_model()
-
         try:
             user.objects.create_superuser(username, email, password)
         except IntegrityError:
