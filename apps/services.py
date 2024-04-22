@@ -17,7 +17,7 @@ from rest_framework_xml.renderers import XMLRenderer
 
 from apps import enums, hooks, models
 from apps.enums import ResponseChoices
-from apps.models import Application, RequestLog, ResourceStub, ResponseStub
+from apps.models import Application, RequestLog, ResourceStub, ResponseStub, User
 from apps.renderers import SimpleTextRenderer
 from apps.serializers import ApplicationSerializer
 from apps.utils import add_stubborn_headers, clean_headers, log_response
@@ -265,7 +265,7 @@ def turn_off_same_resource(resource: Application | ResourceStub) -> Application 
 
 
 def save_application_from_json_object(
-    jsonyfied_file_data: dict[str, Any], update: bool | None = False, user: user_model | None = None
+    jsonyfied_file_data: dict[str, Any], update: bool | None = False, user: User | None = None
 ) -> Application:
     """Create or update an existing Application from the given file object.
 
