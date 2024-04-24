@@ -4,7 +4,6 @@ from typing import Any, cast
 from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin.options import IS_POPUP_VAR
-from django.contrib.auth.models import User
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import reverse
@@ -25,6 +24,7 @@ from apps.mixins import (
     RelatedCUDManagerMixin,
     SaveByCurrentUserMixin,
 )
+from apps.models import User
 from apps.services import turn_off_same_resource
 from apps.utils import end_of_the_day_today, prettify_data_to_html, prettify_json_html, start_of_the_day_today
 

@@ -1,8 +1,7 @@
-from django.contrib.auth.models import User
 from faker import Faker
 
 from apps.enums import Action, HTTPMethods, Lifecycle, ResponseChoices
-from apps.models import Application, RequestStub, ResourceHook, ResourceStub, ResponseStub
+from apps.models import Application, RequestStub, ResourceHook, ResourceStub, ResponseStub, User
 from apps.tests import factories
 
 fake = Faker()

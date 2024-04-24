@@ -6,7 +6,7 @@ from typing import Any, TypeVar, cast
 
 import requests
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -17,7 +17,7 @@ from rest_framework_xml.renderers import XMLRenderer
 
 from apps import enums, hooks, models
 from apps.enums import ResponseChoices
-from apps.models import Application, RequestLog, ResourceStub, ResponseStub
+from apps.models import Application, RequestLog, ResourceStub, ResponseStub, User
 from apps.renderers import SimpleTextRenderer
 from apps.serializers import ApplicationSerializer
 from apps.utils import add_stubborn_headers, clean_headers, log_response
@@ -25,6 +25,8 @@ from apps.utils import add_stubborn_headers, clean_headers, log_response
 logger = logging.getLogger(__name__)
 
 StubbornSwitchableResource = TypeVar('StubbornSwitchableResource')
+
+user_model = get_user_model()
 
 
 def request_log_create(
@@ -289,7 +291,7 @@ def save_application_from_json_object(
         serialized_application = ApplicationSerializer(data=jsonyfied_file_data)
 
     if not user:
-        users_list = User.objects.filter(is_staff=True, is_active=True).order_by('date_joined')
+        users_list = user_model.objects.filter(is_staff=True, is_active=True).order_by('date_joined')
         if users_list:
             user = users_list.first()
 

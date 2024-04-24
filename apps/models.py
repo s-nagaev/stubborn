@@ -3,7 +3,7 @@ import random
 import uuid
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator, URLValidator
 from django.db import models
@@ -13,7 +13,7 @@ from faker import Faker
 from jinja2 import Template
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 
-from apps.enums import Action, BodyFormat, HTTPMethods, Lifecycle, ResponseChoices
+from apps.enums import Action, BodyFormat, HTTPMethods, InviterChoices, Lifecycle, ResponseChoices, TeamChoices
 from apps.renderers import SimpleTextRenderer, TextToXMLRenderer
 from apps.utils import is_json, str_to_dom_document
 
@@ -87,12 +87,18 @@ class AbstractHTTPObject(models.Model):
         return jinja_template.render(fake=Faker(), random=random)
 
 
+class User(AbstractUser):
+    displayed_name = models.CharField(max_length=100, verbose_name='Displayed name', null=True, blank=True)
+    teams = models.ManyToManyField('Team', verbose_name='Teams', related_name='users')
+    email = models.EmailField(verbose_name='Email', unique=True, null=False, blank=False)
+
+
 class Application(BaseStubModel):
     description = models.TextField(verbose_name='Description', null=True, blank=True)
     name = models.CharField(max_length=50, verbose_name='Name', null=False)
     slug = models.SlugField(verbose_name='Slug', allow_unicode=True, null=False, unique=False)
     owner = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         verbose_name='Application Owner',
         null=True,
         blank=True,
@@ -160,7 +166,11 @@ class ResponseStub(AbstractHTTPObject, BaseStubModel):
         related_name='responses',
     )
     creator = models.ForeignKey(
-        User, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL, related_name='responses'
+        settings.AUTH_USER_MODEL,
+        verbose_name='Created by',
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name='responses'
     )
 
     class Meta:
@@ -195,7 +205,12 @@ class RequestStub(AbstractHTTPObject, BaseStubModel):
         related_name='requests',
     )
     creator = models.ForeignKey(
-        User, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL, related_name='request'
+        settings.AUTH_USER_MODEL,
+        verbose_name='Created by',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='request'
     )
 
     class Meta:
@@ -244,7 +259,12 @@ class ResourceStub(BaseStubModel):
         blank=True,
     )
     creator = models.ForeignKey(
-        User, verbose_name='Created by', null=True, blank=True, on_delete=models.SET_NULL, related_name='resources'
+        settings.AUTH_USER_MODEL,
+        verbose_name='Created by',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='resources'
     )
     is_enabled = models.BooleanField(verbose_name='Enabled', default=True, null=False)
     inject_stubborn_headers = models.BooleanField(verbose_name='Inject Stubborn Headers', default=False)
@@ -409,3 +429,41 @@ class RequestLog(BaseStubModel):
         if 'xml' in content_type:
             return BodyFormat.XML
         return BodyFormat.PLAIN_TEXT
+
+
+class Team(BaseStubModel):
+    name = models.CharField(verbose_name='Name', max_length=50, blank=False, null=False)
+    slug = models.SlugField(verbose_name='Slug', allow_unicode=True, blank=False, null=False)
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name='Team Owner',
+        null=False,
+        blank=False,
+        on_delete=models.CASCADE,
+        related_name='team',
+    )
+    team_type = models.CharField(
+        verbose_name='Team Type',
+        choices=TeamChoices.choices,
+        default=TeamChoices.PUBLIC.value,
+        max_length=10
+    )
+    inviter = models.CharField(
+        verbose_name='Inviter',
+        choices=InviterChoices.choices,
+        default=InviterChoices.OWNER.value,
+        max_length=10
+    )
+
+    class Meta:
+        verbose_name = 'team'
+        verbose_name_plural = 'teams'
+        constraints = [
+            UniqueConstraint(
+                fields=[
+                    "owner",
+                    "slug",
+                ],
+                name="unique_team_slug_per_owner",
+            ),
+        ]
