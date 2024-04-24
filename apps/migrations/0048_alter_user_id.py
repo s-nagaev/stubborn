@@ -3,14 +3,14 @@
 from django.db import migrations, models
 
 def change_user_type(apps, schema_editor):
-    ContentType = apps.get_model('contenttypes', 'ContentType')
-    ct = ContentType.objects.filter(
+    content_type_model = apps.get_model('contenttypes', 'ContentType')
+    content_type = content_type_model.objects.filter(
         app_label='auth',
         model='user'
     ).first()
-    if ct:
-        ct.app_label = 'user'
-        ct.save()
+    if content_type:
+        content_type.app_label = 'user'
+        content_type.save()
 
 
 class Migration(migrations.Migration):
