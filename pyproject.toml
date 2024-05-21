@@ -19,7 +19,7 @@ djangorestframework = "3.14.0"
 djangorestframework-xml = "2.0.0"
 ipdb = "0.13.13"
 psycopg2-binary = "2.9.9"
-requests = "2.31.0"
+requests = "2.32.0"
 setuptools = "69.0.2"  # temporary solution, just to replace the default version with CVE-2022-40897
 uWSGI = "2.0.23"
 
